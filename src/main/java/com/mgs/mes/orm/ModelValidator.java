@@ -1,0 +1,96 @@
+package com.mgs.mes.orm;
+
+import com.mgs.mes.model.ModelBuilder;
+import com.mgs.mes.model.MongoEntity;
+import com.mgs.reflection.FieldAccessor;
+import com.mgs.reflection.FieldAccessorParser;
+import com.mgs.reflection.FieldAccessorType;
+import com.mgs.reflection.Reflections;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.mgs.reflection.FieldAccessorType.BUILDER;
+import static com.mgs.reflection.FieldAccessorType.GET;
+import static java.lang.String.format;
+
+public class ModelValidator {
+	private final Reflections reflections;
+	private final FieldAccessorParser fieldAccessorParser;
+
+	public ModelValidator(Reflections reflections, FieldAccessorParser fieldAccessorParser) {
+		this.reflections = reflections;
+		this.fieldAccessorParser = fieldAccessorParser;
+	}
+
+	public <T extends MongoEntity, Z extends ModelBuilder<T>> void validate(Class<T> modelType, Class<Z> builderType) {
+		try {
+			tryToValidate(modelType, builderType);
+		} catch (Exception e) {
+			String errorMsg = format("Can't validate %s against %s as valid interfaces to drive the getters and builders for Mongo Easy", modelType, builderType);
+			throw new IllegalArgumentException(errorMsg, e);
+		}
+	}
+
+	private <T extends MongoEntity, Z extends ModelBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
+		Stream<FieldAccessor> modelFieldAccessors = assertValidity(modelType, GET);
+		Stream<FieldAccessor> updaterFieldAccessors = assertValidity(builderType, BUILDER);
+
+		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
+			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, modelType);
+			throw new IllegalArgumentException(errorMsg);
+		}
+	}
+
+	private Stream<FieldAccessor> assertValidity(Class<?> sourceType, FieldAccessorType accessorType) {
+		return 	fieldAccessorParser.parseAll(sourceType).
+				map((fieldAccessorOptional) -> {
+					if (! fieldAccessorOptional.isPresent()) throw new IllegalArgumentException();
+					return fieldAccessorOptional.get();
+				}).filter((fieldAccessor) -> {
+					if (fieldAccessor.getType() != accessorType) throw new IllegalArgumentException();
+					return true;
+				}).filter((fieldAccessor) -> {
+					if (!simpleOrMongoEntity(fieldAccessor)) throw new IllegalArgumentException();
+					return true;
+				});
+	}
+
+	private boolean simpleOrMongoEntity(FieldAccessor fieldAccessor) {
+		return reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), MongoEntity.class);
+	}
+
+	@SuppressWarnings("CodeBlock2Expr")
+	private boolean accessorsMatch(Stream<FieldAccessor> modelFieldAccessors, Stream<FieldAccessor> updaterFieldAccessors) {
+		Map<String, FieldAccessor> modelFieldAccessorByName = modelFieldAccessors.collect(Collectors.toMap(
+				FieldAccessor::getFieldName,
+				fieldAccessor -> {
+					return fieldAccessor;
+				}
+		));
+		return updaterFieldAccessors.
+				allMatch((updaterFieldAccessor)->{
+					String updaterFieldName = updaterFieldAccessor.getFieldName();
+					FieldAccessor getterFieldAccessor = modelFieldAccessorByName.get(updaterFieldName);
+					if (getterFieldAccessor == null) {
+						String errorMsg = format("Can't find the update accessor for the field %s in the list of valid getters", updaterFieldName);
+						throw new IllegalArgumentException(errorMsg);
+					}
+
+					Class<?> getterType = getterFieldAccessor.getDeclaredType();
+					Class<?> updaterType = updaterFieldAccessor.getDeclaredType();
+					if (! getterType.equals(updaterType)){
+						String errorMsg = format("The declared type for the field %s is of different types in the getter [%s], and the updater [%s]",
+								updaterFieldName,
+								getterType,
+								updaterType
+						);
+						throw new IllegalArgumentException(errorMsg);
+					}
+
+					return true;
+				});
+	}
+
+}

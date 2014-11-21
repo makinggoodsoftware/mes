@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.mongodb:mongo-java-driver:2.12.2'
+    testCompile 'cglib:cglib:2.2.2',
+            'org.objenesis:objenesis:2.1'
+    testCompile ('org.spockframework:spock-maven:0.7-groovy-2.0') {
+        exclude group: 'org.ow2.asm'
+    }
+}

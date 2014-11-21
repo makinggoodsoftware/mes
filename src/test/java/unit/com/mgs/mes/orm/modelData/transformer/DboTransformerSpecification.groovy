@@ -1,0 +1,121 @@
+package com.mgs.mes.orm.modelData.transformer
+
+import com.mgs.mes.model.MongoEntity
+import com.mgs.mes.orm.modelFactory.DynamicModelFactory
+import com.mgs.reflection.BeanNamingExpert
+import com.mgs.reflection.FieldAccessor
+import com.mgs.reflection.FieldAccessorParser
+import com.mongodb.BasicDBObject
+import spock.lang.Specification
+
+import static com.mgs.reflection.FieldAccessorType.GET
+import static java.util.Optional.of
+
+class DboTransformerSpecification extends Specification {
+    DboTransformer testObj
+    FieldAccessorParser fieldAccessorParserMock = Mock (FieldAccessorParser)
+    BeanNamingExpert beanNamingExpertMock = Mock (BeanNamingExpert)
+    DynamicModelFactory dynamicDataModelMock = Mock (DynamicModelFactory)
+    Entity entityMock = Mock (Entity)
+
+    def "setup" (){
+        FieldAccessor field1Accessor = new FieldAccessor(Entity, "getField1", "field1", "get", GET)
+        FieldAccessor field2Accessor = new FieldAccessor(Entity, "getField2", "field2", "get", GET)
+        FieldAccessor childAccessor = new FieldAccessor(Entity, "getChild", "child", "get", GET)
+
+        fieldAccessorParserMock.parse(Entity) >> [field1Accessor, field2Accessor].stream()
+        fieldAccessorParserMock.parse(Entity, "getField1") >> of(field1Accessor)
+        fieldAccessorParserMock.parse(Entity, "getField2") >> of(field2Accessor)
+
+        fieldAccessorParserMock.parse(ComplexEntity) >> [childAccessor].stream()
+        fieldAccessorParserMock.parse(ComplexEntity, "getChild") >> of(childAccessor)
+
+        beanNamingExpertMock.getGetterName("field1") >> "getField1"
+        beanNamingExpertMock.getGetterName("field2") >> "getField2"
+        beanNamingExpertMock.getGetterName("child") >> "getChild"
+
+        testObj = new DboTransformer(dynamicDataModelMock, beanNamingExpertMock, fieldAccessorParserMock)
+    }
+
+    def "should ignore field is there is not matching getter" (){
+        given:
+        def dbo = new BasicDBObject().
+                append("blah", "value1")
+
+        when:
+        def result = testObj.transform(Entity, dbo)
+
+        then:
+        result.dbo.is(dbo)
+        ! result.exists("getBlah")
+    }
+
+    def "should transform partial" (){
+        given:
+        def dbo = new BasicDBObject().
+                append("field1", "value1")
+
+        when:
+        def result = testObj.transform(Entity, dbo)
+
+        then:
+        result.dbo.is(dbo)
+        result.get("getField1") == "value1"
+        result.get("getField2") == null
+    }
+
+    def "should transform simple dbo" (){
+        given:
+        def dbo = new BasicDBObject().
+                    append("field1", "value1").
+                    append("field2", "value2")
+
+        when:
+        def result = testObj.transform(Entity, dbo)
+
+        then:
+        result.dbo.is(dbo)
+        result.get("getField1") == "value1"
+        result.get("getField2") == "value2"
+    }
+
+    def "should transform complex dbo" (){
+        given:
+        def simpleDbo = new BasicDBObject().
+                append("field1", "value1").
+                append("field2", "value2")
+        def complexDbo = new BasicDBObject().
+                append("child", simpleDbo)
+
+        dynamicDataModelMock.dynamicModel (_, _) >> {type, modelData ->
+            if (type != Entity) throw new IllegalArgumentException("Shouldn't get call with a type different than Entity for this test cases")
+            if (
+                (modelData.dbo.get("field1") == "value1") &&
+                (modelData.dbo.get("field2") == "value2") &&
+                (modelData.get("getField1") == "value1") &&
+                (modelData.get("getField2") == "value2")
+            ) {
+                return entityMock
+            } else {
+                throw new RuntimeException("Unexpected model data received " + modelData)
+            }
+        }
+
+        when:
+        def result = testObj.transform(ComplexEntity, complexDbo)
+
+        then:
+        result.dbo.is(complexDbo)
+        result.get("getChild").is(entityMock)
+    }
+
+    public static interface ComplexEntity extends MongoEntity {
+        public Entity getChild();
+    }
+
+    public static interface Entity extends MongoEntity {
+        public String getField1();
+        public String getField2();
+    }
+
+}
