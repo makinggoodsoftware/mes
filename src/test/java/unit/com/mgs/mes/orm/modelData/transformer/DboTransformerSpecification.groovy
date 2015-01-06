@@ -6,9 +6,11 @@ import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
 import com.mongodb.BasicDBObject
+import org.bson.types.ObjectId
 import spock.lang.Specification
 
 import static com.mgs.reflection.FieldAccessorType.GET
+import static java.util.Optional.empty
 import static java.util.Optional.of
 
 class DboTransformerSpecification extends Specification {
@@ -17,6 +19,7 @@ class DboTransformerSpecification extends Specification {
     BeanNamingExpert beanNamingExpertMock = Mock (BeanNamingExpert)
     DynamicModelFactory dynamicDataModelMock = Mock (DynamicModelFactory)
     Entity entityMock = Mock (Entity)
+    ObjectId objectIdMock = Mock (ObjectId)
 
     def "setup" (){
         FieldAccessor field1Accessor = new FieldAccessor(Entity, "getField1", "field1", "get", GET)
@@ -77,15 +80,35 @@ class DboTransformerSpecification extends Specification {
         result.dbo.is(dbo)
         result.get("getField1") == "value1"
         result.get("getField2") == "value2"
+        result.get("getId") == empty()
+    }
+
+    def "should transform object with id" (){
+        given:
+        def dbo = new BasicDBObject().
+                append("field1", "value1").
+                append("field2", "value2").
+                append("_id", objectIdMock)
+
+        when:
+        def result = testObj.transform(Entity, dbo)
+
+        then:
+        result.dbo.is(dbo)
+        result.get("getField1") == "value1"
+        result.get("getField2") == "value2"
+        result.get("getId") == of(objectIdMock)
     }
 
     def "should transform complex dbo" (){
         given:
         def simpleDbo = new BasicDBObject().
                 append("field1", "value1").
-                append("field2", "value2")
+                append("field2", "value2").
+                append("_id", null)
         def complexDbo = new BasicDBObject().
-                append("child", simpleDbo)
+                append("child", simpleDbo).
+                append("_id", objectIdMock)
 
         dynamicDataModelMock.dynamicModel (_, _) >> {type, modelData ->
             if (type != Entity) throw new IllegalArgumentException("Shouldn't get call with a type different than Entity for this test cases")
@@ -107,7 +130,39 @@ class DboTransformerSpecification extends Specification {
         then:
         result.dbo.is(complexDbo)
         result.get("getChild").is(entityMock)
+        result.get("getId") == of(objectIdMock)
     }
+
+    def "should throw an exception if inner object has an ID" (){
+        given:
+        def simpleDbo = new BasicDBObject().
+                append("field1", "value1").
+                append("field2", "value2").
+                append("_id", objectIdMock)
+        def complexDbo = new BasicDBObject().
+                append("child", simpleDbo).
+                append("_id", objectIdMock)
+
+        when:
+        testObj.transform(ComplexEntity, complexDbo)
+
+        then:
+        thrown IllegalArgumentException
+    }
+
+    def "should throw an exception if there is a dbo field called id" (){
+        given:
+        def dbo = new BasicDBObject().
+                append("id", "value1")
+
+        when:
+        testObj.transform(Entity, dbo)
+
+        then:
+        thrown IllegalArgumentException
+    }
+
+
 
     public static interface ComplexEntity extends MongoEntity {
         public Entity getChild();

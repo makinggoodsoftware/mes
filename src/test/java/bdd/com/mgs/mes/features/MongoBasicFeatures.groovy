@@ -13,24 +13,24 @@ class MongoBasicFeatures extends Specification{
     MongoRetriever<EntityA> retriever;
     String randomValue
     EntityA fromDb
-    ModelBuilderFactory<EntityA, EntityABuilder> entityABuilderFactory
-    ModelBuilderFactory<EntityB, EntityBBuilder> entityBBuilderFactory
+    ModelBuilderFactory<EntityA, EntityABuilder> entityABuilder
+    ModelBuilderFactory<EntityB, EntityBBuilder> entityBBuilder
 
     def "setup" () {
-        factory = from("", "", -1)
+        factory = from("localhost", "bddDb", 27017)
         persister = factory.getPersister()
         retriever = factory.retriever (EntityA)
-        entityABuilderFactory = factory.builderFactory (EntityA, EntityABuilder)
-        entityBBuilderFactory = factory.builderFactory (EntityB, EntityBBuilder)
+        entityABuilder = factory.builder (EntityA, EntityABuilder)
+        entityBBuilder = factory.builder (EntityB, EntityBBuilder)
         randomValue = UUID.randomUUID().toString()
     }
 
     def "shouldPerformCRUDInSimpleEntity" () {
         given:
-        EntityA model = entityABuilderFactory.newEntityBuilder().
+        EntityA original = entityABuilder.createNew().
                             withEntityAfield1("value1").
                             withEntityAfield2( "value2").
-                            withEmbedded(entityBBuilderFactory.newEntityBuilder().
+                            withEmbedded(entityBBuilder.createNew().
                                     withEntityBfield1("entityAfield1").
                                     withEntityBfield2("entityAfield2").
                                     create()
@@ -39,32 +39,36 @@ class MongoBasicFeatures extends Specification{
 
         //Test create
         when:
-        String id = persister.create(model)
+        def id = persister.create(original)
 
         then:
         id != null
 
         when:
-        fromDb = retriever.byId (id)
+        fromDb = retriever.byId (id).get()
 
         then:
-        fromDb == model
+        fromDb == original
 
         //Test update
         when:
-        EntityA updated = entityABuilderFactory.newEntityBuilderFrom(model).
+        EntityA updated = entityABuilder.update(fromDb).
                             withEntityAfield2("entityAfield2 new values").
-                            withEmbedded(entityBBuilderFactory.newEntityBuilderFrom(model.getEmbedded()).
+                            withEmbedded(entityBBuilder.update(original.getEmbedded()).
                                     withEntityBfield1("new Field1").
                                     create()).
                             create()
 
+        then:
+        updated.getId().isPresent()
+        updated.getId().get() == id
+
+        when:
         persister.update (updated)
-        fromDb = retriever.byId
-        (id)
+        fromDb = retriever.byId (id).get()
 
         then:
-        fromDb != model
+        fromDb != original
         fromDb == updated
     }
 }

@@ -2,11 +2,11 @@ package com.mgs.reflection
 
 import com.mgs.mes.EntityA
 import com.mgs.mes.EntityABuilder
+import com.mgs.mes.model.MongoEntity
 import spock.lang.Specification
 
-import static FieldAccessorType.BUILDER
-import static FieldAccessorType.GET
-
+import static com.mgs.reflection.FieldAccessorType.GET
+import static java.util.stream.Collectors.toList
 
 class FieldAccessorParserSpecification extends Specification {
     FieldAccessorParser testObj
@@ -53,6 +53,43 @@ class FieldAccessorParserSpecification extends Specification {
         BadGetters.getMethod("withNoReturningSelf", String)     | false
         BadGetters.getMethod("withBadParams")                   | false
         BadGetters.getMethod("withBadParams", String, String)   | false
+    }
+
+    def "should parse entire mongo entity child class" (){
+        when:
+        def result = testObj.parse(Entity).collect(toList())
+
+        then:
+        result.size() == 2
+        result.get(0).fieldName == "field1"
+        result.get(1).fieldName == "id"
+    }
+
+    def "should parse all correctly" (){
+        when:
+        def result = testObj.parseAll(Entity)
+
+        then:
+        result.entrySet().size() == 3
+        result.get(Entity.getMethod("getField1")).get() == new FieldAccessor(
+                String,
+                "getField1",
+                "field1",
+                "get",
+                GET
+        )
+        result.get(Entity.getMethod("getId")).get() == new FieldAccessor(
+                Optional,
+                "getId",
+                "id",
+                "get",
+                GET
+        )
+        ! result.get(Entity.getMethod("asDbo")).isPresent()
+    }
+
+    static interface Entity extends MongoEntity{
+        public String getField1();
     }
 
     static interface BadGetters {

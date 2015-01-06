@@ -20,6 +20,6 @@ public class MongoPersister {
 	}
 
 	public void update(MongoEntity toUpdate) {
-		mongoDao.save(toUpdate.getClass().getName(), toUpdate.asDbo());
+		mongoDao.save(mongoEntities.collectionName(toUpdate.getClass()), toUpdate.asDbo());
 	}
 }

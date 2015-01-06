@@ -27,11 +27,11 @@ public class ModelBuilderFactory<T extends MongoEntity, Z extends ModelBuilder<T
 		this.dynamicModelFactory = dynamicModelFactory;
 	}
 
-	public Z newEntityBuilder() {
+	public Z createNew() {
 		return newProxyInstance(modelDataBuilderFactory.empty(modelType));
 	}
 
-	public Z newEntityBuilderFrom(T baseLine) {
+	public Z update(T baseLine) {
 		return newProxyInstance(modelDataBuilderFactory.from(modelType, baseLine));
 
 	}

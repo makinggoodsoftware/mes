@@ -8,6 +8,7 @@ import com.mongodb.DBObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<FieldAccessor, Object>>{
@@ -16,7 +17,6 @@ public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<Fie
 		return new ModelData(buildDbo(fieldValuesByAccessor), buildMethodMap(fieldValuesByAccessor));
 	}
 
-	@SuppressWarnings("Convert2MethodRef")
 	private Map<String, Object> buildMethodMap(Map<FieldAccessor, Object> fieldsByGetterMethodName) {
 		Stream<Map.Entry<FieldAccessor, Object>> stream = fieldsByGetterMethodName.entrySet().stream();
 		Map<String, Object> methodMap = new HashMap<>();
@@ -28,18 +28,20 @@ public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<Fie
 		return methodMap;
 	}
 
-	@SuppressWarnings("Convert2MethodRef")
 	private DBObject buildDbo(Map<FieldAccessor, Object> fieldsByGetterMethodName) {
 		Stream<Map.Entry<FieldAccessor, Object>> stream = fieldsByGetterMethodName.entrySet().stream();
 		Map<String, Object> dboMap = new HashMap<>();
 		stream.forEach(fieldValueByAccessorEntry -> {
-			String methodName = fieldValueByAccessorEntry.getKey().getFieldName();
+			String fieldName = fieldValueByAccessorEntry.getKey().getFieldName();
 			Object value = fieldValueByAccessorEntry.getValue();
 			if (value != null && MongoEntity.class.isAssignableFrom(value.getClass())){
 				MongoEntity mongoEntity = (MongoEntity) value;
-				dboMap.put(methodName, mongoEntity.asDbo());
+				dboMap.put(fieldName, mongoEntity.asDbo());
+			} else if (fieldName.equals("id")) {
+				Optional<?> optionalValue = (Optional<?>) value;
+				dboMap.put("_id", optionalValue.isPresent() ? optionalValue.get() : null);
 			} else {
-				dboMap.put(methodName, value);
+				dboMap.put(fieldName, value);
 			}
 		});
 		return new BasicDBObject(dboMap);

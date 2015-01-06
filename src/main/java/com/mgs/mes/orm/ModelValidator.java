@@ -7,13 +7,16 @@ import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;
 import com.mgs.reflection.Reflections;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER;
 import static com.mgs.reflection.FieldAccessorType.GET;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 public class ModelValidator {
 	private final Reflections reflections;
@@ -34,8 +37,8 @@ public class ModelValidator {
 	}
 
 	private <T extends MongoEntity, Z extends ModelBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
-		Stream<FieldAccessor> modelFieldAccessors = assertValidity(modelType, GET);
-		Stream<FieldAccessor> updaterFieldAccessors = assertValidity(builderType, BUILDER);
+		Stream<FieldAccessor> modelFieldAccessors = assertValidity(modelType, GET, asList("asDbo"));
+		Stream<FieldAccessor> updaterFieldAccessors = assertValidity(builderType, BUILDER, asList("create"));
 
 		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
 			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, modelType);
@@ -43,22 +46,33 @@ public class ModelValidator {
 		}
 	}
 
-	private Stream<FieldAccessor> assertValidity(Class<?> sourceType, FieldAccessorType accessorType) {
-		return 	fieldAccessorParser.parseAll(sourceType).
-				map((fieldAccessorOptional) -> {
-					if (! fieldAccessorOptional.isPresent()) throw new IllegalArgumentException();
-					return fieldAccessorOptional.get();
+	private Stream<FieldAccessor> assertValidity(Class<?> sourceType, FieldAccessorType accessorType, List<String> ignoreMethods) {
+		return 	fieldAccessorParser.parseAll(sourceType).entrySet().stream().
+				filter((fieldAccessorByMethod) -> !ignoreMethods.contains(fieldAccessorByMethod.getKey().getName())).
+				map((fieldAccessorByMethod) -> {
+					Optional<FieldAccessor> value = fieldAccessorByMethod.getValue();
+					if (!value.isPresent()) {
+						String methodName = fieldAccessorByMethod.getKey().getName();
+						throw new IllegalArgumentException("The field accessor for " + methodName + " in " + sourceType + " is not a field accessor");
+					}
+
+
+					return value.get();
 				}).filter((fieldAccessor) -> {
-					if (fieldAccessor.getType() != accessorType) throw new IllegalArgumentException();
-					return true;
-				}).filter((fieldAccessor) -> {
-					if (!simpleOrMongoEntity(fieldAccessor)) throw new IllegalArgumentException();
-					return true;
-				});
+			if (fieldAccessor.getType() != accessorType)
+				throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " is not of the expected type (" + accessorType + ") for the class " + sourceType.getName());
+			return true;
+		}).filter((fieldAccessor) -> {
+			if (!isCorrectDataType(fieldAccessor))
+				throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " in " + sourceType + " return type is not simple or a mongo entity");
+			return true;
+		});
 	}
 
-	private boolean simpleOrMongoEntity(FieldAccessor fieldAccessor) {
-		return reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), MongoEntity.class);
+	private boolean isCorrectDataType(FieldAccessor fieldAccessor) {
+		return
+				fieldAccessor.getFieldName().equals("id") ||
+				reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), MongoEntity.class);
 	}
 
 	@SuppressWarnings("CodeBlock2Expr")
@@ -92,5 +106,4 @@ public class ModelValidator {
 					return true;
 				});
 	}
-
 }

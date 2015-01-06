@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ModelDataBuilderFactory {
@@ -36,7 +37,9 @@ public class ModelDataBuilderFactory {
 
 	private <T extends MongoEntity> Object findBaseLineValue(T baseLine, FieldAccessor accessor) {
 		try {
-			if (baseLine == null) return null;
+			if (baseLine == null) {
+				return accessor.getFieldName().equals("id") ? Optional.empty() : null;
+			}
 
 			Method accessorMethod = baseLine.getClass().getMethod(accessor.getMethodName());
 			return accessorMethod.invoke(baseLine);

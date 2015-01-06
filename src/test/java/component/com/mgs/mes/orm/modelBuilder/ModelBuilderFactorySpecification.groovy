@@ -1,5 +1,4 @@
 package com.mgs.mes.orm.modelBuilder
-
 import com.mgs.mes.EntityA
 import com.mgs.mes.EntityABuilder
 import com.mgs.mes.EntityB
@@ -33,39 +32,41 @@ class ModelBuilderFactorySpecification extends Specification {
 
     def "should create a simple model with partial values"(){
         when:
-        def result = entityBBuilder.newEntityBuilder().withEntityBfield1("value1").create()
+        def result = entityBBuilder.createNew().withEntityBfield1("value1").create()
 
         then:
-        result.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", null)
+        result.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", null).append("_id", null)
         result.entityBfield1 == "value1"
         result.entityBfield2 == null
+        ! result.id.isPresent()
     }
 
     def "should create and update a simple model object"(){
         when:
-        def result = entityBBuilder.newEntityBuilder().withEntityBfield1("value1").withEntityBfield2("value2").create()
+        def result = entityBBuilder.createNew().withEntityBfield1("value1").withEntityBfield2("value2").create()
 
         then:
-        result.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", "value2")
+        result.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", "value2").append("_id", null)
         result.entityBfield1 == "value1"
         result.entityBfield2 == "value2"
 
         when:
-        def updateResult = entityBBuilder.newEntityBuilderFrom(result).withEntityBfield2("value3").create()
+        def updateResult = entityBBuilder.update(result).withEntityBfield2("value3").create()
 
         then:
-        updateResult.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", "value3")
+        updateResult.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", "value3").append("_id", null)
         updateResult.entityBfield1 == "value1"
         updateResult.entityBfield2 == "value3"
+        ! updateResult.id.isPresent()
     }
 
     def "should create a complex model object"(){
         when:
-        EntityB embedded = entityBBuilder.newEntityBuilder().
+        EntityB embedded = entityBBuilder.createNew().
             withEntityBfield1("value2.1").
             withEntityBfield2("value2.2").
             create()
-        def result = entityABuilder.newEntityBuilder().
+        def result = entityABuilder.createNew().
                     withEntityAfield1("value1.1").
                     withEntityAfield2("value1.2").
                     withEmbedded(embedded).
@@ -78,11 +79,15 @@ class ModelBuilderFactorySpecification extends Specification {
                 append("embedded",
                         new BasicDBObject().
                         append("entityBfield1", "value2.1").
-                        append("entityBfield2", "value2.2")
-                )
+                        append("entityBfield2", "value2.2").
+                        append("_id", null)
+
+                ).
+                append("_id", null)
 
         result.entityAfield1 == "value1.1"
         result.entityAfield2 == "value1.2"
         result.embedded == embedded
+        ! result.id.isPresent()
     }
 }

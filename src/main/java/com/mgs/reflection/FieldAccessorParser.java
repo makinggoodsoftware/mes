@@ -2,12 +2,14 @@ package com.mgs.reflection;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER;
 import static com.mgs.reflection.FieldAccessorType.GET;
 import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toMap;
 
 public class FieldAccessorParser {
 	private static final String GET_PREFIX = "get";
@@ -18,15 +20,18 @@ public class FieldAccessorParser {
 		this.beanNamingExpert = beanNamingExpert;
 	}
 
-	public Stream<Optional<FieldAccessor>> parseAll (Class type){
-		return Arrays.asList(type.getDeclaredMethods()).stream().
-				map(this::parse);
+	public Map<Method, Optional<FieldAccessor>> parseAll (Class type){
+		return Arrays.asList(type.getMethods()).stream().
+				collect(toMap(
+						(method) -> method,
+						this::parse
+				));
 	}
 
 	public Stream<FieldAccessor> parse(Class type) {
-		return 	parseAll(type).
-				filter(Optional::isPresent).
-				map(Optional::get);
+		return 	parseAll(type).entrySet().stream().
+				filter((methodToFieldAccessor) -> methodToFieldAccessor.getValue().isPresent()).
+				map((methodToFieldAccessor) -> methodToFieldAccessor.getValue().get());
 	}
 
 	public Optional<FieldAccessor> parse(Class<?> type, String accessorName) {

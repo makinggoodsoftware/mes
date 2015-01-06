@@ -8,11 +8,11 @@ import spock.lang.Specification
 
 class DBSpecification extends Specification {
     MongoFactory mongoFactory = MongoFactory.from("localhost", "testDb", 27017)
-    ModelBuilderFactory<EntityB, EntityBBuilder> modelBuilderFactoryB = mongoFactory.builderFactory(EntityB, EntityBBuilder)
+    ModelBuilderFactory<EntityB, EntityBBuilder> modelBuilderFactoryB = mongoFactory.builder(EntityB, EntityBBuilder)
 
     def "should save simple object into collection" (){
         given:
-        EntityB b = modelBuilderFactoryB.newEntityBuilder().
+        EntityB b = modelBuilderFactoryB.createNew().
                 withEntityBfield1("value1").
                 withEntityBfield2("value2").
                 create()
@@ -23,5 +23,6 @@ class DBSpecification extends Specification {
 
         then:
         fromDb == b
+        objectID == fromDb.getId().get()
     }
 }
