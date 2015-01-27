@@ -7,9 +7,12 @@ import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;
 import com.mgs.reflection.Reflections;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,27 +49,48 @@ public class ModelValidator {
 		}
 	}
 
-	private Stream<FieldAccessor> assertValidity(Class<?> sourceType, FieldAccessorType accessorType, List<String> ignoreMethods) {
-		return 	fieldAccessorParser.parseAll(sourceType).entrySet().stream().
-				filter((fieldAccessorByMethod) -> !ignoreMethods.contains(fieldAccessorByMethod.getKey().getName())).
-				map((fieldAccessorByMethod) -> {
-					Optional<FieldAccessor> value = fieldAccessorByMethod.getValue();
-					if (!value.isPresent()) {
-						String methodName = fieldAccessorByMethod.getKey().getName();
-						throw new IllegalArgumentException("The field accessor for " + methodName + " in " + sourceType + " is not a field accessor");
-					}
+	private Stream<FieldAccessor> assertValidity(Class<?> sourceType, FieldAccessorType accessorType, List<String> methodsToIgnore) {
+		Stream<Map.Entry<Method, Optional<FieldAccessor>>> methodsAndFieldAccessors = fieldAccessorParser.parseAll(sourceType).entrySet().stream();
+		return 	methodsAndFieldAccessors.
+				filter(ignoreMethods(methodsToIgnore)).
+				map(assertFieldAccessorIsPresentAndExtract(sourceType)).
+				filter(assertFieldAccessorIs(sourceType, accessorType)).
+				filter(assertFieldAccessorTypeIsValid(sourceType));
+	}
 
-
-					return value.get();
-				}).filter((fieldAccessor) -> {
-			if (fieldAccessor.getType() != accessorType)
-				throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " is not of the expected type (" + accessorType + ") for the class " + sourceType.getName());
-			return true;
-		}).filter((fieldAccessor) -> {
+	private Predicate<FieldAccessor> assertFieldAccessorTypeIsValid(Class<?> sourceType) {
+		return (fieldAccessor) -> {
 			if (!isCorrectDataType(fieldAccessor))
 				throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " in " + sourceType + " return type is not simple or a mongo entity");
 			return true;
-		});
+		};
+	}
+
+	private Predicate<FieldAccessor> assertFieldAccessorIs(Class<?> sourceType, FieldAccessorType accessorType) {
+		return (fieldAccessor) -> {
+			if (fieldAccessor.getType() != accessorType) throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " is not of the expected type (" + accessorType + ") for the class " + sourceType.getName());
+			return true;
+		};
+	}
+
+	private Function<Map.Entry<Method, Optional<FieldAccessor>>, FieldAccessor> assertFieldAccessorIsPresentAndExtract(Class<?> sourceType) {
+		return (fieldAccessorByMethod) -> {
+			Optional<FieldAccessor> value = fieldAccessorByMethod.getValue();
+			if (!value.isPresent()) {
+				String methodName = fieldAccessorByMethod.getKey().getName();
+				throw new IllegalArgumentException("The field accessor for " + methodName + " in " + sourceType + " is not a field accessor");
+			}
+
+
+			return value.get();
+		};
+	}
+
+	private Predicate<Map.Entry<Method, Optional<FieldAccessor>>> ignoreMethods(List<String> methodsToIgnore) {
+		return (fieldAccessorByMethod) -> {
+			String methodName = fieldAccessorByMethod.getKey().getName();
+			return !methodsToIgnore.contains(methodName);
+		};
 	}
 
 	private boolean isCorrectDataType(FieldAccessor fieldAccessor) {
