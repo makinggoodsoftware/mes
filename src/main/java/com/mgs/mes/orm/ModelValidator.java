@@ -40,8 +40,8 @@ public class ModelValidator {
 	}
 
 	private <T extends MongoEntity, Z extends ModelBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
-		Stream<FieldAccessor> modelFieldAccessors = assertValidity(modelType, GET, asList("asDbo"));
-		Stream<FieldAccessor> updaterFieldAccessors = assertValidity(builderType, BUILDER, asList("create"));
+		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(modelType, GET, asList("asDbo"));
+		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create"));
 
 		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
 			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, modelType);
@@ -49,13 +49,17 @@ public class ModelValidator {
 		}
 	}
 
-	private Stream<FieldAccessor> assertValidity(Class<?> sourceType, FieldAccessorType accessorType, List<String> methodsToIgnore) {
-		Stream<Map.Entry<Method, Optional<FieldAccessor>>> methodsAndFieldAccessors = fieldAccessorParser.parseAll(sourceType).entrySet().stream();
-		return 	methodsAndFieldAccessors.
+	private Stream<FieldAccessor> assertMethodsValidity(Class<?> sourceType, FieldAccessorType expectedAccessorType, List<String> methodsToIgnore) {
+		return 	extractMethodsAndFieldAccessors(sourceType).
 				filter(ignoreMethods(methodsToIgnore)).
-				map(assertFieldAccessorIsPresentAndExtract(sourceType)).
-				filter(assertFieldAccessorIs(sourceType, accessorType)).
+				filter(assertAllMethodsAreFieldAccessor(sourceType)).
+				map(extractFieldAccessor()).
+				filter(assertFieldAccessorIsOfType(sourceType, expectedAccessorType)).
 				filter(assertFieldAccessorTypeIsValid(sourceType));
+	}
+
+	private Stream<Map.Entry<Method, Optional<FieldAccessor>>> extractMethodsAndFieldAccessors(Class<?> sourceType) {
+		return fieldAccessorParser.parseAll(sourceType).entrySet().stream();
 	}
 
 	private Predicate<FieldAccessor> assertFieldAccessorTypeIsValid(Class<?> sourceType) {
@@ -66,14 +70,14 @@ public class ModelValidator {
 		};
 	}
 
-	private Predicate<FieldAccessor> assertFieldAccessorIs(Class<?> sourceType, FieldAccessorType accessorType) {
+	private Predicate<FieldAccessor> assertFieldAccessorIsOfType(Class<?> sourceType, FieldAccessorType accessorType) {
 		return (fieldAccessor) -> {
 			if (fieldAccessor.getType() != accessorType) throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " is not of the expected type (" + accessorType + ") for the class " + sourceType.getName());
 			return true;
 		};
 	}
 
-	private Function<Map.Entry<Method, Optional<FieldAccessor>>, FieldAccessor> assertFieldAccessorIsPresentAndExtract(Class<?> sourceType) {
+	private Predicate<Map.Entry<Method, Optional<FieldAccessor>>> assertAllMethodsAreFieldAccessor(Class<?> sourceType) {
 		return (fieldAccessorByMethod) -> {
 			Optional<FieldAccessor> value = fieldAccessorByMethod.getValue();
 			if (!value.isPresent()) {
@@ -82,7 +86,14 @@ public class ModelValidator {
 			}
 
 
-			return value.get();
+			return true;
+		};
+	}
+
+	private Function<Map.Entry<Method, Optional<FieldAccessor>>, FieldAccessor> extractFieldAccessor() {
+		return (fieldAccessorByMethod) -> {
+			Optional<FieldAccessor> fieldAccessorOptional = fieldAccessorByMethod.getValue();
+			return fieldAccessorOptional.get();
 		};
 	}
 
