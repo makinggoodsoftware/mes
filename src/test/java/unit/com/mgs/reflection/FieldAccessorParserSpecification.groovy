@@ -5,6 +5,7 @@ import com.mgs.mes.EntityABuilder
 import com.mgs.mes.model.MongoEntity
 import spock.lang.Specification
 
+import static com.mgs.reflection.FieldAccessorType.BUILDER
 import static com.mgs.reflection.FieldAccessorType.GET
 import static java.util.stream.Collectors.toList
 
