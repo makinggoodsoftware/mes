@@ -26,8 +26,8 @@ class ModelBuilderFactorySpecification extends Specification {
     ModelDataBuilderFactory modelDataBuilderFactory = new ModelDataBuilderFactory(modelDataFactory, beanNamingExpert, fieldAccessorParser)
 
     def "setup" (){
-        entityBBuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, EntityB, EntityBBuilder, new DynamicModelFactory())
-        entityABuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, EntityA, EntityABuilder, new DynamicModelFactory())
+        entityBBuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new DynamicModelFactory(), EntityB, EntityBBuilder)
+        entityABuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new DynamicModelFactory(), EntityA, EntityABuilder)
     }
 
     def "should create a simple model with partial values"(){

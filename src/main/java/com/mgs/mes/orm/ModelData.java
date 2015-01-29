@@ -39,7 +39,6 @@ public class ModelData {
 		ModelData modelData = (ModelData) o;
 
 		return dbo.equals(modelData.dbo) && fieldsByGetterMethodName.equals(modelData.fieldsByGetterMethodName);
-
 	}
 
 	@Override

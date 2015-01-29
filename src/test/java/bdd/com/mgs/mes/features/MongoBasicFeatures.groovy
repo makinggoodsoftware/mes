@@ -18,7 +18,7 @@ class MongoBasicFeatures extends Specification{
 
     def "setup" () {
         factory = from("localhost", "bddDb", 27017)
-        persister = factory.getPersister()
+        persister = factory.persister(EntityA, EntityABuilder)
         retriever = factory.retriever (EntityA)
         entityABuilder = factory.builder (EntityA, EntityABuilder)
         entityBBuilder = factory.builder (EntityB, EntityBBuilder)
@@ -26,7 +26,7 @@ class MongoBasicFeatures extends Specification{
     }
 
     def "shouldPerformCRUDInSimpleEntity" () {
-        given:
+        when:
         EntityA original = entityABuilder.createNew().
                             withEntityAfield1("value1").
                             withEntityAfield2( "value2").
@@ -37,22 +37,27 @@ class MongoBasicFeatures extends Specification{
                             ).
                             create()
 
+        then:
+        ! original.id.present
+
         //Test create
         when:
-        def id = persister.create(original)
+        def afterPersist = persister.create(original)
 
         then:
-        id != null
+        !original.id.present
+        afterPersist.id.present
 
         when:
-        fromDb = retriever.byId (id).get()
+        this.fromDb = retriever.byId (afterPersist.id.get()).get()
 
         then:
-        fromDb == original
+        this.fromDb != original
+        this.fromDb == afterPersist
 
         //Test update
         when:
-        EntityA updated = entityABuilder.update(fromDb).
+        EntityA updated = entityABuilder.update(afterPersist as EntityA).
                             withEntityAfield2("entityAfield2 new values").
                             withEmbedded(entityBBuilder.update(original.getEmbedded()).
                                     withEntityBfield1("new Field1").
@@ -60,15 +65,14 @@ class MongoBasicFeatures extends Specification{
                             create()
 
         then:
-        updated.getId().isPresent()
-        updated.getId().get() == id
+        updated.id.get() == afterPersist.id.get()
 
         when:
         persister.update (updated)
-        fromDb = retriever.byId (id).get()
+        this.fromDb = retriever.byId (updated.id.get()).get()
 
         then:
-        fromDb != original
-        fromDb == updated
+        this.fromDb != original
+        this.fromDb == updated
     }
 }

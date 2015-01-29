@@ -20,12 +20,10 @@ import static com.mgs.mes.MongoDependencies.init;
 public class MongoFactory {
 	private final MongoDependencies mongoDependencies;
 	private final MongoDao mongoDao;
-	private final MongoPersister mongoPersister;
 
-	private MongoFactory(MongoDependencies mongoDependencies, MongoDao mongoDao, MongoPersister mongoPersister) {
+	private MongoFactory(MongoDependencies mongoDependencies, MongoDao mongoDao) {
 		this.mongoDependencies = mongoDependencies;
 		this.mongoDao = mongoDao;
-		this.mongoPersister = mongoPersister;
 	}
 
 	public static MongoFactory from(String host, String dbName, int port){
@@ -34,8 +32,7 @@ public class MongoFactory {
 			DB db = localhost.getDB(dbName);
 			MongoDao mongoDao = new MongoDao(db);
 			MongoDependencies dependencies = init();
-			MongoPersister mongoPersister = new MongoPersister(mongoDao, dependencies.getMongoEntities());
-			return new MongoFactory(dependencies, mongoDao, mongoPersister);
+			return new MongoFactory(dependencies, mongoDao);
 		} catch (UnknownHostException e) {
 			throw new IllegalStateException(e);
 		}
@@ -45,16 +42,25 @@ public class MongoFactory {
 		return new MongoRetriever<>(mongoDependencies.getMongoEntities(), mongoDao, mongoDependencies.getModelFactory(), retrieveType);
 	}
 
+	public <T extends MongoEntity, Z extends ModelBuilder<T>> MongoPersister<T, Z> persister(Class<T> persistType, Class<Z> updaterType) {
+		ModelBuilderFactory<T, Z> tzModelBuilderFactory = new ModelBuilderFactory<>(
+				mongoDependencies.getModelDataBuilderFactory(),
+				mongoDependencies.getFieldAccessorParser(),
+				mongoDependencies.getBeanNamingExpert(),
+				mongoDependencies.getDynamicModelFactory(),
+				persistType,
+				updaterType
+		);
+		return new MongoPersister<>(tzModelBuilderFactory, mongoDao, mongoDependencies.getMongoEntities());
+	}
+
 	public <T extends MongoEntity, Z extends ModelBuilder<T>> ModelBuilderFactory<T, Z> builder(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
 		mongoDependencies.getModelValidator().validate(typeOfModel, typeOfBuilder);
 		ModelDataBuilderFactory modelDataBuilderFactory = mongoDependencies.getModelDataBuilderFactory();
 		FieldAccessorParser fieldAccessorParser = mongoDependencies.getFieldAccessorParser();
 		BeanNamingExpert beanNamingExpert = mongoDependencies.getBeanNamingExpert();
 		DynamicModelFactory dynamicModelFactory = mongoDependencies.getDynamicModelFactory();
-		return new ModelBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, typeOfModel, typeOfBuilder, dynamicModelFactory);
+		return new ModelBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, dynamicModelFactory, typeOfModel, typeOfBuilder);
 	}
 
-	public MongoPersister getPersister() {
-		return mongoPersister;
-	}
 }

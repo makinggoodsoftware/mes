@@ -41,7 +41,7 @@ public class ModelValidator {
 
 	private <T extends MongoEntity, Z extends ModelBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
 		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(modelType, GET, asList("asDbo"));
-		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create"));
+		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId"));
 
 		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
 			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, modelType);

@@ -18,7 +18,7 @@ public class ModelBuilderFactory<T extends MongoEntity, Z extends ModelBuilder<T
 	private final Class<Z> modelBuilderType;
 	private final DynamicModelFactory dynamicModelFactory;
 
-	public ModelBuilderFactory(ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, Class<Z> modelBuilderType, DynamicModelFactory dynamicModelFactory) {
+	public ModelBuilderFactory(ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, DynamicModelFactory dynamicModelFactory, Class<T> modelType, Class<Z> modelBuilderType) {
 		this.modelDataBuilderFactory = modelDataBuilderFactory;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;

@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Optional;
 
 class ModelCallInterceptor implements InvocationHandler, MongoEntity {
@@ -22,7 +23,7 @@ class ModelCallInterceptor implements InvocationHandler, MongoEntity {
 			return asDbo();
 		} else if (method.getName().equals("equals")) {
 			MongoEntity equalsRight = (MongoEntity) args[0];
-			return asDbo().equals(equalsRight.asDbo());
+			return equals(equalsRight);
 		} else if (method.getName().equals("toString")) {
 			return toString();
 		} else {
@@ -49,11 +50,16 @@ class ModelCallInterceptor implements InvocationHandler, MongoEntity {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof ModelCallInterceptor)) return false;
+		ModelCallInterceptor that = null;
+		if (ModelCallInterceptor.class.isAssignableFrom(o.getClass())){
+			that = (ModelCallInterceptor) o;
+		}else if (MongoEntity.class.isAssignableFrom(o.getClass())) {
+			if (o instanceof Proxy){
+				that = (ModelCallInterceptor) Proxy.getInvocationHandler(o);
+			}
+		}
 
-		ModelCallInterceptor that = (ModelCallInterceptor) o;
-
-		return modelData.equals(that.modelData);
+		return that != null && modelData.equals(that.modelData);
 
 	}
 

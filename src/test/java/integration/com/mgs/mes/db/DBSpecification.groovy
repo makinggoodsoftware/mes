@@ -18,11 +18,18 @@ class DBSpecification extends Specification {
                 create()
 
         when:
-        def objectID = mongoFactory.getPersister().create(b)
-        def fromDb = mongoFactory.retriever(EntityB).byId(objectID).get()
+        def savedObject = mongoFactory.persister(EntityB, EntityBBuilder).create(b)
 
         then:
-        fromDb == b
-        objectID == fromDb.getId().get()
+        savedObject != b
+
+
+        when:
+        def idFromDb = savedObject.getId().get()
+        def fromDb = mongoFactory.retriever(EntityB).byId(idFromDb).get()
+
+        then:
+        fromDb == savedObject
+        idFromDb == fromDb.getId().get()
     }
 }

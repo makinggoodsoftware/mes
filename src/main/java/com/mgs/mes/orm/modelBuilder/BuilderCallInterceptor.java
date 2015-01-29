@@ -7,11 +7,14 @@ import com.mgs.mes.orm.modelFactory.DynamicModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
+import org.bson.types.ObjectId;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler, ModelBuilder<T> {
 	private final FieldAccessorParser fieldAccessorParser;
@@ -32,6 +35,8 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getName().equals("create")) {
 			return create();
+		}else if (method.getName().equals("withId")) {
+			return withId((ObjectId) args[0]);
 		}else{
 			captureUpdateMethodCall(method, args[0]);
 			return proxy;
@@ -42,8 +47,22 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(method).orElseThrow(IllegalArgumentException::new);
 		if (fieldAccessor.getType() != BUILDER) throw new IllegalArgumentException();
 
-		String getterName = beanNamingExpert.getGetterName(fieldAccessor.getFieldName());
-		fieldAccessor = fieldAccessorParser.parse(modelType, getterName).orElseThrow(IllegalArgumentException::new);
+		updateField(fieldAccessor.getFieldName(), value);
+	}
+
+	@Override
+	public ModelBuilder<T> withId(ObjectId id) {
+		if (id == null) {
+			updateField("id", empty());
+		}else{
+			updateField("id", of(id));
+		}
+		return this;
+	}
+
+	private void updateField(String fieldName, Object value) {
+		String getterName = beanNamingExpert.getGetterName(fieldName);
+		FieldAccessor fieldAccessor = fieldAccessorParser.parse(modelType, getterName).orElseThrow(IllegalArgumentException::new);
 		modelDataBuilder.with(fieldAccessor, value);
 	}
 
