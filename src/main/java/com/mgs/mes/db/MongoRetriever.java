@@ -17,10 +17,10 @@ import static java.util.Optional.of;
 public class MongoRetriever <T extends MongoEntity> {
 	private final MongoEntities mongoEntities;
 	private final MongoDao mongoDao;
-	private final ModelFactory modelFactory;
+	private final ModelFactory<DBObject> modelFactory;
 	private final Class<T> type;
 
-	public MongoRetriever(MongoEntities mongoEntities, MongoDao mongoDao, ModelFactory modelFactory, Class<T> type) {
+	public MongoRetriever(MongoEntities mongoEntities, MongoDao mongoDao, ModelFactory<DBObject> modelFactory, Class<T> type) {
 		this.mongoEntities = mongoEntities;
 		this.mongoDao = mongoDao;
 		this.modelFactory = modelFactory;

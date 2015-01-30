@@ -1,11 +1,16 @@
 package com.mgs.mes.features
-import com.mgs.mes.*
+
+import com.mgs.mes.EntityA
+import com.mgs.mes.EntityABuilder
+import com.mgs.mes.EntityB
+import com.mgs.mes.EntityBBuilder
 import com.mgs.mes.db.MongoPersister
 import com.mgs.mes.db.MongoRetriever
+import com.mgs.mes.factory.MongoFactory
 import com.mgs.mes.model.builder.ModelBuilderFactory
 import spock.lang.Specification
 
-import static com.mgs.mes.MongoFactory.from
+import static com.mgs.mes.factory.MongoFactory.from
 
 class MongoBasicFeatures extends Specification{
     MongoFactory factory;

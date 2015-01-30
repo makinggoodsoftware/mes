@@ -2,8 +2,9 @@ package com.mgs.mes.model.builder;
 
 import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilder;
-import com.mgs.mes.model.factory.DynamicModelFactory;
+import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -21,14 +22,14 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 	private final BeanNamingExpert beanNamingExpert;
 	private final Class<T> modelType;
 	private final ModelDataBuilder modelDataBuilder;
-	private final DynamicModelFactory dynamicModelFactory;
+	private final ModelFactory<ModelData> modelFactory;
 
-	public BuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, ModelDataBuilder modelDataBuilder, DynamicModelFactory dynamicModelFactory) {
+	public BuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, ModelDataBuilder modelDataBuilder, ModelFactory<ModelData> modelFactory) {
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.modelType = modelType;
 		this.modelDataBuilder = modelDataBuilder;
-		this.dynamicModelFactory = dynamicModelFactory;
+		this.modelFactory = modelFactory;
 	}
 
 	@Override
@@ -68,6 +69,6 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 
 	@Override
 	public T create() {
-		return dynamicModelFactory.dynamicModel(modelType, modelDataBuilder.build());
+		return modelFactory.from(modelType, modelDataBuilder.build());
 	}
 }

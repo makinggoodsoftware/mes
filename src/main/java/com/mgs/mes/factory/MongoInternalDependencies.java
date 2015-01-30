@@ -1,56 +1,59 @@
-package com.mgs.mes;
+package com.mgs.mes.factory;
 
 import com.mgs.mes.model.ModelValidator;
+import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilderFactory;
 import com.mgs.mes.model.data.ModelDataFactory;
 import com.mgs.mes.model.data.transformer.DboTransformer;
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer;
-import com.mgs.mes.model.factory.DynamicModelFactory;
 import com.mgs.mes.model.factory.ModelFactory;
+import com.mgs.mes.model.factory.dbo.DBObjectModelFactory;
+import com.mgs.mes.model.factory.modelData.ModelDataModelFactory;
 import com.mgs.mes.utils.MongoEntities;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.Reflections;
+import com.mongodb.DBObject;
 
 public class MongoInternalDependencies {
-	private final ModelFactory modelFactory;
 	private final ModelValidator modelValidator;
 	private final ModelDataBuilderFactory modelDataBuilderFactory;
 	private final FieldAccessorParser fieldAccessorParser;
-	private final DynamicModelFactory dynamicModelFactory;
+	private final ModelFactory<DBObject> DBOModelFactory;
+	private final ModelFactory<ModelData> modelDataModelFactory;
 	private final BeanNamingExpert beanNamingExpert;
 	private final MongoEntities mongoEntities;
 
 	public static MongoInternalDependencies init () {
-		DynamicModelFactory dynamicModelFactory = new DynamicModelFactory();
+		ModelFactory<ModelData> modelDataModelFactory = new ModelDataModelFactory();
 		BeanNamingExpert beanNamingExpert = new BeanNamingExpert();
 		FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(beanNamingExpert);
 
 		Reflections reflections = new Reflections();
-		DboTransformer dboModelDataTransformer = new DboTransformer(dynamicModelFactory, beanNamingExpert, fieldAccessorParser);
+		DboTransformer dboModelDataTransformer = new DboTransformer(modelDataModelFactory, beanNamingExpert, fieldAccessorParser);
 		FieldAccessorMapTransformer mapModelDataTransformer = new FieldAccessorMapTransformer();
 		ModelDataFactory modelDataFactory = new ModelDataFactory(dboModelDataTransformer, mapModelDataTransformer);
 
 		ModelValidator modelValidator = new ModelValidator(reflections, fieldAccessorParser);
 		ModelDataBuilderFactory modelDataBuilderFactory = new ModelDataBuilderFactory(modelDataFactory, beanNamingExpert, fieldAccessorParser);
-		ModelFactory modelFactory = new ModelFactory(dynamicModelFactory, modelDataFactory);
+		ModelFactory<DBObject> modelFactory = new DBObjectModelFactory(modelDataModelFactory, modelDataFactory);
 		MongoEntities mongoEntities = new MongoEntities();
 
-		return new MongoInternalDependencies(modelFactory, modelValidator, modelDataBuilderFactory, fieldAccessorParser, dynamicModelFactory, beanNamingExpert, mongoEntities);
+		return new MongoInternalDependencies(modelFactory, modelValidator, modelDataBuilderFactory, fieldAccessorParser, modelDataModelFactory, beanNamingExpert, mongoEntities);
 	}
 
-	private MongoInternalDependencies(ModelFactory modelFactory, ModelValidator modelValidator, ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, DynamicModelFactory dynamicModelFactory, BeanNamingExpert beanNamingExpert, MongoEntities mongoEntities) {
-		this.modelFactory = modelFactory;
+	private MongoInternalDependencies(ModelFactory<DBObject> DBOModelFactory, ModelValidator modelValidator, ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, ModelFactory<ModelData> modelDataModelFactory, BeanNamingExpert beanNamingExpert, MongoEntities mongoEntities) {
+		this.DBOModelFactory = DBOModelFactory;
 		this.modelValidator = modelValidator;
 		this.modelDataBuilderFactory = modelDataBuilderFactory;
 		this.fieldAccessorParser = fieldAccessorParser;
-		this.dynamicModelFactory = dynamicModelFactory;
+		this.modelDataModelFactory = modelDataModelFactory;
 		this.beanNamingExpert = beanNamingExpert;
 		this.mongoEntities = mongoEntities;
 	}
 
-	public ModelFactory getModelFactory() {
-		return modelFactory;
+	public ModelFactory<DBObject> getDBOModelFactory() {
+		return DBOModelFactory;
 	}
 
 	public ModelValidator getModelValidator() {
@@ -65,8 +68,8 @@ public class MongoInternalDependencies {
 		return fieldAccessorParser;
 	}
 
-	public DynamicModelFactory getDynamicModelFactory() {
-		return dynamicModelFactory;
+	public ModelFactory<ModelData> getModelDataModelFactory() {
+		return modelDataModelFactory;
 	}
 
 	public BeanNamingExpert getBeanNamingExpert() {

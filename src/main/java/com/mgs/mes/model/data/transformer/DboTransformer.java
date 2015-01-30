@@ -2,7 +2,7 @@ package com.mgs.mes.model.data.transformer;
 
 import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.ModelData;
-import com.mgs.mes.model.factory.DynamicModelFactory;
+import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -18,12 +18,12 @@ import static java.util.Optional.of;
 public class DboTransformer implements ModelDataTransformer<DBObject> {
 	private final BeanNamingExpert beanNamingExpert;
 	private final FieldAccessorParser fieldAccessorParser;
-	private final DynamicModelFactory dynamicModelFactory;
+	private final ModelFactory<ModelData> modelFactory;
 
-	public DboTransformer(DynamicModelFactory dynamicModelFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
+	public DboTransformer(ModelFactory<ModelData> modelFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
 		this.beanNamingExpert = beanNamingExpert;
 		this.fieldAccessorParser = fieldAccessorParser;
-		this.dynamicModelFactory = dynamicModelFactory;
+		this.modelFactory = modelFactory;
 	}
 
 	@SuppressWarnings("Convert2MethodRef")
@@ -74,7 +74,7 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 		FieldAccessor accessor = fieldAccessorParser.parse(type, getterName).get();
 		//noinspection unchecked
 		Class<MongoEntity> nestedType = (Class<MongoEntity>) accessor.getDeclaredType();
-		return dynamicModelFactory.dynamicModel(nestedType, doTransform(nestedType, nestedValue, false));
+		return modelFactory.from(nestedType, doTransform(nestedType, nestedValue, false));
 	}
 
 	private String buildKey(String fieldName) {

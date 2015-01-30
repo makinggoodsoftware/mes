@@ -1,7 +1,7 @@
 package com.mgs.mes.model.data.transformer
 
 import com.mgs.mes.model.MongoEntity
-import com.mgs.mes.model.factory.DynamicModelFactory
+import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
@@ -17,7 +17,7 @@ class DboTransformerSpecification extends Specification {
     DboTransformer testObj
     FieldAccessorParser fieldAccessorParserMock = Mock (FieldAccessorParser)
     BeanNamingExpert beanNamingExpertMock = Mock (BeanNamingExpert)
-    DynamicModelFactory dynamicDataModelMock = Mock (DynamicModelFactory)
+    ModelDataModelFactory dynamicDataModelMock = Mock (ModelDataModelFactory)
     Entity entityMock = Mock (Entity)
     ObjectId objectIdMock = Mock (ObjectId)
 
@@ -110,7 +110,7 @@ class DboTransformerSpecification extends Specification {
                 append("child", simpleDbo).
                 append("_id", objectIdMock)
 
-        dynamicDataModelMock.dynamicModel (_, _) >> {type, modelData ->
+        dynamicDataModelMock.from (_, _) >> {type, modelData ->
             if (type != Entity) throw new IllegalArgumentException("Shouldn't get call with a type different than Entity for this test cases")
             if (
                 (modelData.dbo.get("field1") == "value1") &&

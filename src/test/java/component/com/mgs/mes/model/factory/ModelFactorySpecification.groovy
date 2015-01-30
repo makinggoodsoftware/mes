@@ -4,6 +4,8 @@ import com.mgs.mes.model.MongoEntity
 import com.mgs.mes.model.data.ModelDataFactory
 import com.mgs.mes.model.data.transformer.DboTransformer
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer
+import com.mgs.mes.model.factory.dbo.DBObjectModelFactory
+import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
 import com.mongodb.BasicDBObject
@@ -12,8 +14,8 @@ import spock.lang.Specification
 import static java.util.Optional.empty
 
 class ModelFactorySpecification extends Specification {
-    ModelFactory testObj
-    DynamicModelFactory dynamicModelFactory = new DynamicModelFactory()
+    DBObjectModelFactory testObj
+    ModelDataModelFactory dynamicModelFactory = new ModelDataModelFactory()
     BeanNamingExpert beanNamingExpert = new BeanNamingExpert()
     FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(beanNamingExpert)
     ModelDataFactory modelDataFactory = new ModelDataFactory(
@@ -22,7 +24,7 @@ class ModelFactorySpecification extends Specification {
     )
 
     def "setup" (){
-        testObj = new ModelFactory(dynamicModelFactory, modelDataFactory)
+        testObj = new DBObjectModelFactory(dynamicModelFactory, modelDataFactory)
     }
 
     def "should create object from simple dbo" (){

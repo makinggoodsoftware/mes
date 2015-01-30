@@ -1,4 +1,4 @@
-package com.mgs.mes;
+package com.mgs.mes.factory;
 
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
@@ -6,16 +6,15 @@ import com.mgs.mes.db.MongoRetriever;
 import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.builder.ModelBuilderFactory;
+import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilderFactory;
-import com.mgs.mes.model.factory.DynamicModelFactory;
+import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
 import java.net.UnknownHostException;
-
-import static com.mgs.mes.MongoInternalDependencies.init;
 
 public class MongoFactory {
 	private final MongoInternalDependencies mongoInternalDependencies;
@@ -31,7 +30,7 @@ public class MongoFactory {
 			MongoClient localhost = new MongoClient(host, port);
 			DB db = localhost.getDB(dbName);
 			MongoDao mongoDao = new MongoDao(db);
-			MongoInternalDependencies dependencies = init();
+			MongoInternalDependencies dependencies = MongoInternalDependencies.init();
 			return new MongoFactory(dependencies, mongoDao);
 		} catch (UnknownHostException e) {
 			throw new IllegalStateException(e);
@@ -39,7 +38,7 @@ public class MongoFactory {
 	}
 
 	public <T extends MongoEntity> MongoRetriever<T> retriever(Class<T> retrieveType) {
-		return new MongoRetriever<>(mongoInternalDependencies.getMongoEntities(), mongoDao, mongoInternalDependencies.getModelFactory(), retrieveType);
+		return new MongoRetriever<>(mongoInternalDependencies.getMongoEntities(), mongoDao, mongoInternalDependencies.getDBOModelFactory(), retrieveType);
 	}
 
 	public <T extends MongoEntity, Z extends ModelBuilder<T>> MongoPersister<T, Z> persister(Class<T> persistType, Class<Z> updaterType) {
@@ -47,7 +46,7 @@ public class MongoFactory {
 				mongoInternalDependencies.getModelDataBuilderFactory(),
 				mongoInternalDependencies.getFieldAccessorParser(),
 				mongoInternalDependencies.getBeanNamingExpert(),
-				mongoInternalDependencies.getDynamicModelFactory(),
+				mongoInternalDependencies.getModelDataModelFactory(),
 				persistType,
 				updaterType
 		);
@@ -59,8 +58,8 @@ public class MongoFactory {
 		ModelDataBuilderFactory modelDataBuilderFactory = mongoInternalDependencies.getModelDataBuilderFactory();
 		FieldAccessorParser fieldAccessorParser = mongoInternalDependencies.getFieldAccessorParser();
 		BeanNamingExpert beanNamingExpert = mongoInternalDependencies.getBeanNamingExpert();
-		DynamicModelFactory dynamicModelFactory = mongoInternalDependencies.getDynamicModelFactory();
-		return new ModelBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, dynamicModelFactory, typeOfModel, typeOfBuilder);
+		ModelFactory<ModelData> modelDataModelFactory = mongoInternalDependencies.getModelDataModelFactory();
+		return new ModelBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, modelDataModelFactory, typeOfModel, typeOfBuilder);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.mgs.mes.model.factory;
+package com.mgs.mes.model.factory.modelData;
 
 import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.ModelData;

@@ -7,7 +7,7 @@ import com.mgs.mes.model.data.ModelDataBuilderFactory
 import com.mgs.mes.model.data.ModelDataFactory
 import com.mgs.mes.model.data.transformer.DboTransformer
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer
-import com.mgs.mes.model.factory.DynamicModelFactory
+import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
 import com.mongodb.BasicDBObject
@@ -20,14 +20,14 @@ class ModelBuilderFactorySpecification extends Specification {
     FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(beanNamingExpert)
     ModelDataFactory modelDataFactory = new ModelDataFactory(
             new DboTransformer(
-                new DynamicModelFactory(), beanNamingExpert, fieldAccessorParser
+                new ModelDataModelFactory(), beanNamingExpert, fieldAccessorParser
             ), new FieldAccessorMapTransformer()
     )
     ModelDataBuilderFactory modelDataBuilderFactory = new ModelDataBuilderFactory(modelDataFactory, beanNamingExpert, fieldAccessorParser)
 
     def "setup" (){
-        entityBBuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new DynamicModelFactory(), EntityB, EntityBBuilder)
-        entityABuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new DynamicModelFactory(), EntityA, EntityABuilder)
+        entityBBuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new ModelDataModelFactory(), EntityB, EntityBBuilder)
+        entityABuilder = new ModelBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new ModelDataModelFactory(), EntityA, EntityABuilder)
     }
 
     def "should create a simple model with partial values"(){
