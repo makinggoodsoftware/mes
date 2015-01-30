@@ -1,7 +1,7 @@
-package com.mgs.mes.orm.modelData.transformer;
+package com.mgs.mes.model.data.transformer;
 
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.ModelData;
+import com.mgs.mes.model.data.ModelData;
 import com.mgs.reflection.FieldAccessor;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -39,6 +39,7 @@ public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<Fie
 				dboMap.put(fieldName, mongoEntity.asDbo());
 			} else if (fieldName.equals("id")) {
 				Optional<?> optionalValue = (Optional<?>) value;
+				if (optionalValue == null) throw new IllegalStateException("The id can never be null");
 				dboMap.put("_id", optionalValue.isPresent() ? optionalValue.get() : null);
 			} else {
 				dboMap.put(fieldName, value);

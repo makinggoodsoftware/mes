@@ -1,7 +1,7 @@
-package com.mgs.mes.orm.modelFactory;
+package com.mgs.mes.model.factory;
 
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.ModelData;
+import com.mgs.mes.model.data.ModelData;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 

@@ -1,9 +1,9 @@
-package com.mgs.mes.orm.modelBuilder;
+package com.mgs.mes.model.builder;
 
 import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.modelData.ModelDataBuilder;
-import com.mgs.mes.orm.modelFactory.DynamicModelFactory;
+import com.mgs.mes.model.data.ModelDataBuilder;
+import com.mgs.mes.model.factory.DynamicModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;

@@ -1,4 +1,4 @@
-package com.mgs.mes.orm.modelData;
+package com.mgs.mes.model.data;
 
 import com.mgs.mes.model.MongoEntity;
 import com.mgs.reflection.BeanNamingExpert;

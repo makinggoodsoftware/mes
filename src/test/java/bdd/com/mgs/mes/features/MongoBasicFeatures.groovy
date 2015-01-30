@@ -2,7 +2,7 @@ package com.mgs.mes.features
 import com.mgs.mes.*
 import com.mgs.mes.db.MongoPersister
 import com.mgs.mes.db.MongoRetriever
-import com.mgs.mes.orm.modelBuilder.ModelBuilderFactory
+import com.mgs.mes.model.builder.ModelBuilderFactory
 import spock.lang.Specification
 
 import static com.mgs.mes.MongoFactory.from

@@ -1,8 +1,7 @@
-package com.mgs.mes.orm.modelData;
+package com.mgs.mes.model.data;
 
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.ModelData;
-import com.mgs.mes.orm.modelData.transformer.ModelDataTransformer;
+import com.mgs.mes.model.data.transformer.ModelDataTransformer;
 import com.mgs.reflection.FieldAccessor;
 import com.mongodb.DBObject;
 

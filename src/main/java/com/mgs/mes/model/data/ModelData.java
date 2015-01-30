@@ -1,4 +1,4 @@
-package com.mgs.mes.orm;
+package com.mgs.mes.model.data;
 
 import com.mongodb.DBObject;
 

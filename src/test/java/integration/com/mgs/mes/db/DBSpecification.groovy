@@ -3,7 +3,7 @@ package com.mgs.mes.db
 import com.mgs.mes.EntityB
 import com.mgs.mes.EntityBBuilder
 import com.mgs.mes.MongoFactory
-import com.mgs.mes.orm.modelBuilder.ModelBuilderFactory
+import com.mgs.mes.model.builder.ModelBuilderFactory
 import spock.lang.Specification
 
 class DBSpecification extends Specification {

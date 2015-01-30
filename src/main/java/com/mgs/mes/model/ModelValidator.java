@@ -1,7 +1,5 @@
-package com.mgs.mes.orm;
+package com.mgs.mes.model;
 
-import com.mgs.mes.model.ModelBuilder;
-import com.mgs.mes.model.MongoEntity;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;

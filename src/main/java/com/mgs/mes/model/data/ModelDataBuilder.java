@@ -1,7 +1,6 @@
-package com.mgs.mes.orm.modelData;
+package com.mgs.mes.model.data;
 
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.ModelData;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;

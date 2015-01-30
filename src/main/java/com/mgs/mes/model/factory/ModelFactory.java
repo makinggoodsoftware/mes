@@ -1,8 +1,8 @@
-package com.mgs.mes.orm.modelFactory;
+package com.mgs.mes.model.factory;
 
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.ModelData;
-import com.mgs.mes.orm.modelData.ModelDataFactory;
+import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.data.ModelDataFactory;
 import com.mongodb.DBObject;
 
 public class ModelFactory {

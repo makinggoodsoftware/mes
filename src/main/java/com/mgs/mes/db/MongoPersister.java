@@ -2,7 +2,7 @@ package com.mgs.mes.db;
 
 import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.modelBuilder.ModelBuilderFactory;
+import com.mgs.mes.model.builder.ModelBuilderFactory;
 import com.mgs.mes.utils.MongoEntities;
 import org.bson.types.ObjectId;
 

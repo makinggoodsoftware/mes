@@ -1,7 +1,7 @@
 package com.mgs.mes.db;
 
 import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.orm.modelFactory.ModelFactory;
+import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.mes.utils.MongoEntities;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
