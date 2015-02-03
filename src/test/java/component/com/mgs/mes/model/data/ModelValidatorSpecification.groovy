@@ -1,8 +1,8 @@
 package com.mgs.mes.model.data
 
-import com.mgs.mes.model.ModelBuilder
 import com.mgs.mes.model.ModelValidator
 import com.mgs.mes.model.MongoEntity
+import com.mgs.mes.model.MongoEntityBuilder
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
 import com.mgs.reflection.Reflections
@@ -60,25 +60,25 @@ class ModelValidatorSpecification extends Specification {
         Getter2 getChild();
     }
 
-    public static interface Builder1 extends ModelBuilder{
+    public static interface Builder1 extends MongoEntityBuilder{
         Builder1 withField1 (String field1);
         Builder1 withChild (Getter2 child);
     }
 
     public static interface Getter2 extends MongoEntity{}
 
-    public static interface Builder1Wrong1 extends ModelBuilder{
+    public static interface Builder1Wrong1 extends MongoEntityBuilder{
         Builder1Wrong1 withField1 (int field1);
         Builder1Wrong1 withChild (Getter2 child);
     }
 
-    public static interface Builder1Wrong2 extends ModelBuilder{
+    public static interface Builder1Wrong2 extends MongoEntityBuilder{
         Builder1Wrong1 withField1 (String field1);
         Builder1Wrong1 withField2 (String field2);
         Builder1Wrong1 withChild (Getter2 child);
     }
 
-    public static interface Builder2 extends ModelBuilder{
+    public static interface Builder2 extends MongoEntityBuilder{
         Builder2 withField1 (String field1);
         Builder2 withField2 (String field2);
     }

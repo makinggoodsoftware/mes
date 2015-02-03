@@ -1,7 +1,7 @@
 package com.mgs.mes.model.builder;
 
-import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilder;
 import com.mgs.mes.model.data.ModelDataBuilderFactory;
@@ -11,7 +11,7 @@ import com.mgs.reflection.FieldAccessorParser;
 
 import java.lang.reflect.Proxy;
 
-public class ModelBuilderFactory<T extends MongoEntity, Z extends ModelBuilder<T>> {
+public class ModelBuilderFactory<T extends MongoEntity, Z extends MongoEntityBuilder<T>> {
 	private final ModelDataBuilderFactory modelDataBuilderFactory;
 	private final FieldAccessorParser fieldAccessorParser;
 	private final BeanNamingExpert beanNamingExpert;

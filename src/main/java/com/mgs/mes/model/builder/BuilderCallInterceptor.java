@@ -1,7 +1,7 @@
 package com.mgs.mes.model.builder;
 
-import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilder;
 import com.mgs.mes.model.factory.ModelFactory;
@@ -17,7 +17,7 @@ import static com.mgs.reflection.FieldAccessorType.BUILDER;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler, ModelBuilder<T> {
+class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler, MongoEntityBuilder<T> {
 	private final FieldAccessorParser fieldAccessorParser;
 	private final BeanNamingExpert beanNamingExpert;
 	private final Class<T> modelType;
@@ -52,7 +52,7 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 	}
 
 	@Override
-	public ModelBuilder<T> withId(ObjectId id) {
+	public MongoEntityBuilder<T> withId(ObjectId id) {
 		if (id == null) {
 			updateField("id", empty());
 		}else{

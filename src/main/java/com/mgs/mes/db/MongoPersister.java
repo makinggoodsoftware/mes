@@ -1,12 +1,12 @@
 package com.mgs.mes.db;
 
-import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.builder.ModelBuilderFactory;
 import com.mgs.mes.utils.MongoEntities;
 import org.bson.types.ObjectId;
 
-public class MongoPersister<T extends MongoEntity, Z extends ModelBuilder<T>> {
+public class MongoPersister<T extends MongoEntity, Z extends MongoEntityBuilder<T>> {
 	private final ModelBuilderFactory<T, Z> modelBuilderFactory;
 	private final MongoDao mongoDao;
 	private final MongoEntities mongoEntities;
@@ -18,13 +18,17 @@ public class MongoPersister<T extends MongoEntity, Z extends ModelBuilder<T>> {
 	}
 
 	public T create(T toCreate) {
-		Class<? extends MongoEntity> sourceClass = toCreate.getClass();
+		if (toCreate.getId().isPresent()) throw new IllegalStateException("Can't create a mongo entity if it already has an Id");
 
-		ObjectId save = mongoDao.save(mongoEntities.collectionName(sourceClass), toCreate.asDbo());
+		String collectionName = mongoEntities.collectionName(toCreate.getClass());
+		ObjectId save = mongoDao.touch(collectionName, toCreate.asDbo());
 		return modelBuilderFactory.update(toCreate).withId(save).create();
 	}
 
 	public void update(MongoEntity toUpdate) {
-		mongoDao.save(mongoEntities.collectionName(toUpdate.getClass()), toUpdate.asDbo());
+		if (! toUpdate.getId().isPresent()) throw new IllegalStateException("Can't update a mongo entity if it doesn't have an Id");
+
+		String collectionName = mongoEntities.collectionName(toUpdate.getClass());
+		mongoDao.touch(collectionName, toUpdate.asDbo());
 	}
 }

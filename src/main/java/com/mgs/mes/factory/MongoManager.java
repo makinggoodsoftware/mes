@@ -2,11 +2,11 @@ package com.mgs.mes.factory;
 
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.db.MongoRetriever;
-import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.builder.ModelBuilderFactory;
 
-public class MongoManager <T extends MongoEntity, Z extends ModelBuilder<T>> {
+public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T>> {
 	private final MongoRetriever<T> retriever;
 	private final MongoPersister<T, Z> persister;
 	private final ModelBuilderFactory<T, Z> builder;

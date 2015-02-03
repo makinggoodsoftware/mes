@@ -3,7 +3,6 @@ import com.mgs.mes.EntityA
 import com.mgs.mes.EntityABuilder
 import com.mgs.mes.EntityB
 import com.mgs.mes.EntityBBuilder
-import com.mgs.mes.db.MongoPersister
 import com.mgs.mes.factory.MongoFactory
 import com.mgs.mes.factory.MongoManager
 import spock.lang.Specification
@@ -12,7 +11,6 @@ import static com.mgs.mes.factory.MongoFactory.from
 
 class MongoBasicFeatures extends Specification{
     MongoFactory factory;
-    MongoPersister persister;
     String randomValue
     EntityA fromDb
     MongoManager<EntityA, EntityABuilder> As;

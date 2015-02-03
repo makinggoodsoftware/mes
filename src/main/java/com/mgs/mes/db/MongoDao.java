@@ -12,7 +12,7 @@ public class MongoDao {
 		this.db = db;
 	}
 
-	public ObjectId save(String collectionName, DBObject dbObject){
+	public ObjectId touch(String collectionName, DBObject dbObject){
 		db.getCollection(collectionName).save(dbObject);
 		return (ObjectId) dbObject.get("_id");
 	}

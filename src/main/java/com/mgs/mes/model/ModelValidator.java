@@ -28,7 +28,7 @@ public class ModelValidator {
 		this.fieldAccessorParser = fieldAccessorParser;
 	}
 
-	public <T extends MongoEntity, Z extends ModelBuilder<T>> void validate(Class<T> modelType, Class<Z> builderType) {
+	public <T extends MongoEntity, Z extends MongoEntityBuilder<T>> void validate(Class<T> modelType, Class<Z> builderType) {
 		try {
 			tryToValidate(modelType, builderType);
 		} catch (Exception e) {
@@ -37,7 +37,7 @@ public class ModelValidator {
 		}
 	}
 
-	private <T extends MongoEntity, Z extends ModelBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
+	private <T extends MongoEntity, Z extends MongoEntityBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
 		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(modelType, GET, asList("asDbo"));
 		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId"));
 

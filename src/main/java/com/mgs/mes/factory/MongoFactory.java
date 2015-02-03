@@ -3,8 +3,8 @@ package com.mgs.mes.factory;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.db.MongoRetriever;
-import com.mgs.mes.model.ModelBuilder;
 import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.builder.ModelBuilderFactory;
 import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilderFactory;
@@ -41,7 +41,7 @@ public class MongoFactory {
 		return new MongoRetriever<>(mongoInternalDependencies.getMongoEntities(), mongoDao, mongoInternalDependencies.getDBOModelFactory(), retrieveType);
 	}
 
-	private <T extends MongoEntity, Z extends ModelBuilder<T>> MongoPersister<T, Z> persister(Class<T> persistType, Class<Z> updaterType) {
+	private <T extends MongoEntity, Z extends MongoEntityBuilder<T>> MongoPersister<T, Z> persister(Class<T> persistType, Class<Z> updaterType) {
 		ModelBuilderFactory<T, Z> tzModelBuilderFactory = new ModelBuilderFactory<>(
 				mongoInternalDependencies.getModelDataBuilderFactory(),
 				mongoInternalDependencies.getFieldAccessorParser(),
@@ -53,7 +53,7 @@ public class MongoFactory {
 		return new MongoPersister<>(tzModelBuilderFactory, mongoDao, mongoInternalDependencies.getMongoEntities());
 	}
 
-	private <T extends MongoEntity, Z extends ModelBuilder<T>> ModelBuilderFactory<T, Z> builder(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
+	private <T extends MongoEntity, Z extends MongoEntityBuilder<T>> ModelBuilderFactory<T, Z> builder(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
 		ModelDataBuilderFactory modelDataBuilderFactory = mongoInternalDependencies.getModelDataBuilderFactory();
 		FieldAccessorParser fieldAccessorParser = mongoInternalDependencies.getFieldAccessorParser();
 		BeanNamingExpert beanNamingExpert = mongoInternalDependencies.getBeanNamingExpert();
@@ -61,7 +61,7 @@ public class MongoFactory {
 		return new ModelBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, modelDataModelFactory, typeOfModel, typeOfBuilder);
 	}
 
-	public <T extends MongoEntity, Z extends ModelBuilder<T>> MongoManager<T, Z> manager(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
+	public <T extends MongoEntity, Z extends MongoEntityBuilder<T>> MongoManager<T, Z> manager(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
 		mongoInternalDependencies.getModelValidator().validate(typeOfModel, typeOfBuilder);
 		return new MongoManager<>(retriever(typeOfModel), persister(typeOfModel, typeOfBuilder), builder(typeOfModel, typeOfBuilder));
 	}
