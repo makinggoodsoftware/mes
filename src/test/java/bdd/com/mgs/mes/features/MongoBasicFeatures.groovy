@@ -1,8 +1,6 @@
 package com.mgs.mes.features
-import com.mgs.mes.EntityA
-import com.mgs.mes.EntityABuilder
-import com.mgs.mes.EntityB
-import com.mgs.mes.EntityBBuilder
+
+import com.mgs.mes.*
 import com.mgs.mes.factory.MongoFactory
 import com.mgs.mes.factory.MongoManager
 import spock.lang.Specification
@@ -13,13 +11,17 @@ class MongoBasicFeatures extends Specification{
     MongoFactory factory;
     String randomValue
     EntityA fromDb
-    MongoManager<EntityA, EntityABuilder> As;
-    MongoManager<EntityB, EntityBBuilder> Bs;
+    MongoManager<EntityA, EntityABuilder, EntityARelationships> As;
+    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs;
+    MongoManager<EntityC, EntityCBuilder, EntityCRelationships> Cs;
+    MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
 
     def "setup" () {
         factory = from("localhost", "bddDb", 27017)
-        As = factory.manager(EntityA, EntityABuilder)
-        Bs = factory.manager(EntityB, EntityBBuilder)
+        As = factory.manager(EntityA, EntityABuilder, EntityARelationships)
+        Bs = factory.manager(EntityB, EntityBBuilder, EntityBRelationships)
+        Cs = factory.manager(EntityC, EntityCBuilder, EntityCRelationships)
+        A_Cs = factory.manager(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships)
         randomValue = UUID.randomUUID().toString()
     }
 
@@ -72,5 +74,33 @@ class MongoBasicFeatures extends Specification{
         then:
         this.fromDb != original
         this.fromDb == updated
+    }
+
+    def "should save relationships" () {
+        given:
+        EntityA entityA = As.builder.createNew().
+                withEntityAfield1("value1").
+                withEntityAfield2( "value2").
+                withEmbedded(Bs.builder.createNew().
+                        withEntityBfield1("entityAfield1").
+                        withEntityBfield2("entityAfield2").
+                        create()
+                ).
+                create()
+        EntityC entityC = Cs.builder.createNew().
+                withEntityCfield1("valueC1").
+                withEntityCfield2("valueC2").
+                create()
+
+        when:
+        EntityA_EntityC a_c = A_Cs.persister.create(As.
+                                relationshipFrom(entityA).
+                                hasEntityC(entityC).
+                                create()
+        )
+
+        then:
+        a_c.entityA == entityA
+        a_c.entityC == entityC
     }
 }

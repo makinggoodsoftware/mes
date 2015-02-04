@@ -61,9 +61,19 @@ public class MongoFactory {
 		return new ModelBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, modelDataModelFactory, typeOfModel, typeOfBuilder);
 	}
 
-	public <T extends MongoEntity, Z extends MongoEntityBuilder<T>> MongoManager<T, Z> manager(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
+	private <T extends MongoEntity, Y extends MongoRelationships<T>> ModelRelationshipsBuilderFactory<T, Y> relationships(Class<T> typeOfModel, Class<Y> typeOfRelationships) {
+		return null;
+	}
+
+	public <T extends MongoEntity, Z extends MongoEntityBuilder<T>, Y extends MongoRelationships<T>>
+	MongoManager<T, Z, Y> manager(Class<T> typeOfModel, Class<Z> typeOfBuilder, Class<Y> typeOfRelationships) {
 		mongoInternalDependencies.getModelValidator().validate(typeOfModel, typeOfBuilder);
-		return new MongoManager<>(retriever(typeOfModel), persister(typeOfModel, typeOfBuilder), builder(typeOfModel, typeOfBuilder));
+		return new MongoManager<>(
+				retriever(typeOfModel),
+				persister(typeOfModel, typeOfBuilder),
+				builder(typeOfModel, typeOfBuilder),
+				relationships (typeOfModel, typeOfRelationships)
+		);
 	}
 
 }

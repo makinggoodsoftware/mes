@@ -6,15 +6,22 @@ import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.builder.ModelBuilderFactory;
 
-public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T>> {
+public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T>, Y extends MongoRelationships<T>> {
 	private final MongoRetriever<T> retriever;
 	private final MongoPersister<T, Z> persister;
 	private final ModelBuilderFactory<T, Z> builder;
+	private final ModelRelationshipsBuilderFactory<T, Y> relationshipsBuilderFactory;
 
-	public MongoManager(MongoRetriever<T> retriever, MongoPersister<T, Z> persister, ModelBuilderFactory<T, Z> builder) {
+	public MongoManager(
+			MongoRetriever<T> retriever,
+			MongoPersister<T, Z> persister,
+			ModelBuilderFactory<T, Z> builder,
+			ModelRelationshipsBuilderFactory<T, Y> relationshipsBuilderFactory
+	) {
 		this.retriever = retriever;
 		this.persister = persister;
 		this.builder = builder;
+		this.relationshipsBuilderFactory = relationshipsBuilderFactory;
 	}
 
 	public MongoRetriever<T> getRetriever() {
@@ -23,6 +30,10 @@ public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T
 
 	public MongoPersister<T, Z> getPersister() {
 		return persister;
+	}
+
+	public Y relationshipFrom(T from){
+		return relationshipsBuilderFactory.from(from);
 	}
 
 	public ModelBuilderFactory<T, Z> getBuilder() {
