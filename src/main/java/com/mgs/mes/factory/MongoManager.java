@@ -4,7 +4,9 @@ import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.db.MongoRetriever;
 import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.MongoEntityBuilder;
+import com.mgs.mes.model.MongoRelationships;
 import com.mgs.mes.model.builder.ModelBuilderFactory;
+import com.mgs.mes.model.relationships.ModelRelationshipsBuilderFactory;
 
 public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T>, Y extends MongoRelationships<T>> {
 	private final MongoRetriever<T> retriever;
