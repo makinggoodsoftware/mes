@@ -1,6 +1,6 @@
 package com.mgs.mes.utils;
 
-import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.entity.Entity;
 
 public class MongoEntities {
 
@@ -8,17 +8,17 @@ public class MongoEntities {
 		return aClass.getInterfaces()[0];
 	}
 
-	Class<? extends MongoEntity> findBaseMongoEntityType(Class<? extends MongoEntity> sourceClass) {
+	Class<? extends Entity> findBaseMongoEntityType(Class<? extends Entity> sourceClass) {
 		Class<?> parentFirstInterface = extractFirstInterface(sourceClass);
 
-		if (parentFirstInterface == MongoEntity.class) return sourceClass;
+		if (parentFirstInterface == Entity.class) return sourceClass;
 
 		//noinspection unchecked
-		return findBaseMongoEntityType((Class<? extends MongoEntity>) parentFirstInterface);
+		return findBaseMongoEntityType((Class<? extends Entity>) parentFirstInterface);
 	}
 
-	public String collectionName(Class<? extends MongoEntity> sourceClass){
-		Class<? extends MongoEntity> baseMongoEntityType = findBaseMongoEntityType(sourceClass);
+	public String collectionName(Class<? extends Entity> sourceClass){
+		Class<? extends Entity> baseMongoEntityType = findBaseMongoEntityType(sourceClass);
 		return baseMongoEntityType.getSimpleName();
 	}
 }

@@ -1,9 +1,9 @@
 package com.mgs.mes.model.builder;
 
-import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.model.MongoEntityBuilder;
 import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilder;
+import com.mgs.mes.model.entity.Entity;
+import com.mgs.mes.model.entity.EntityBuilder;
 import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
@@ -17,14 +17,14 @@ import static com.mgs.reflection.FieldAccessorType.BUILDER;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler, MongoEntityBuilder<T> {
+class EntityBuilderCallInterceptor<T extends Entity> implements InvocationHandler, EntityBuilder<T> {
 	private final FieldAccessorParser fieldAccessorParser;
 	private final BeanNamingExpert beanNamingExpert;
 	private final Class<T> modelType;
 	private final ModelDataBuilder modelDataBuilder;
 	private final ModelFactory<ModelData> modelFactory;
 
-	public BuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, ModelDataBuilder modelDataBuilder, ModelFactory<ModelData> modelFactory) {
+	public EntityBuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, ModelDataBuilder modelDataBuilder, ModelFactory<ModelData> modelFactory) {
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.modelType = modelType;
@@ -39,12 +39,12 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 		}else if (method.getName().equals("withId")) {
 			return withId((ObjectId) args[0]);
 		}else{
-			captureUpdateMethodCall(method, args[0]);
+			captureBuilderMethodCall(method, args[0]);
 			return proxy;
 		}
 	}
 
-	private void captureUpdateMethodCall(Method method, Object value) {
+	private void captureBuilderMethodCall(Method method, Object value) {
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(method).orElseThrow(IllegalArgumentException::new);
 		if (fieldAccessor.getType() != BUILDER) throw new IllegalArgumentException();
 
@@ -52,7 +52,7 @@ class BuilderCallInterceptor<T extends MongoEntity> implements InvocationHandler
 	}
 
 	@Override
-	public MongoEntityBuilder<T> withId(ObjectId id) {
+	public EntityBuilder<T> withId(ObjectId id) {
 		if (id == null) {
 			updateField("id", empty());
 		}else{

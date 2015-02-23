@@ -1,7 +1,7 @@
 package com.mgs.mes.model.data;
 
-import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.transformer.ModelDataTransformer;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.reflection.FieldAccessor;
 import com.mongodb.DBObject;
 
@@ -16,11 +16,11 @@ public class ModelDataFactory {
 		this.mapModelDataTransformer = mapModelDataTransformer;
 	}
 
-	public <T extends MongoEntity> ModelData fromDbo(Class<T> type, DBObject dbObject) {
+	public <T extends Entity> ModelData fromDbo(Class<T> type, DBObject dbObject) {
 		return dboModelDataTransformer.transform(type, dbObject);
 	}
 
-	public <T extends MongoEntity> ModelData fromFieldAccessorMap(Class<T> type, Map<FieldAccessor, Object> fieldAccessorObjectMap) {
+	public <T extends Entity> ModelData fromFieldAccessorMap(Class<T> type, Map<FieldAccessor, Object> fieldAccessorObjectMap) {
 		return mapModelDataTransformer.transform(type, fieldAccessorObjectMap);
 	}
 }

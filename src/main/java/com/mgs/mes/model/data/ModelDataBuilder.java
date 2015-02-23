@@ -1,6 +1,6 @@
 package com.mgs.mes.model.data;
 
-import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -11,10 +11,10 @@ public class ModelDataBuilder {
 	private final ModelDataFactory modelDataFactory;
 	private final BeanNamingExpert beanNamingExpert;
 	private final FieldAccessorParser fieldAccessorParser;
-	private final Class<? extends MongoEntity> type;
+	private final Class<? extends Entity> type;
 	private final Map<FieldAccessor, Object> fieldValuesByAccessor;
 
-	public ModelDataBuilder(ModelDataFactory modelDataFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser, Class<? extends MongoEntity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
+	public ModelDataBuilder(ModelDataFactory modelDataFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser, Class<? extends Entity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
 		this.modelDataFactory = modelDataFactory;
 		this.beanNamingExpert = beanNamingExpert;
 		this.fieldAccessorParser = fieldAccessorParser;

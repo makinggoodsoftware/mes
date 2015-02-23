@@ -1,8 +1,10 @@
 package com.mgs.mes.model.data
 
-import com.mgs.mes.model.ModelValidator
-import com.mgs.mes.model.MongoEntity
-import com.mgs.mes.model.MongoEntityBuilder
+import com.mgs.mes.model.Validator
+import com.mgs.mes.model.entity.Entity
+import com.mgs.mes.model.entity.EntityBuilder
+import com.mgs.mes.model.entity.Relationship
+import com.mgs.mes.model.entity.RelationshipBuilder
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
 import com.mgs.reflection.Reflections
@@ -10,21 +12,30 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 class ModelValidatorSpecification extends Specification {
-    ModelValidator testObj
+    Validator testObj
     FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(new BeanNamingExpert())
     Reflections reflections = new Reflections()
 
     def "setup" (){
-        testObj = new ModelValidator(reflections, fieldAccessorParser)
+        testObj = new Validator(reflections, fieldAccessorParser)
     }
 
-    def "should validate interfaces" (){
+    def "should validate entity interfaces" (){
         when:
         testObj.validate(Getter1, Builder1)
 
         then:
         notThrown Exception
     }
+
+    def "should validate relationship interfaces" (){
+        when:
+        testObj.validate(Relatioship1, Relatioship1Builder)
+
+        then:
+        notThrown Exception
+    }
+
 
     @Unroll
     def "should flag interfaces as not valid when the combination of methods is not correct" (){
@@ -53,33 +64,39 @@ class ModelValidatorSpecification extends Specification {
     }
 
 
-    public static interface InvalidGetter extends MongoEntity{}
+    public static interface InvalidGetter extends Entity{}
 
-    public static interface Getter1 extends MongoEntity{
+    public static interface Getter1 extends Entity{
         String getField1();
         Getter2 getChild();
     }
 
-    public static interface Builder1 extends MongoEntityBuilder{
+    public static interface Builder1 extends EntityBuilder{
         Builder1 withField1 (String field1);
         Builder1 withChild (Getter2 child);
     }
 
-    public static interface Getter2 extends MongoEntity{}
+    public static interface Getter2 extends Entity{}
 
-    public static interface Builder1Wrong1 extends MongoEntityBuilder{
+    public static interface Builder1Wrong1 extends EntityBuilder{
         Builder1Wrong1 withField1 (int field1);
         Builder1Wrong1 withChild (Getter2 child);
     }
 
-    public static interface Builder1Wrong2 extends MongoEntityBuilder{
+    public static interface Builder1Wrong2 extends EntityBuilder{
         Builder1Wrong1 withField1 (String field1);
         Builder1Wrong1 withField2 (String field2);
         Builder1Wrong1 withChild (Getter2 child);
     }
 
-    public static interface Builder2 extends MongoEntityBuilder{
+    public static interface Builder2 extends EntityBuilder{
         Builder2 withField1 (String field1);
         Builder2 withField2 (String field2);
+    }
+
+    public static interface Relatioship1 extends Relationship<Getter1, Getter2>{
+    }
+
+    public static interface Relatioship1Builder extends RelationshipBuilder<Relatioship1, Getter1, Getter2> {
     }
 }

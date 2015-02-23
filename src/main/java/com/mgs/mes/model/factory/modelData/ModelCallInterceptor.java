@@ -1,7 +1,7 @@
 package com.mgs.mes.model.factory.modelData;
 
-import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.entity.Entity;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 
@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Optional;
 
-class ModelCallInterceptor implements InvocationHandler, MongoEntity {
+class ModelCallInterceptor implements InvocationHandler, Entity {
 	private final ModelData modelData;
 
 	public ModelCallInterceptor(ModelData modelData) {
@@ -22,7 +22,7 @@ class ModelCallInterceptor implements InvocationHandler, MongoEntity {
 		if (method.getName().equals("asDbo")) {
 			return asDbo();
 		} else if (method.getName().equals("equals")) {
-			MongoEntity equalsRight = (MongoEntity) args[0];
+			Entity equalsRight = (Entity) args[0];
 			return equals(equalsRight);
 		} else if (method.getName().equals("toString")) {
 			return toString();
@@ -53,7 +53,7 @@ class ModelCallInterceptor implements InvocationHandler, MongoEntity {
 		ModelCallInterceptor that = null;
 		if (ModelCallInterceptor.class.isAssignableFrom(o.getClass())){
 			that = (ModelCallInterceptor) o;
-		}else if (MongoEntity.class.isAssignableFrom(o.getClass())) {
+		}else if (Entity.class.isAssignableFrom(o.getClass())) {
 			if (o instanceof Proxy){
 				that = (ModelCallInterceptor) Proxy.getInvocationHandler(o);
 			}

@@ -1,9 +1,9 @@
 package com.mgs.mes.model.factory
 
-import com.mgs.mes.model.MongoEntity
 import com.mgs.mes.model.data.ModelDataFactory
 import com.mgs.mes.model.data.transformer.DboTransformer
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer
+import com.mgs.mes.model.entity.Entity
 import com.mgs.mes.model.factory.dbo.DBObjectModelFactory
 import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
 import com.mgs.reflection.BeanNamingExpert
@@ -95,7 +95,7 @@ class ModelFactorySpecification extends Specification {
         result
     }
 
-    public static interface NestedEntity extends MongoEntity {
+    public static interface NestedEntity extends Entity {
         public String getField4();
         public int getField5();
         public Integer getField6();
@@ -103,7 +103,7 @@ class ModelFactorySpecification extends Specification {
     }
 
 
-    public static interface SimpleEntity extends MongoEntity {
+    public static interface SimpleEntity extends Entity {
         public String getField1();
         public int getField2();
         public Integer getField3();

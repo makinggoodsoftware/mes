@@ -1,7 +1,7 @@
 package com.mgs.reflection
 
-import com.mgs.mes.EntityA
-import com.mgs.mes.model.MongoEntity
+import com.mgs.mes.entityA.EntityA
+import com.mgs.mes.model.entity.Entity
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -33,6 +33,6 @@ class ReflectionsSpecification extends Specification {
         File        | Void          | false
         ArrayList   | List          | true
         HashMap     | List          | false
-        EntityA     | MongoEntity   | true
+        EntityA     | Entity   | true
     }
 }

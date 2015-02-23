@@ -2,28 +2,28 @@ package com.mgs.mes.factory;
 
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.db.MongoRetriever;
-import com.mgs.mes.model.MongoEntity;
-import com.mgs.mes.model.MongoEntityBuilder;
-import com.mgs.mes.model.MongoRelationships;
-import com.mgs.mes.model.builder.ModelBuilderFactory;
-import com.mgs.mes.model.relationships.ModelRelationshipsBuilderFactory;
+import com.mgs.mes.model.builder.EntityBuilderFactory;
+import com.mgs.mes.model.entity.Entity;
+import com.mgs.mes.model.entity.EntityBuilder;
+import com.mgs.mes.model.entity.Relationships;
+import com.mgs.mes.model.relationships.RelationshipsFactory;
 
-public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T>, Y extends MongoRelationships<T>> {
+public class MongoManager <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> {
 	private final MongoRetriever<T> retriever;
 	private final MongoPersister<T, Z> persister;
-	private final ModelBuilderFactory<T, Z> builder;
-	private final ModelRelationshipsBuilderFactory<T, Y> relationshipsBuilderFactory;
+	private final EntityBuilderFactory<T, Z> builder;
+	private final RelationshipsFactory<T, Y> relationshipsFactory;
 
 	public MongoManager(
 			MongoRetriever<T> retriever,
 			MongoPersister<T, Z> persister,
-			ModelBuilderFactory<T, Z> builder,
-			ModelRelationshipsBuilderFactory<T, Y> relationshipsBuilderFactory
+			EntityBuilderFactory<T, Z> builder,
+			RelationshipsFactory<T, Y> relationshipsFactory
 	) {
 		this.retriever = retriever;
 		this.persister = persister;
 		this.builder = builder;
-		this.relationshipsBuilderFactory = relationshipsBuilderFactory;
+		this.relationshipsFactory = relationshipsFactory;
 	}
 
 	public MongoRetriever<T> getRetriever() {
@@ -35,10 +35,10 @@ public class MongoManager <T extends MongoEntity, Z extends MongoEntityBuilder<T
 	}
 
 	public Y relationshipFrom(T from){
-		return relationshipsBuilderFactory.from(from);
+		return relationshipsFactory.from(from);
 	}
 
-	public ModelBuilderFactory<T, Z> getBuilder() {
+	public EntityBuilderFactory<T, Z> getBuilder() {
 		return builder;
 	}
 }

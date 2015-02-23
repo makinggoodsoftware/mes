@@ -1,0 +1,8 @@
+package com.mgs.mes.entityC;
+
+import com.mgs.mes.model.entity.EntityBuilder;
+
+public interface EntityCBuilder extends EntityBuilder<EntityC> {
+	public EntityCBuilder withEntityCfield1(String value);
+	public EntityCBuilder withEntityCfield2(String value);
+}

@@ -1,6 +1,5 @@
 package com.mgs.mes.model.data
 
-import com.mgs.mes.model.MongoEntity
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
@@ -96,7 +95,7 @@ class ModelDataBuilderFactorySpecification extends Specification {
         result.is(resultMock)
     }
 
-    public static interface Entity extends MongoEntity {
+    public static interface Entity extends com.mgs.mes.model.entity.Entity {
         public String getField1();
         public String getField2();
     }

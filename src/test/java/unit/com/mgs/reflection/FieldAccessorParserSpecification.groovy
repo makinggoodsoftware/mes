@@ -1,8 +1,7 @@
 package com.mgs.reflection
 
-import com.mgs.mes.EntityA
-import com.mgs.mes.EntityABuilder
-import com.mgs.mes.model.MongoEntity
+import com.mgs.mes.entityA.EntityA
+import com.mgs.mes.entityA.EntityABuilder
 import spock.lang.Specification
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER
@@ -62,8 +61,8 @@ class FieldAccessorParserSpecification extends Specification {
 
         then:
         result.size() == 2
-        result.get(0).fieldName == "field1"
-        result.get(1).fieldName == "id"
+        result.get(0).fieldName == "id"
+        result.get(1).fieldName == "field1"
     }
 
     def "should parse all correctly" (){
@@ -89,7 +88,7 @@ class FieldAccessorParserSpecification extends Specification {
         ! result.get(Entity.getMethod("asDbo")).isPresent()
     }
 
-    static interface Entity extends MongoEntity{
+    static interface Entity extends com.mgs.mes.model.entity.Entity{
         public String getField1();
     }
 

@@ -1,7 +1,7 @@
 package com.mgs.mes.db
-import com.mgs.mes.EntityB
-import com.mgs.mes.EntityBBuilder
-import com.mgs.mes.EntityBRelationships
+import com.mgs.mes.entityB.EntityB
+import com.mgs.mes.entityB.EntityBBuilder
+import com.mgs.mes.entityB.EntityBRelationships
 import com.mgs.mes.factory.MongoFactory
 import com.mgs.mes.factory.MongoManager
 import spock.lang.Specification
@@ -12,7 +12,7 @@ class DBSpecification extends Specification {
 
     def "should save simple object into collection" (){
         given:
-        EntityB b = Bs.builder.createNew().
+        EntityB b = Bs.builder.newEntityBuilder().
                 withEntityBfield1("value1").
                 withEntityBfield2("value2").
                 create()

@@ -1,7 +1,7 @@
 package com.mgs.mes.model.factory;
 
-import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.entity.Entity;
 
 public interface ModelFactory <X>{
-	<T extends MongoEntity> T from (Class<T> type, X from);
+	<T extends Entity> T from (Class<T> type, X from);
 }

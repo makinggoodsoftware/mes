@@ -1,6 +1,5 @@
 package com.mgs.mes.model.data.transformer
 
-import com.mgs.mes.model.MongoEntity
 import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
@@ -164,11 +163,11 @@ class DboTransformerSpecification extends Specification {
 
 
 
-    public static interface ComplexEntity extends MongoEntity {
+    public static interface ComplexEntity extends com.mgs.mes.model.entity.Entity {
         public Entity getChild();
     }
 
-    public static interface Entity extends MongoEntity {
+    public static interface Entity extends com.mgs.mes.model.entity.Entity {
         public String getField1();
         public String getField2();
     }

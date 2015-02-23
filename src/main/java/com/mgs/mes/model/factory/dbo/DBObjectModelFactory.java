@@ -1,8 +1,8 @@
 package com.mgs.mes.model.factory.dbo;
 
-import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataFactory;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.mes.model.factory.ModelFactory;
 import com.mongodb.DBObject;
 
@@ -16,7 +16,7 @@ public class DBObjectModelFactory implements ModelFactory<DBObject> {
 	}
 
 	@Override
-	public <T extends MongoEntity>T from(Class<T> type, DBObject dbObject){
+	public <T extends Entity>T from(Class<T> type, DBObject dbObject){
 		ModelData modelData = modelDataFactory.fromDbo(type, dbObject);
 		return modelDataModelFactory.from(type, modelData);
 	}

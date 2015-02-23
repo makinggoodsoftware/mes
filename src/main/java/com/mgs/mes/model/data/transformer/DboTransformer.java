@@ -1,7 +1,7 @@
 package com.mgs.mes.model.data.transformer;
 
-import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
@@ -27,11 +27,11 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 	}
 
 	@SuppressWarnings("Convert2MethodRef")
-	public ModelData transform (Class<? extends MongoEntity> type, DBObject dbObject) {
+	public ModelData transform (Class<? extends Entity> type, DBObject dbObject) {
 		return doTransform(type, dbObject, true);
 	}
 
-	private ModelData doTransform(Class<? extends MongoEntity> type, DBObject dbObject, boolean isOuter) {
+	private ModelData doTransform(Class<? extends Entity> type, DBObject dbObject, boolean isOuter) {
 		assertNoIdField(dbObject);
 		assertInnerObjectHasNo_Id(dbObject, isOuter);
 
@@ -55,7 +55,7 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 		if (dbObject.get("id") != null) throw new IllegalArgumentException("id is an invalid property for the dbo, it has to be id");
 	}
 
-	private <T extends MongoEntity> Object buildValue(Class<T> type, Map.Entry<String, Object> valueByFieldName, boolean isOuter) {
+	private <T extends Entity> Object buildValue(Class<T> type, Map.Entry<String, Object> valueByFieldName, boolean isOuter) {
 		Object rawValue = valueByFieldName.getValue();
 		String fieldName = valueByFieldName.getKey();
 
@@ -69,11 +69,11 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 				extractNestedValue(type, fieldName, (DBObject) rawValue);
 	}
 
-	private <T extends MongoEntity> Object extractNestedValue(Class<T> type, String fieldName, DBObject nestedValue) {
+	private <T extends Entity> Object extractNestedValue(Class<T> type, String fieldName, DBObject nestedValue) {
 		String getterName = beanNamingExpert.getGetterName(fieldName);
 		FieldAccessor accessor = fieldAccessorParser.parse(type, getterName).get();
 		//noinspection unchecked
-		Class<MongoEntity> nestedType = (Class<MongoEntity>) accessor.getDeclaredType();
+		Class<Entity> nestedType = (Class<Entity>) accessor.getDeclaredType();
 		return modelFactory.from(nestedType, doTransform(nestedType, nestedValue, false));
 	}
 

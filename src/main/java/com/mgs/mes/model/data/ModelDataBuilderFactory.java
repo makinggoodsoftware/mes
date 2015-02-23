@@ -1,6 +1,6 @@
 package com.mgs.mes.model.data;
 
-import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -23,11 +23,11 @@ public class ModelDataBuilderFactory {
 		this.fieldAccessorParser = fieldAccessorParser;
 	}
 
-	public <T extends MongoEntity> ModelDataBuilder empty(Class<T> type){
+	public <T extends Entity> ModelDataBuilder empty(Class<T> type){
 		return from(type, null);
 	}
 
-	public <T extends MongoEntity> ModelDataBuilder from(Class<T> type, T baseLine){
+	public <T extends Entity> ModelDataBuilder from(Class<T> type, T baseLine){
 		Stream<FieldAccessor> accessors = fieldAccessorParser.parse(type);
 		Map<FieldAccessor, Object> fieldsByGetterMethodName = new HashMap<>();
 		accessors.forEach(accessor -> fieldsByGetterMethodName.put(accessor, findBaseLineValue (baseLine, accessor)));
@@ -35,7 +35,7 @@ public class ModelDataBuilderFactory {
 		return new ModelDataBuilder(modelDataFactory, beanNamingExpert, fieldAccessorParser, type, fieldsByGetterMethodName);
 	}
 
-	private <T extends MongoEntity> Object findBaseLineValue(T baseLine, FieldAccessor accessor) {
+	private <T extends Entity> Object findBaseLineValue(T baseLine, FieldAccessor accessor) {
 		try {
 			if (baseLine == null) {
 				return accessor.getFieldName().equals("id") ? Optional.empty() : null;

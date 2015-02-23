@@ -1,5 +1,7 @@
 package com.mgs.mes.model;
 
+import com.mgs.mes.model.entity.Entity;
+import com.mgs.mes.model.entity.EntityBuilder;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;
@@ -19,30 +21,30 @@ import static com.mgs.reflection.FieldAccessorType.GET;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
-public class ModelValidator {
+public class Validator {
 	private final Reflections reflections;
 	private final FieldAccessorParser fieldAccessorParser;
 
-	public ModelValidator(Reflections reflections, FieldAccessorParser fieldAccessorParser) {
+	public Validator(Reflections reflections, FieldAccessorParser fieldAccessorParser) {
 		this.reflections = reflections;
 		this.fieldAccessorParser = fieldAccessorParser;
 	}
 
-	public <T extends MongoEntity, Z extends MongoEntityBuilder<T>> void validate(Class<T> modelType, Class<Z> builderType) {
+	public <T extends Entity, Z extends EntityBuilder<T>> void validate(Class<T> entityType, Class<Z> builderType) {
 		try {
-			tryToValidate(modelType, builderType);
+			tryToValidate(entityType, builderType);
 		} catch (Exception e) {
-			String errorMsg = format("Can't validate %s against %s as valid interfaces to drive the getters and builders for Mongo Easy", modelType, builderType);
+			String errorMsg = format("Can't validate %s against %s as valid interfaces to drive the getters and builders for Mongo Easy", entityType, builderType);
 			throw new IllegalArgumentException(errorMsg, e);
 		}
 	}
 
-	private <T extends MongoEntity, Z extends MongoEntityBuilder<T>> void tryToValidate(Class<T> modelType, Class<Z> builderType) {
-		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(modelType, GET, asList("asDbo"));
-		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId"));
+	private <T extends Entity, Z extends EntityBuilder<T>> void tryToValidate(Class<T> entityType, Class<Z> builderType) {
+		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(entityType, GET, asList("asDbo","getLeft","getRight"));
+		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId","withLeft","withRight"));
 
 		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
-			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, modelType);
+			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, entityType);
 			throw new IllegalArgumentException(errorMsg);
 		}
 	}
@@ -105,7 +107,7 @@ public class ModelValidator {
 	private boolean isCorrectDataType(FieldAccessor fieldAccessor) {
 		return
 				fieldAccessor.getFieldName().equals("id") ||
-				reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), MongoEntity.class);
+				reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), Entity.class);
 	}
 
 	@SuppressWarnings("CodeBlock2Expr")

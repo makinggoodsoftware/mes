@@ -1,7 +1,7 @@
 package com.mgs.mes.model.data.transformer;
 
-import com.mgs.mes.model.MongoEntity;
 import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.reflection.FieldAccessor;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<FieldAccessor, Object>>{
 	@Override
-	public ModelData transform(Class<? extends MongoEntity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
+	public ModelData transform(Class<? extends Entity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
 		return new ModelData(buildDbo(fieldValuesByAccessor), buildMethodMap(fieldValuesByAccessor));
 	}
 
@@ -34,9 +34,9 @@ public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<Fie
 		stream.forEach(fieldValueByAccessorEntry -> {
 			String fieldName = fieldValueByAccessorEntry.getKey().getFieldName();
 			Object value = fieldValueByAccessorEntry.getValue();
-			if (value != null && MongoEntity.class.isAssignableFrom(value.getClass())){
-				MongoEntity mongoEntity = (MongoEntity) value;
-				dboMap.put(fieldName, mongoEntity.asDbo());
+			if (value != null && Entity.class.isAssignableFrom(value.getClass())){
+				Entity entity = (Entity) value;
+				dboMap.put(fieldName, entity.asDbo());
 			} else if (fieldName.equals("id")) {
 				Optional<?> optionalValue = (Optional<?>) value;
 				if (optionalValue == null) throw new IllegalStateException("The id can never be null");

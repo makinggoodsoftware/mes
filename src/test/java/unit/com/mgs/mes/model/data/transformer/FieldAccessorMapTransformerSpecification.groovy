@@ -1,5 +1,5 @@
 package com.mgs.mes.model.data.transformer
-import com.mgs.mes.model.MongoEntity
+
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorType
 import com.mongodb.BasicDBObject
@@ -92,11 +92,11 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getId") == of(objectIdMock)
     }
 
-    static interface ComplexEntity extends MongoEntity {
+    static interface ComplexEntity extends com.mgs.mes.model.entity.Entity {
         public Entity getChild ();
     }
 
-    static interface Entity extends MongoEntity {
+    static interface Entity extends com.mgs.mes.model.entity.Entity {
         public String getField1 ();
         public String getField2 ();
     }

@@ -1,5 +1,5 @@
 package com.mgs.mes.utils
-import com.mgs.mes.model.MongoEntity
+
 import spock.lang.Specification
 
 import java.lang.reflect.InvocationHandler
@@ -38,5 +38,5 @@ class MongoEntitiesSpecification extends Specification {
         result == "Entity"
     }
 
-    public static interface Entity extends MongoEntity {}
+    public static interface Entity extends com.mgs.mes.model.entity.Entity {}
 }

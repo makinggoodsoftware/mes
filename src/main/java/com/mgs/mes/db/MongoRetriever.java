@@ -1,6 +1,6 @@
 package com.mgs.mes.db;
 
-import com.mgs.mes.model.MongoEntity;
+import com.mgs.mes.model.entity.Entity;
 import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.mes.utils.MongoEntities;
 import com.mongodb.BasicDBObject;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-public class MongoRetriever <T extends MongoEntity> {
+public class MongoRetriever <T extends Entity> {
 	private final MongoEntities mongoEntities;
 	private final MongoDao mongoDao;
 	private final ModelFactory<DBObject> modelFactory;

@@ -1,8 +1,19 @@
 package com.mgs.mes.features
 
-import com.mgs.mes.*
+import com.mgs.mes.entityA.EntityA
+import com.mgs.mes.entityA.EntityABuilder
+import com.mgs.mes.entityA.EntityARelationships
+import com.mgs.mes.entityB.EntityB
+import com.mgs.mes.entityB.EntityBBuilder
+import com.mgs.mes.entityB.EntityBRelationships
+import com.mgs.mes.entityC.EntityC
+import com.mgs.mes.entityC.EntityCBuilder
+import com.mgs.mes.entityC.EntityCRelationships
 import com.mgs.mes.factory.MongoFactory
 import com.mgs.mes.factory.MongoManager
+import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
+import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
+import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
 
 import static com.mgs.mes.factory.MongoFactory.from
@@ -27,10 +38,10 @@ class MongoBasicFeatures extends Specification{
 
     def "shouldPerformCRUDInSimpleEntity" () {
         when:
-        EntityA original = As.builder.createNew().
+        EntityA original = As.builder.newEntityBuilder().
                             withEntityAfield1("value1").
                             withEntityAfield2( "value2").
-                            withEmbedded(Bs.builder.createNew().
+                            withEmbedded(Bs.builder.newEntityBuilder().
                                     withEntityBfield1("entityAfield1").
                                     withEntityBfield2("entityAfield2").
                                     create()
@@ -78,19 +89,21 @@ class MongoBasicFeatures extends Specification{
 
     def "should save relationships" () {
         given:
-        EntityA entityA = As.builder.createNew().
+        EntityA entityA = As.persister.create(As.builder.newEntityBuilder().
                 withEntityAfield1("value1").
                 withEntityAfield2( "value2").
-                withEmbedded(Bs.builder.createNew().
+                withEmbedded(Bs.builder.newEntityBuilder().
                         withEntityBfield1("entityAfield1").
                         withEntityBfield2("entityAfield2").
                         create()
                 ).
                 create()
-        EntityC entityC = Cs.builder.createNew().
+        )
+        EntityC entityC = Cs.persister.create(Cs.builder.newEntityBuilder().
                 withEntityCfield1("valueC1").
                 withEntityCfield2("valueC2").
                 create()
+        )
 
         when:
         EntityA_EntityC a_c = A_Cs.persister.create(As.
@@ -100,7 +113,7 @@ class MongoBasicFeatures extends Specification{
         )
 
         then:
-        a_c.entityA == entityA
-        a_c.entityC == entityC
+        a_c.entityA.retrieve() == entityA
+        a_c.entityC.retrieve() == entityC
     }
 }
