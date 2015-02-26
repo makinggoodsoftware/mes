@@ -53,7 +53,7 @@ class MongoBasicFeatures extends Specification{
                             create()
 
         then:
-        ! original.id.present
+        !original.id.present
 
         //Test create
         when:
@@ -117,7 +117,7 @@ class MongoBasicFeatures extends Specification{
         )
 
         then:
-        a_c.entityA.retrieve() == entityA
-        a_c.entityC.retrieve() == entityC
+        a_c.left.retrieve() == entityA
+        a_c.right.retrieve() == entityC
     }
 }
