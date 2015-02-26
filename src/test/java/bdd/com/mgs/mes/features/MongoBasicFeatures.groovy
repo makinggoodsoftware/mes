@@ -1,5 +1,4 @@
 package com.mgs.mes.features
-
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
 import com.mgs.mes.entityA.EntityARelationships
@@ -9,17 +8,17 @@ import com.mgs.mes.entityB.EntityBRelationships
 import com.mgs.mes.entityC.EntityC
 import com.mgs.mes.entityC.EntityCBuilder
 import com.mgs.mes.entityC.EntityCRelationships
-import com.mgs.mes.factory.MongoFactory
+import com.mgs.mes.factory.MongoContext
+import com.mgs.mes.factory.MongoContextFactory
 import com.mgs.mes.factory.MongoManager
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
 
-import static com.mgs.mes.factory.MongoFactory.from
+import static com.mgs.mes.factory.MongoContextFactory.from
 
 class MongoBasicFeatures extends Specification{
-    MongoFactory factory;
     String randomValue
     EntityA fromDb
     MongoManager<EntityA, EntityABuilder, EntityARelationships> As;
@@ -28,11 +27,16 @@ class MongoBasicFeatures extends Specification{
     MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
 
     def "setup" () {
-        factory = from("localhost", "bddDb", 27017)
-        As = factory.manager(EntityA, EntityABuilder, EntityARelationships)
-        Bs = factory.manager(EntityB, EntityBBuilder, EntityBRelationships)
-        Cs = factory.manager(EntityC, EntityCBuilder, EntityCRelationships)
-        A_Cs = factory.manager(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships)
+        MongoContextFactory factory = from("localhost", "bddDb", 27017)
+        factory.register(EntityA, EntityABuilder, EntityARelationships)
+        factory.register(EntityB, EntityBBuilder, EntityBRelationships)
+        factory.register(EntityC, EntityCBuilder, EntityCRelationships)
+        factory.register(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships)
+        MongoContext context = factory.create();
+        As = context.manager(EntityA);
+        Bs = context.manager(EntityB);
+        Cs = context.manager(EntityC);
+        A_Cs = context.manager(EntityA_EntityC);
         randomValue = UUID.randomUUID().toString()
     }
 

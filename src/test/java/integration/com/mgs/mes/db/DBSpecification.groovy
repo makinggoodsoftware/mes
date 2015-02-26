@@ -2,13 +2,20 @@ package com.mgs.mes.db
 import com.mgs.mes.entityB.EntityB
 import com.mgs.mes.entityB.EntityBBuilder
 import com.mgs.mes.entityB.EntityBRelationships
-import com.mgs.mes.factory.MongoFactory
+import com.mgs.mes.factory.MongoContext
+import com.mgs.mes.factory.MongoContextFactory
 import com.mgs.mes.factory.MongoManager
 import spock.lang.Specification
 
 class DBSpecification extends Specification {
-    MongoFactory mongoFactory = MongoFactory.from("localhost", "testDb", 27017)
-    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs = mongoFactory.manager(EntityB, EntityBBuilder, EntityBRelationships)
+    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs
+
+    def "setup" (){
+        MongoContextFactory mongoContextFactory = MongoContextFactory.from("localhost", "testDb", 27017)
+        mongoContextFactory.register(EntityB, EntityBBuilder, EntityBRelationships)
+        MongoContext context = mongoContextFactory.create()
+        Bs = context.manager(EntityB)
+    }
 
     def "should save simple object into collection" (){
         given:
