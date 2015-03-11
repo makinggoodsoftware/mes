@@ -13,7 +13,10 @@ public class RelationshipsFactory<T extends Entity, Y extends Relationships<T>> 
 	private final Class<Y> relationshipType;
 	private final Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> relationshipBuilderFactoryByRelationship;
 
-	public RelationshipsFactory(Class<Y> relationshipType, Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> relationshipBuilderFactoryByRelationship) {
+	public RelationshipsFactory(
+			Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> relationshipBuilderFactoryByRelationship,
+			Class<Y> relationshipType
+	) {
 		this.relationshipType = relationshipType;
 		this.relationshipBuilderFactoryByRelationship = relationshipBuilderFactoryByRelationship;
 	}

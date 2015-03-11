@@ -1,7 +1,9 @@
 package com.mgs.mes.model;
 
+import com.mgs.mes.init.EntityDescriptor;
 import com.mgs.mes.model.entity.Entity;
 import com.mgs.mes.model.entity.EntityBuilder;
+import com.mgs.mes.model.entity.Relationships;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;
@@ -30,11 +32,11 @@ public class Validator {
 		this.fieldAccessorParser = fieldAccessorParser;
 	}
 
-	public <T extends Entity, Z extends EntityBuilder<T>> void validate(Class<T> entityType, Class<Z> builderType) {
+	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> void validate(EntityDescriptor<T, Z, Y> descriptor) {
 		try {
-			tryToValidate(entityType, builderType);
+			tryToValidate(descriptor.getEntityType(), descriptor.getBuilderType());
 		} catch (Exception e) {
-			String errorMsg = format("Can't validate %s against %s as valid interfaces to drive the getters and builders for Mongo Easy", entityType, builderType);
+			String errorMsg = format("Can't validate %s as valid interfaces to drive the getters and builders for Mongo Easy", descriptor.toString());
 			throw new IllegalArgumentException(errorMsg, e);
 		}
 	}

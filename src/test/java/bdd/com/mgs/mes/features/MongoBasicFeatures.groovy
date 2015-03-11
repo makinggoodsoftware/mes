@@ -8,15 +8,11 @@ import com.mgs.mes.entityB.EntityBRelationships
 import com.mgs.mes.entityC.EntityC
 import com.mgs.mes.entityC.EntityCBuilder
 import com.mgs.mes.entityC.EntityCRelationships
-import com.mgs.mes.factory.MongoContext
-import com.mgs.mes.factory.MongoContextFactory
-import com.mgs.mes.factory.MongoManager
+import com.mgs.mes.init.*
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
-
-import static com.mgs.mes.factory.MongoContextFactory.from
 
 class MongoBasicFeatures extends Specification{
     String randomValue
@@ -27,12 +23,18 @@ class MongoBasicFeatures extends Specification{
     MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
 
     def "setup" () {
-        MongoContextFactory factory = from("localhost", "bddDb", 27017)
-        factory.register(EntityA, EntityABuilder, EntityARelationships)
-        factory.register(EntityB, EntityBBuilder, EntityBRelationships)
-        factory.register(EntityC, EntityCBuilder, EntityCRelationships)
-        factory.register(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships)
-        MongoContext context = factory.create();
+        EntityDescriptorFactory descriptorFactory = new EntityDescriptorFactory ();
+        MongoContext context = new MongoOrchestrator(new MongoDaoFactory(), new MongoInitializerFactory()).
+                createContext(
+                        "localhost", 27017, "bddDb",
+                        [
+                                descriptorFactory.create(EntityA, EntityABuilder, EntityARelationships),
+                                descriptorFactory.create(EntityB, EntityBBuilder, EntityBRelationships),
+                                descriptorFactory.create(EntityC, EntityCBuilder, EntityCRelationships),
+                                descriptorFactory.create(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
+                        ]
+                )
+        Bs = context.manager(EntityB)
         As = context.manager(EntityA);
         Bs = context.manager(EntityB);
         Cs = context.manager(EntityC);
@@ -55,7 +57,6 @@ class MongoBasicFeatures extends Specification{
         then:
         !original.id.present
 
-        //Test create
         when:
         def afterPersist = As.persister.create(original)
 
@@ -70,7 +71,6 @@ class MongoBasicFeatures extends Specification{
         this.fromDb != original
         this.fromDb == afterPersist
 
-        //Test update
         when:
         EntityA updated = As.builder.update(afterPersist as EntityA).
                             withEntityAfield2("entityAfield2 new values").

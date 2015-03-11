@@ -21,7 +21,7 @@ class RelationshipsFactorySpecification extends Specification {
         ]
         a_cBuilderFactory.newRelationshipBuilder (a, c) >> a_cBuilder
         a_cBuilder.create() >> a_c
-        testObj = new RelationshipsFactory(EntityARelationships, relationshipBuilderFactoriesByType)
+        testObj = new RelationshipsFactory(relationshipBuilderFactoriesByType, EntityARelationships)
     }
 
     def "should create relationships" (){
