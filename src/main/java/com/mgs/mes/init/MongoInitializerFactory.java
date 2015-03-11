@@ -16,8 +16,8 @@ public class MongoInitializerFactory {
 						internalDependencies.getDBOModelFactory(),
 						internalDependencies.getModelDataModelFactory(),
 						internalDependencies.getMongoEntities(),
-						internalDependencies.getBeanNamingExpert()
-				),
+						internalDependencies.getBeanNamingExpert(),
+						internalDependencies.getMongoReferenceFactory()),
 				internalDependencies.getValidator(),
 				internalDependencies.getMongoContextFactory(),
 				internalDependencies.getUnlinkedMongoContextFactory()

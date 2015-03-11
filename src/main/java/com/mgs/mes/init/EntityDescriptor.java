@@ -29,7 +29,7 @@ public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>, Y e
 	}
 
 	public boolean isRelationshipEntity (){
-		return entityType.isAssignableFrom(Relationship.class);
+		return Relationship.class.isAssignableFrom(entityType);
 	}
 
 	@SuppressWarnings("RedundantIfStatement")

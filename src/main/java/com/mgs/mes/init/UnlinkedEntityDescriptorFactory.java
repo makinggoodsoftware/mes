@@ -4,12 +4,12 @@ import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.db.MongoRetriever;
 import com.mgs.mes.model.builder.EntityBuilderFactory;
+import com.mgs.mes.model.builder.RelationshipBuilderFactory;
 import com.mgs.mes.model.data.ModelData;
 import com.mgs.mes.model.data.ModelDataBuilderFactory;
-import com.mgs.mes.model.entity.Entity;
-import com.mgs.mes.model.entity.EntityBuilder;
-import com.mgs.mes.model.entity.Relationships;
+import com.mgs.mes.model.entity.*;
 import com.mgs.mes.model.factory.ModelFactory;
+import com.mgs.mes.model.relationships.MongoReferenceFactory;
 import com.mgs.mes.utils.MongoEntities;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
@@ -23,8 +23,9 @@ public class UnlinkedEntityDescriptorFactory {
 	private final ModelFactory<ModelData> modelDataModelFactory;
 	private final MongoEntities mongoEntities;
 	private final BeanNamingExpert beanNamingExpert;
+	private final MongoReferenceFactory mongoReferenceFactory;
 
-	public UnlinkedEntityDescriptorFactory(MongoDao mongoDao, FieldAccessorParser fieldAccessorParser, ModelDataBuilderFactory modelDataBuilderFactory, ModelFactory<DBObject> dbObjectModelFactory, ModelFactory<ModelData> modelDataModelFactory, MongoEntities mongoEntities, BeanNamingExpert beanNamingExpert) {
+	public UnlinkedEntityDescriptorFactory(MongoDao mongoDao, FieldAccessorParser fieldAccessorParser, ModelDataBuilderFactory modelDataBuilderFactory, ModelFactory<DBObject> dbObjectModelFactory, ModelFactory<ModelData> modelDataModelFactory, MongoEntities mongoEntities, BeanNamingExpert beanNamingExpert, MongoReferenceFactory mongoReferenceFactory) {
 		this.mongoDao = mongoDao;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.modelDataBuilderFactory = modelDataBuilderFactory;
@@ -32,6 +33,7 @@ public class UnlinkedEntityDescriptorFactory {
 		this.modelDataModelFactory = modelDataModelFactory;
 		this.mongoEntities = mongoEntities;
 		this.beanNamingExpert = beanNamingExpert;
+		this.mongoReferenceFactory = mongoReferenceFactory;
 	}
 
 	private <T extends Entity> MongoRetriever<T> retriever(Class<T> retrieveType) {
@@ -50,8 +52,34 @@ public class UnlinkedEntityDescriptorFactory {
 		return new MongoPersister<>(tzEntityBuilderFactory, mongoDao, mongoEntities);
 	}
 
-	private <T extends Entity, Z extends EntityBuilder<T>> EntityBuilderFactory<T, Z> builder(Class<T> typeOfModel, Class<Z> typeOfBuilder) {
-		return new EntityBuilderFactory<>(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, modelDataModelFactory, typeOfModel, typeOfBuilder);
+	@SuppressWarnings("unchecked")
+	private <A extends Entity, B extends Entity, T extends Entity, Z extends EntityBuilder<T>, T2 extends Relationship<A, B>, Z2 extends RelationshipBuilder<T2, A, B>>
+	EntityBuilderFactory<T, Z> builder(Class<? extends T> typeOfModel, Class<Z> typeOfBuilder) {
+		if (RelationshipBuilder.class.isAssignableFrom(typeOfBuilder)){
+			Class<T2> typeOfModel1 = (Class<T2>) typeOfModel;
+			Class<Z2> typeOfBuilder1 = (Class<Z2>) typeOfBuilder;
+			RelationshipBuilderFactory<A, B, T2, Z2> relationshipBuilderFactory = new RelationshipBuilderFactory<>(
+					modelDataBuilderFactory,
+					fieldAccessorParser,
+					beanNamingExpert,
+					modelDataModelFactory,
+					mongoReferenceFactory,
+					typeOfModel1,
+					typeOfBuilder1
+
+			);
+			return (EntityBuilderFactory<T, Z>) relationshipBuilderFactory;
+
+		}else{
+			return new EntityBuilderFactory<>(
+					modelDataBuilderFactory,
+					fieldAccessorParser,
+					beanNamingExpert,
+					modelDataModelFactory,
+					(Class<T>) typeOfModel,
+					typeOfBuilder
+			);
+		}
 	}
 
 	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> UnlinkedEntity<T, Z, Y>

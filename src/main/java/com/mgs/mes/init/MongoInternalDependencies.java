@@ -9,6 +9,7 @@ import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer;
 import com.mgs.mes.model.factory.ModelFactory;
 import com.mgs.mes.model.factory.dbo.DBObjectModelFactory;
 import com.mgs.mes.model.factory.modelData.ModelDataModelFactory;
+import com.mgs.mes.model.relationships.MongoReferenceFactory;
 import com.mgs.mes.utils.MongoEntities;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
@@ -25,6 +26,7 @@ public class MongoInternalDependencies {
 	private final MongoEntities mongoEntities;
 	private final MongoContextFactory mongoContextFactory;
 	private final UnlinkedMongoContextFactory unlinkedMongoContextFactory;
+	private final MongoReferenceFactory mongoReferenceFactory;
 
 	public static MongoInternalDependencies init () {
 		ModelFactory<ModelData> modelDataModelFactory = new ModelDataModelFactory();
@@ -53,10 +55,11 @@ public class MongoInternalDependencies {
 				beanNamingExpert,
 				mongoEntities,
 				mongoContextFactory1,
-				unlinkedMongoContextFactory1);
+				unlinkedMongoContextFactory1,
+				new MongoReferenceFactory());
 	}
 
-	private MongoInternalDependencies(ModelFactory<DBObject> DBOModelFactory, Validator validator, ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, ModelFactory<ModelData> modelDataModelFactory, BeanNamingExpert beanNamingExpert, MongoEntities mongoEntities, MongoContextFactory mongoContextFactory, UnlinkedMongoContextFactory unlinkedMongoContextFactory) {
+	private MongoInternalDependencies(ModelFactory<DBObject> DBOModelFactory, Validator validator, ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, ModelFactory<ModelData> modelDataModelFactory, BeanNamingExpert beanNamingExpert, MongoEntities mongoEntities, MongoContextFactory mongoContextFactory, UnlinkedMongoContextFactory unlinkedMongoContextFactory, MongoReferenceFactory mongoReferenceFactory) {
 		this.DBOModelFactory = DBOModelFactory;
 		this.validator = validator;
 		this.modelDataBuilderFactory = modelDataBuilderFactory;
@@ -66,6 +69,7 @@ public class MongoInternalDependencies {
 		this.mongoEntities = mongoEntities;
 		this.mongoContextFactory = mongoContextFactory;
 		this.unlinkedMongoContextFactory = unlinkedMongoContextFactory;
+		this.mongoReferenceFactory = mongoReferenceFactory;
 	}
 
 	public ModelFactory<DBObject> getDBOModelFactory() {
@@ -102,5 +106,9 @@ public class MongoInternalDependencies {
 
 	public UnlinkedMongoContextFactory getUnlinkedMongoContextFactory() {
 		return unlinkedMongoContextFactory;
+	}
+
+	public MongoReferenceFactory getMongoReferenceFactory() {
+		return mongoReferenceFactory;
 	}
 }
