@@ -1,10 +1,10 @@
 package com.mgs.mes.model.builder;
 
-import com.mgs.mes.model.data.ModelData;
-import com.mgs.mes.model.data.ModelDataBuilder;
+import com.mgs.mes.model.data.EntityData;
+import com.mgs.mes.model.data.EntityDataBuilder;
 import com.mgs.mes.model.entity.Entity;
 import com.mgs.mes.model.entity.EntityBuilder;
-import com.mgs.mes.model.factory.ModelFactory;
+import com.mgs.mes.model.factory.EntityFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -21,15 +21,15 @@ class EntityBuilderCallInterceptor<T extends Entity> implements InvocationHandle
 	private final FieldAccessorParser fieldAccessorParser;
 	private final BeanNamingExpert beanNamingExpert;
 	private final Class<T> modelType;
-	private final ModelDataBuilder modelDataBuilder;
-	private final ModelFactory<ModelData> modelFactory;
+	private final EntityDataBuilder entityDataBuilder;
+	private final EntityFactory<EntityData> entityFactory;
 
-	public EntityBuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, ModelDataBuilder modelDataBuilder, ModelFactory<ModelData> modelFactory) {
+	public EntityBuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, EntityDataBuilder entityDataBuilder, EntityFactory<EntityData> entityFactory) {
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.modelType = modelType;
-		this.modelDataBuilder = modelDataBuilder;
-		this.modelFactory = modelFactory;
+		this.entityDataBuilder = entityDataBuilder;
+		this.entityFactory = entityFactory;
 	}
 
 	@Override
@@ -64,11 +64,11 @@ class EntityBuilderCallInterceptor<T extends Entity> implements InvocationHandle
 	private void updateField(String fieldName, Object value) {
 		String getterName = beanNamingExpert.getGetterName(fieldName);
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(modelType, getterName).orElseThrow(IllegalArgumentException::new);
-		modelDataBuilder.with(fieldAccessor, value);
+		entityDataBuilder.with(fieldAccessor, value);
 	}
 
 	@Override
 	public T create() {
-		return modelFactory.from(modelType, modelDataBuilder.build());
+		return entityFactory.from(modelType, entityDataBuilder.build());
 	}
 }

@@ -12,27 +12,27 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class ModelDataBuilderFactory {
-	private final ModelDataFactory modelDataFactory;
+public class EntityDataBuilderFactory {
+	private final EntityDataFactory entityDataFactory;
 	private final BeanNamingExpert beanNamingExpert;
 	private final FieldAccessorParser fieldAccessorParser;
 
-	public ModelDataBuilderFactory(ModelDataFactory modelDataFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
-		this.modelDataFactory = modelDataFactory;
+	public EntityDataBuilderFactory(EntityDataFactory entityDataFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
+		this.entityDataFactory = entityDataFactory;
 		this.beanNamingExpert = beanNamingExpert;
 		this.fieldAccessorParser = fieldAccessorParser;
 	}
 
-	public <T extends Entity> ModelDataBuilder empty(Class<T> type){
+	public <T extends Entity> EntityDataBuilder empty(Class<T> type){
 		return from(type, null);
 	}
 
-	public <T extends Entity> ModelDataBuilder from(Class<T> type, T baseLine){
+	public <T extends Entity> EntityDataBuilder from(Class<T> type, T baseLine){
 		Stream<FieldAccessor> accessors = fieldAccessorParser.parse(type);
 		Map<FieldAccessor, Object> fieldsByGetterMethodName = new HashMap<>();
 		accessors.forEach(accessor -> fieldsByGetterMethodName.put(accessor, findBaseLineValue (baseLine, accessor)));
 
-		return new ModelDataBuilder(modelDataFactory, beanNamingExpert, fieldAccessorParser, type, fieldsByGetterMethodName);
+		return new EntityDataBuilder(entityDataFactory, beanNamingExpert, fieldAccessorParser, type, fieldsByGetterMethodName);
 	}
 
 	private <T extends Entity> Object findBaseLineValue(T baseLine, FieldAccessor accessor) {

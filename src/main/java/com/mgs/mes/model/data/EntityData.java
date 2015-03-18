@@ -4,11 +4,11 @@ import com.mongodb.DBObject;
 
 import java.util.Map;
 
-public class ModelData {
+public class EntityData {
 	private final DBObject dbo;
 	private final Map<String, Object> fieldsByGetterMethodName;
 
-	public ModelData(DBObject dbo, Map<String, Object> fieldsByGetterMethodName) {
+	public EntityData(DBObject dbo, Map<String, Object> fieldsByGetterMethodName) {
 		this.dbo = dbo;
 		this.fieldsByGetterMethodName = fieldsByGetterMethodName;
 	}
@@ -34,11 +34,11 @@ public class ModelData {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof ModelData)) return false;
+		if (!(o instanceof EntityData)) return false;
 
-		ModelData modelData = (ModelData) o;
+		EntityData entityData = (EntityData) o;
 
-		return dbo.equals(modelData.dbo) && fieldsByGetterMethodName.equals(modelData.fieldsByGetterMethodName);
+		return dbo.equals(entityData.dbo) && fieldsByGetterMethodName.equals(entityData.fieldsByGetterMethodName);
 	}
 
 	@Override

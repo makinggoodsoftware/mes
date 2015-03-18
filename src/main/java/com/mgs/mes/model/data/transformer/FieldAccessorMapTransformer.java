@@ -1,6 +1,6 @@
 package com.mgs.mes.model.data.transformer;
 
-import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.data.EntityData;
 import com.mgs.mes.model.entity.Entity;
 import com.mgs.reflection.FieldAccessor;
 import com.mongodb.BasicDBObject;
@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class FieldAccessorMapTransformer implements ModelDataTransformer<Map<FieldAccessor, Object>>{
+public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<FieldAccessor, Object>> {
 	@Override
-	public ModelData transform(Class<? extends Entity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
-		return new ModelData(buildDbo(fieldValuesByAccessor), buildMethodMap(fieldValuesByAccessor));
+	public EntityData transform(Class<? extends Entity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
+		return new EntityData(buildDbo(fieldValuesByAccessor), buildMethodMap(fieldValuesByAccessor));
 	}
 
 	private Map<String, Object> buildMethodMap(Map<FieldAccessor, Object> fieldsByGetterMethodName) {

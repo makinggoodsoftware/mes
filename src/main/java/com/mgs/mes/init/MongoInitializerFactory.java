@@ -12,12 +12,12 @@ public class MongoInitializerFactory {
 				new UnlinkedEntityDescriptorFactory(
 						dao,
 						internalDependencies.getFieldAccessorParser(),
-						internalDependencies.getModelDataBuilderFactory(),
-						internalDependencies.getDBOModelFactory(),
-						internalDependencies.getModelDataModelFactory(),
-						internalDependencies.getMongoEntities(),
+						internalDependencies.getEntityDataBuilderFactory(),
+						internalDependencies.getDboEntityFactory(),
+						internalDependencies.getEntityDataEntityFactory(),
+						internalDependencies.getEntities(),
 						internalDependencies.getBeanNamingExpert(),
-						internalDependencies.getMongoReferenceFactory()),
+						internalDependencies.getEntityReferenceFactory()),
 				internalDependencies.getValidator(),
 				internalDependencies.getMongoContextFactory(),
 				internalDependencies.getUnlinkedMongoContextFactory()

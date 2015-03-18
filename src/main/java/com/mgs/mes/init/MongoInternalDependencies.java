@@ -1,16 +1,16 @@
 package com.mgs.mes.init;
 
 import com.mgs.mes.model.Validator;
-import com.mgs.mes.model.data.ModelData;
-import com.mgs.mes.model.data.ModelDataBuilderFactory;
-import com.mgs.mes.model.data.ModelDataFactory;
+import com.mgs.mes.model.data.EntityData;
+import com.mgs.mes.model.data.EntityDataBuilderFactory;
+import com.mgs.mes.model.data.EntityDataFactory;
 import com.mgs.mes.model.data.transformer.DboTransformer;
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer;
-import com.mgs.mes.model.factory.ModelFactory;
-import com.mgs.mes.model.factory.dbo.DBObjectModelFactory;
-import com.mgs.mes.model.factory.modelData.ModelDataModelFactory;
-import com.mgs.mes.model.relationships.MongoReferenceFactory;
-import com.mgs.mes.utils.MongoEntities;
+import com.mgs.mes.model.factory.EntityFactory;
+import com.mgs.mes.model.factory.dbo.DBObjectEntityFactory;
+import com.mgs.mes.model.factory.entityData.EntityDataEntityFactory;
+import com.mgs.mes.model.relationships.EntityReferenceFactory;
+import com.mgs.mes.utils.Entities;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.Reflections;
@@ -18,86 +18,88 @@ import com.mongodb.DBObject;
 
 public class MongoInternalDependencies {
 	private final Validator validator;
-	private final ModelDataBuilderFactory modelDataBuilderFactory;
+	private final EntityDataBuilderFactory entityDataBuilderFactory;
 	private final FieldAccessorParser fieldAccessorParser;
-	private final ModelFactory<DBObject> DBOModelFactory;
-	private final ModelFactory<ModelData> modelDataModelFactory;
+	private final EntityFactory<DBObject> dboEntityFactory;
+	private final EntityFactory<EntityData> entityDataEntityFactory;
 	private final BeanNamingExpert beanNamingExpert;
-	private final MongoEntities mongoEntities;
+	private final Entities entities;
 	private final MongoContextFactory mongoContextFactory;
 	private final UnlinkedMongoContextFactory unlinkedMongoContextFactory;
-	private final MongoReferenceFactory mongoReferenceFactory;
+	private final EntityReferenceFactory entityReferenceFactory;
 
 	public static MongoInternalDependencies init () {
-		ModelFactory<ModelData> modelDataModelFactory = new ModelDataModelFactory();
+		EntityFactory<EntityData> modelDataEntityFactory = new EntityDataEntityFactory();
 		BeanNamingExpert beanNamingExpert = new BeanNamingExpert();
 		FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(beanNamingExpert);
 
 		Reflections reflections = new Reflections();
-		DboTransformer dboModelDataTransformer = new DboTransformer(modelDataModelFactory, beanNamingExpert, fieldAccessorParser);
+		DboTransformer dboModelDataTransformer = new DboTransformer(modelDataEntityFactory, beanNamingExpert, fieldAccessorParser);
 		FieldAccessorMapTransformer mapModelDataTransformer = new FieldAccessorMapTransformer();
-		ModelDataFactory modelDataFactory = new ModelDataFactory(dboModelDataTransformer, mapModelDataTransformer);
+		EntityDataFactory entityDataFactory = new EntityDataFactory(dboModelDataTransformer, mapModelDataTransformer);
 
 		Validator validator = new Validator(reflections, fieldAccessorParser);
-		ModelDataBuilderFactory modelDataBuilderFactory = new ModelDataBuilderFactory(modelDataFactory, beanNamingExpert, fieldAccessorParser);
-		ModelFactory<DBObject> modelFactory = new DBObjectModelFactory(modelDataModelFactory, modelDataFactory);
-		MongoEntities mongoEntities = new MongoEntities();
+		EntityDataBuilderFactory entityDataBuilderFactory = new EntityDataBuilderFactory(entityDataFactory, beanNamingExpert, fieldAccessorParser);
+		EntityFactory<DBObject> dbObjectEntityFactory = new DBObjectEntityFactory(modelDataEntityFactory, entityDataFactory);
+		Entities entities = new Entities();
 
-		MongoContextFactory mongoContextFactory1 = new MongoContextFactory();
-		UnlinkedMongoContextFactory unlinkedMongoContextFactory1 = new UnlinkedMongoContextFactory();
+		MongoContextFactory mongoContextFactory = new MongoContextFactory(entities);
+		UnlinkedMongoContextFactory unlinkedMongoContextFactory = new UnlinkedMongoContextFactory();
+
+		EntityReferenceFactory entityReferenceFactory = new EntityReferenceFactory(entityDataBuilderFactory, entities);
 
 		return new MongoInternalDependencies(
-				modelFactory,
+				dbObjectEntityFactory,
 				validator,
-				modelDataBuilderFactory,
+				entityDataBuilderFactory,
 				fieldAccessorParser,
-				modelDataModelFactory,
+				modelDataEntityFactory,
 				beanNamingExpert,
-				mongoEntities,
-				mongoContextFactory1,
-				unlinkedMongoContextFactory1,
-				new MongoReferenceFactory());
+				entities,
+				mongoContextFactory,
+				unlinkedMongoContextFactory,
+				entityReferenceFactory);
 	}
 
-	private MongoInternalDependencies(ModelFactory<DBObject> DBOModelFactory, Validator validator, ModelDataBuilderFactory modelDataBuilderFactory, FieldAccessorParser fieldAccessorParser, ModelFactory<ModelData> modelDataModelFactory, BeanNamingExpert beanNamingExpert, MongoEntities mongoEntities, MongoContextFactory mongoContextFactory, UnlinkedMongoContextFactory unlinkedMongoContextFactory, MongoReferenceFactory mongoReferenceFactory) {
-		this.DBOModelFactory = DBOModelFactory;
+	private MongoInternalDependencies(EntityFactory<DBObject> dboEntityFactory, Validator validator, EntityDataBuilderFactory entityDataBuilderFactory, FieldAccessorParser fieldAccessorParser, EntityFactory<EntityData> entityDataEntityFactory, BeanNamingExpert beanNamingExpert, Entities entities, MongoContextFactory mongoContextFactory, UnlinkedMongoContextFactory unlinkedMongoContextFactory, EntityReferenceFactory entityReferenceFactory) {
+		this.dboEntityFactory = dboEntityFactory;
 		this.validator = validator;
-		this.modelDataBuilderFactory = modelDataBuilderFactory;
+		this.entityDataBuilderFactory = entityDataBuilderFactory;
 		this.fieldAccessorParser = fieldAccessorParser;
-		this.modelDataModelFactory = modelDataModelFactory;
+		this.entityDataEntityFactory = entityDataEntityFactory;
 		this.beanNamingExpert = beanNamingExpert;
-		this.mongoEntities = mongoEntities;
+		this.entities = entities;
 		this.mongoContextFactory = mongoContextFactory;
 		this.unlinkedMongoContextFactory = unlinkedMongoContextFactory;
-		this.mongoReferenceFactory = mongoReferenceFactory;
+		this.entityReferenceFactory = entityReferenceFactory;
 	}
 
-	public ModelFactory<DBObject> getDBOModelFactory() {
-		return DBOModelFactory;
+	public EntityFactory<DBObject> getDboEntityFactory() {
+		return dboEntityFactory;
 	}
 
 	public Validator getValidator() {
 		return validator;
 	}
 
-	public ModelDataBuilderFactory getModelDataBuilderFactory() {
-		return modelDataBuilderFactory;
+	public EntityDataBuilderFactory getEntityDataBuilderFactory() {
+		return entityDataBuilderFactory;
 	}
 
 	public FieldAccessorParser getFieldAccessorParser() {
 		return fieldAccessorParser;
 	}
 
-	public ModelFactory<ModelData> getModelDataModelFactory() {
-		return modelDataModelFactory;
+	public EntityFactory<EntityData> getEntityDataEntityFactory() {
+		return entityDataEntityFactory;
 	}
 
 	public BeanNamingExpert getBeanNamingExpert() {
 		return beanNamingExpert;
 	}
 
-	public MongoEntities getMongoEntities() {
-		return mongoEntities;
+	public Entities getEntities() {
+		return entities;
 	}
 
 	public MongoContextFactory getMongoContextFactory() {
@@ -108,7 +110,7 @@ public class MongoInternalDependencies {
 		return unlinkedMongoContextFactory;
 	}
 
-	public MongoReferenceFactory getMongoReferenceFactory() {
-		return mongoReferenceFactory;
+	public EntityReferenceFactory getEntityReferenceFactory() {
+		return entityReferenceFactory;
 	}
 }

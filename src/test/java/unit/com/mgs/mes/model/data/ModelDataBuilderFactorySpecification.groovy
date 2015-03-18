@@ -11,12 +11,12 @@ import static java.util.Optional.empty
 import static java.util.Optional.of
 
 class ModelDataBuilderFactorySpecification extends Specification {
-    ModelDataBuilderFactory testObj
+    EntityDataBuilderFactory testObj
     FieldAccessorParser fieldAccessorParserMock = Mock (FieldAccessorParser)
     Entity entityMok = Mock(Entity)
     BeanNamingExpert beanNamingExpertMock = Mock (BeanNamingExpert)
-    ModelDataFactory modelDataFactoryMock = Mock (ModelDataFactory)
-    ModelData resultMock = Mock (ModelData)
+    EntityDataFactory modelDataFactoryMock = Mock (EntityDataFactory)
+    EntityData resultMock = Mock (EntityData)
 
     FieldAccessor field1Accessor
     FieldAccessor field2Accessor
@@ -38,7 +38,7 @@ class ModelDataBuilderFactorySpecification extends Specification {
         beanNamingExpertMock.getGetterName("field2") >> "getField2"
         beanNamingExpertMock.getGetterName("id") >> "getId"
 
-        testObj = new ModelDataBuilderFactory(modelDataFactoryMock, beanNamingExpertMock, fieldAccessorParserMock)
+        testObj = new EntityDataBuilderFactory(modelDataFactoryMock, beanNamingExpertMock, fieldAccessorParserMock)
 
         entityMok.field1 >> "baseValue1"
     }

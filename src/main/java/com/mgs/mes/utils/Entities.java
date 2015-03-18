@@ -2,13 +2,13 @@ package com.mgs.mes.utils;
 
 import com.mgs.mes.model.entity.Entity;
 
-public class MongoEntities {
+public class Entities {
 
 	private Class<?> extractFirstInterface(Class<?> aClass) {
 		return aClass.getInterfaces()[0];
 	}
 
-	Class<? extends Entity> findBaseMongoEntityType(Class<? extends Entity> sourceClass) {
+	public Class<? extends Entity> findBaseMongoEntityType(Class<? extends Entity> sourceClass) {
 		Class<?> parentFirstInterface = extractFirstInterface(sourceClass);
 
 		if (parentFirstInterface == Entity.class) return sourceClass;

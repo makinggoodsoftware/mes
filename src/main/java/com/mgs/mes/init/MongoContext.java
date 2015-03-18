@@ -1,8 +1,8 @@
 package com.mgs.mes.init;
 
-import com.mgs.mes.model.entity.Entity;
-import com.mgs.mes.model.entity.EntityBuilder;
-import com.mgs.mes.model.entity.Relationships;
+import com.mgs.mes.db.EntityRetriever;
+import com.mgs.mes.model.builder.RelationshipBuilderFactory;
+import com.mgs.mes.model.entity.*;
 
 import java.util.Map;
 
@@ -10,9 +10,11 @@ import static java.util.stream.Collectors.toList;
 
 public class MongoContext {
 	private final Map<EntityDescriptor, MongoManager> managersByEntity;
+	private final Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> modelBuildersByType;
 
-	public MongoContext(Map<EntityDescriptor, MongoManager> managersByEntity) {
+	public MongoContext(Map<EntityDescriptor, MongoManager> managersByEntity, Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> modelBuildersByType) {
 		this.managersByEntity = managersByEntity;
+		this.modelBuildersByType = modelBuildersByType;
 	}
 
 	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
@@ -23,5 +25,20 @@ public class MongoContext {
 				map(Map.Entry::getValue).
 				collect(toList()).
 				get(0);
+	}
+
+	public <A extends Entity, B extends Entity, T extends Relationship<A, B>, Z extends RelationshipBuilder<T, A, B> >
+	RelationshipBuilderFactory <A, B, T, Z> getRelationshipBuilderFactory (Class<? extends RelationshipBuilder<T, A, B>> ofType){
+		//noinspection unchecked
+		return modelBuildersByType.get(ofType);
+	}
+
+	public <T extends Entity> EntityRetriever<T> getRetriever(Class<T> entityType) {
+		return manager(entityType).getRetriever();
+	}
+
+	public MongoContext initialise() {
+		managersByEntity.entrySet().stream().forEach((entry)->entry.getValue().setContext(this));
+		return this;
 	}
 }

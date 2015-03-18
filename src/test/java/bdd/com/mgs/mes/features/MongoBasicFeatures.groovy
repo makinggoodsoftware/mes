@@ -103,6 +103,7 @@ class MongoBasicFeatures extends Specification{
                 ).
                 create()
         )
+
         EntityC entityC = Cs.persister.create(Cs.builder.newEntityBuilder().
                 withEntityCfield1("valueC1").
                 withEntityCfield2("valueC2").
@@ -117,6 +118,7 @@ class MongoBasicFeatures extends Specification{
         )
 
         then:
+        a_c.id.isPresent()
         a_c.left.retrieve() == entityA
         a_c.right.retrieve() == entityC
     }

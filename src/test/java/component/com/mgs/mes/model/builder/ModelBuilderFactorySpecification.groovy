@@ -1,13 +1,14 @@
 package com.mgs.mes.model.builder
+
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
 import com.mgs.mes.entityB.EntityB
 import com.mgs.mes.entityB.EntityBBuilder
-import com.mgs.mes.model.data.ModelDataBuilderFactory
-import com.mgs.mes.model.data.ModelDataFactory
+import com.mgs.mes.model.data.EntityDataBuilderFactory
+import com.mgs.mes.model.data.EntityDataFactory
 import com.mgs.mes.model.data.transformer.DboTransformer
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer
-import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
+import com.mgs.mes.model.factory.entityData.EntityDataEntityFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
 import com.mongodb.BasicDBObject
@@ -18,16 +19,16 @@ class ModelBuilderFactorySpecification extends Specification {
     EntityBuilderFactory<EntityA, EntityABuilder> entityABuilder
     BeanNamingExpert beanNamingExpert = new BeanNamingExpert()
     FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(beanNamingExpert)
-    ModelDataFactory modelDataFactory = new ModelDataFactory(
+    EntityDataFactory modelDataFactory = new EntityDataFactory(
             new DboTransformer(
-                new ModelDataModelFactory(), beanNamingExpert, fieldAccessorParser
+                new EntityDataEntityFactory(), beanNamingExpert, fieldAccessorParser
             ), new FieldAccessorMapTransformer()
     )
-    ModelDataBuilderFactory modelDataBuilderFactory = new ModelDataBuilderFactory(modelDataFactory, beanNamingExpert, fieldAccessorParser)
+    EntityDataBuilderFactory modelDataBuilderFactory = new EntityDataBuilderFactory(modelDataFactory, beanNamingExpert, fieldAccessorParser)
 
     def "setup" (){
-        entityBBuilder = new EntityBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new ModelDataModelFactory(), EntityB, EntityBBuilder)
-        entityABuilder = new EntityBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new ModelDataModelFactory(), EntityA, EntityABuilder)
+        entityBBuilder = new EntityBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new EntityDataEntityFactory(), EntityB, EntityBBuilder)
+        entityABuilder = new EntityBuilderFactory(modelDataBuilderFactory, fieldAccessorParser, beanNamingExpert, new EntityDataEntityFactory(), EntityA, EntityABuilder)
     }
 
     def "should create a simple model with partial values"(){

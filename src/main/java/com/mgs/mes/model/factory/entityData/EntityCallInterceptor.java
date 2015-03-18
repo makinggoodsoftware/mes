@@ -1,6 +1,6 @@
-package com.mgs.mes.model.factory.modelData;
+package com.mgs.mes.model.factory.entityData;
 
-import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.data.EntityData;
 import com.mgs.mes.model.entity.Entity;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
@@ -10,11 +10,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Optional;
 
-class ModelCallInterceptor implements InvocationHandler, Entity {
-	private final ModelData modelData;
+public class EntityCallInterceptor implements InvocationHandler, Entity {
+	protected final EntityData entityData;
 
-	public ModelCallInterceptor(ModelData modelData) {
-		this.modelData = modelData;
+	public EntityCallInterceptor(EntityData entityData) {
+		this.entityData = entityData;
 	}
 
 	@Override
@@ -27,44 +27,44 @@ class ModelCallInterceptor implements InvocationHandler, Entity {
 		} else if (method.getName().equals("toString")) {
 			return toString();
 		} else {
-			return modelData.get(method.getName());
+			return entityData.get(method.getName());
 		}
 	}
 
 	@Override
 	public DBObject asDbo() {
-		return modelData.getDbo();
+		return entityData.getDbo();
 	}
 
 	@Override
 	public Optional<ObjectId> getId() {
 		//noinspection unchecked
-		return (Optional<ObjectId>) modelData.get("getId");
+		return (Optional<ObjectId>) entityData.get("getId");
 	}
 
 	@Override
 	public String toString() {
-		return modelData.toString();
+		return entityData.toString();
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		ModelCallInterceptor that = null;
-		if (ModelCallInterceptor.class.isAssignableFrom(o.getClass())){
-			that = (ModelCallInterceptor) o;
+		EntityCallInterceptor that = null;
+		if (EntityCallInterceptor.class.isAssignableFrom(o.getClass())){
+			that = (EntityCallInterceptor) o;
 		}else if (Entity.class.isAssignableFrom(o.getClass())) {
 			if (o instanceof Proxy){
-				that = (ModelCallInterceptor) Proxy.getInvocationHandler(o);
+				that = (EntityCallInterceptor) Proxy.getInvocationHandler(o);
 			}
 		}
 
-		return that != null && modelData.equals(that.modelData);
+		return that != null && entityData.equals(that.entityData);
 
 	}
 
 	@Override
 	public int hashCode() {
-		return modelData.hashCode();
+		return entityData.hashCode();
 	}
 }

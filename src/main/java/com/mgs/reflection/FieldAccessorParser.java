@@ -38,7 +38,7 @@ public class FieldAccessorParser {
 		try {
 			return parse(type.getMethod(accessorName));
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Can't find the accessor with name: " + accessorName + " in the type  " + type);
 		}
 	}
 

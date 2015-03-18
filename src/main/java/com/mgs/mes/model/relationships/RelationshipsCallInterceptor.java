@@ -1,26 +1,36 @@
 package com.mgs.mes.model.relationships;
 
+import com.mgs.mes.db.EntityRetriever;
+import com.mgs.mes.init.MongoContext;
 import com.mgs.mes.model.builder.RelationshipBuilderFactory;
 import com.mgs.mes.model.entity.Entity;
+import com.mgs.mes.model.entity.Relationship;
 import com.mgs.mes.model.entity.RelationshipBuilder;
 import com.mgs.mes.model.entity.Relationships;
+import com.mgs.mes.utils.Entities;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.Map;
 
-public class RelationshipsCallInterceptor<T extends Entity> implements InvocationHandler, Relationships<T> {
-	private T sourceValue;
+public class RelationshipsCallInterceptor <T extends Entity> implements InvocationHandler, Relationships<T> {
+	private final MongoContext mongoContext;
+	private final Entities entities;
+
 	private Relationships<T> proxy;
-	private final Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> modelBuildersByType;
+	private T sourceValue;
 
-	public RelationshipsCallInterceptor(T sourceValue, Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> modelBuildersByType) {
-		this.sourceValue = sourceValue;
-		this.modelBuildersByType = modelBuildersByType;
+	public RelationshipsCallInterceptor(MongoContext mongoContext, Entities entities) {
+		this.mongoContext = mongoContext;
+		this.entities = entities;
 	}
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		return doInvoke(proxy, method, args);
+	}
+
+	public <B extends Entity>
+	Object doInvoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (this.proxy == null){
 			//noinspection unchecked
 			this.proxy = (Relationships<T>) proxy;
@@ -30,16 +40,23 @@ public class RelationshipsCallInterceptor<T extends Entity> implements Invocatio
 			T fromValue = (T) args[0];
 			return from(fromValue);
 		} else {
-			return generateRelationshipBuilder (method, sourceValue, (Entity)args[0]);
+			//noinspection unchecked
+			return generateRelationshipBuilder (method, sourceValue, (B) args[0]);
 		}
 	}
 
-	private <A extends Entity, B extends Entity> RelationshipBuilder generateRelationshipBuilder(Method method, A fromRelationship, B toRelationship) {
+	private <B extends Entity, Y extends Relationship<T, B>>
+	RelationshipBuilder<Y, T, B> generateRelationshipBuilder(Method method, T fromRelationship, B toRelationship) {
 		//noinspection unchecked
-		Class<? extends RelationshipBuilder<T, A, B>> entityToBuild = (Class<? extends RelationshipBuilder<T, A, B>>) method.getReturnType();
-		RelationshipBuilderFactory entityBuilderFactory = this.modelBuildersByType.get(entityToBuild);
+		Class<? extends RelationshipBuilder<Y, T, B>> relationshipToBuild = (Class<? extends RelationshipBuilder<Y, T, B>>) method.getReturnType();
+		RelationshipBuilderFactory<T, B, Y, RelationshipBuilder<Y, T, B>> relationshipBuilderFactory = mongoContext.getRelationshipBuilderFactory(relationshipToBuild);
 		//noinspection unchecked
-		return entityBuilderFactory.newRelationshipBuilder(fromRelationship, toRelationship);
+		Class<T> leftType = (Class<T>) entities.findBaseMongoEntityType(fromRelationship.getClass());
+		//noinspection unchecked
+		Class<B> rightType = (Class<B>) entities.findBaseMongoEntityType(toRelationship.getClass());
+		EntityRetriever<T> retrieverLeft = mongoContext.getRetriever(leftType);
+		EntityRetriever<B> retrieverRight = mongoContext.getRetriever(rightType);
+		return relationshipBuilderFactory.newRelationshipBuilder(fromRelationship, retrieverLeft, toRelationship, retrieverRight);
 	}
 
 	@Override

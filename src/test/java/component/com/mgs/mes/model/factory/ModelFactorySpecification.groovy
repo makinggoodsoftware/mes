@@ -1,11 +1,11 @@
 package com.mgs.mes.model.factory
 
-import com.mgs.mes.model.data.ModelDataFactory
+import com.mgs.mes.model.data.EntityDataFactory
 import com.mgs.mes.model.data.transformer.DboTransformer
 import com.mgs.mes.model.data.transformer.FieldAccessorMapTransformer
 import com.mgs.mes.model.entity.Entity
-import com.mgs.mes.model.factory.dbo.DBObjectModelFactory
-import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
+import com.mgs.mes.model.factory.dbo.DBObjectEntityFactory
+import com.mgs.mes.model.factory.entityData.EntityDataEntityFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
 import com.mongodb.BasicDBObject
@@ -14,17 +14,17 @@ import spock.lang.Specification
 import static java.util.Optional.empty
 
 class ModelFactorySpecification extends Specification {
-    DBObjectModelFactory testObj
-    ModelDataModelFactory dynamicModelFactory = new ModelDataModelFactory()
+    DBObjectEntityFactory testObj
+    EntityDataEntityFactory dynamicModelFactory = new EntityDataEntityFactory()
     BeanNamingExpert beanNamingExpert = new BeanNamingExpert()
     FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(beanNamingExpert)
-    ModelDataFactory modelDataFactory = new ModelDataFactory(
+    EntityDataFactory modelDataFactory = new EntityDataFactory(
             new DboTransformer(dynamicModelFactory, beanNamingExpert, fieldAccessorParser),
             new FieldAccessorMapTransformer()
     )
 
     def "setup" (){
-        testObj = new DBObjectModelFactory(dynamicModelFactory, modelDataFactory)
+        testObj = new DBObjectEntityFactory(dynamicModelFactory, modelDataFactory)
     }
 
     def "should create object from simple dbo" (){

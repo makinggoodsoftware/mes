@@ -8,7 +8,7 @@ import java.lang.reflect.Method
 import static java.lang.reflect.Proxy.newProxyInstance
 
 class MongoEntitiesSpecification extends Specification {
-    MongoEntities testObj = new MongoEntities()
+    Entities testObj = new Entities()
 
     def "should get collection name for simple interface" (){
         when:

@@ -1,20 +1,20 @@
 package com.mgs.mes.init;
 
+import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoPersister;
-import com.mgs.mes.db.MongoRetriever;
 import com.mgs.mes.model.builder.EntityBuilderFactory;
 import com.mgs.mes.model.entity.Entity;
 import com.mgs.mes.model.entity.EntityBuilder;
 import com.mgs.mes.model.entity.Relationships;
 
 public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> {
-	private final MongoRetriever<T> retriever;
+	private final EntityRetriever<T> retriever;
 	private final MongoPersister<T, Z> persister;
 	private final EntityBuilderFactory<T, Z> builder;
 	private final EntityDescriptor<T, Z, Y> entityDescriptor;
 
 	public UnlinkedEntity(
-			MongoRetriever<T> retriever,
+			EntityRetriever<T> retriever,
 			MongoPersister<T, Z> persister,
 			EntityBuilderFactory<T, Z> builder,
 			EntityDescriptor<T, Z, Y> entityDescriptor) {
@@ -24,7 +24,7 @@ public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>, Y exte
 		this.entityDescriptor = entityDescriptor;
 	}
 
-	public MongoRetriever<T> getRetriever() {
+	public EntityRetriever<T> getRetriever() {
 		return retriever;
 	}
 

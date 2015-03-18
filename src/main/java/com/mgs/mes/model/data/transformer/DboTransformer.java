@@ -1,8 +1,8 @@
 package com.mgs.mes.model.data.transformer;
 
-import com.mgs.mes.model.data.ModelData;
+import com.mgs.mes.model.data.EntityData;
 import com.mgs.mes.model.entity.Entity;
-import com.mgs.mes.model.factory.ModelFactory;
+import com.mgs.mes.model.factory.EntityFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -15,23 +15,23 @@ import java.util.stream.Stream;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-public class DboTransformer implements ModelDataTransformer<DBObject> {
+public class DboTransformer implements EntityDataTransformer<DBObject> {
 	private final BeanNamingExpert beanNamingExpert;
 	private final FieldAccessorParser fieldAccessorParser;
-	private final ModelFactory<ModelData> modelFactory;
+	private final EntityFactory<EntityData> entityFactory;
 
-	public DboTransformer(ModelFactory<ModelData> modelFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
+	public DboTransformer(EntityFactory<EntityData> entityFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
 		this.beanNamingExpert = beanNamingExpert;
 		this.fieldAccessorParser = fieldAccessorParser;
-		this.modelFactory = modelFactory;
+		this.entityFactory = entityFactory;
 	}
 
 	@SuppressWarnings("Convert2MethodRef")
-	public ModelData transform (Class<? extends Entity> type, DBObject dbObject) {
+	public EntityData transform (Class<? extends Entity> type, DBObject dbObject) {
 		return doTransform(type, dbObject, true);
 	}
 
-	private ModelData doTransform(Class<? extends Entity> type, DBObject dbObject, boolean isOuter) {
+	private EntityData doTransform(Class<? extends Entity> type, DBObject dbObject, boolean isOuter) {
 		assertNoIdField(dbObject);
 		assertInnerObjectHasNo_Id(dbObject, isOuter);
 
@@ -42,7 +42,7 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 		if (fieldValuesByGetterName.get("getId") == null){
 			fieldValuesByGetterName.put("getId", empty());
 		}
-		return new ModelData(dbObject, fieldValuesByGetterName);
+		return new EntityData(dbObject, fieldValuesByGetterName);
 	}
 
 	private void assertInnerObjectHasNo_Id(DBObject dbObject, boolean isOuter) {
@@ -52,7 +52,7 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 	}
 
 	private void assertNoIdField(DBObject dbObject) {
-		if (dbObject.get("id") != null) throw new IllegalArgumentException("id is an invalid property for the dbo, it has to be id");
+		if (dbObject.get("id") != null) throw new IllegalArgumentException("id is an invalid property for the dbo, it has to be _id");
 	}
 
 	private <T extends Entity> Object buildValue(Class<T> type, Map.Entry<String, Object> valueByFieldName, boolean isOuter) {
@@ -74,7 +74,7 @@ public class DboTransformer implements ModelDataTransformer<DBObject> {
 		FieldAccessor accessor = fieldAccessorParser.parse(type, getterName).get();
 		//noinspection unchecked
 		Class<Entity> nestedType = (Class<Entity>) accessor.getDeclaredType();
-		return modelFactory.from(nestedType, doTransform(nestedType, nestedValue, false));
+		return entityFactory.from(nestedType, doTransform(nestedType, nestedValue, false));
 	}
 
 	private String buildKey(String fieldName) {

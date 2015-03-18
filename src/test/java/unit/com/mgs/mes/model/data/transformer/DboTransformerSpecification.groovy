@@ -1,6 +1,6 @@
 package com.mgs.mes.model.data.transformer
 
-import com.mgs.mes.model.factory.modelData.ModelDataModelFactory
+import com.mgs.mes.model.factory.entityData.EntityDataEntityFactory
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
@@ -16,7 +16,7 @@ class DboTransformerSpecification extends Specification {
     DboTransformer testObj
     FieldAccessorParser fieldAccessorParserMock = Mock (FieldAccessorParser)
     BeanNamingExpert beanNamingExpertMock = Mock (BeanNamingExpert)
-    ModelDataModelFactory dynamicDataModelMock = Mock (ModelDataModelFactory)
+    EntityDataEntityFactory dynamicDataModelMock = Mock (EntityDataEntityFactory)
     Entity entityMock = Mock (Entity)
     ObjectId objectIdMock = Mock (ObjectId)
 
