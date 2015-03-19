@@ -3,7 +3,7 @@ package com.mgs.mes.db
 import com.mgs.mes.entityB.EntityB
 import com.mgs.mes.entityB.EntityBBuilder
 import com.mgs.mes.entityB.EntityBRelationships
-import com.mgs.mes.init.*
+import com.mgs.mes.meta.init.*
 import spock.lang.Specification
 
 class DBSpecification extends Specification {

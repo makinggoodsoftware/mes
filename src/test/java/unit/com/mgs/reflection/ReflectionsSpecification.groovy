@@ -1,7 +1,7 @@
 package com.mgs.reflection
 
 import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.model.entity.Entity
+import com.mgs.mes.model.Entity
 import spock.lang.Specification
 import spock.lang.Unroll
 

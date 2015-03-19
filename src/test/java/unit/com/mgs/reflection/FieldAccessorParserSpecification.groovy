@@ -88,7 +88,7 @@ class FieldAccessorParserSpecification extends Specification {
         ! result.get(Entity.getMethod("asDbo")).isPresent()
     }
 
-    static interface Entity extends com.mgs.mes.model.entity.Entity{
+    static interface Entity extends com.mgs.mes.model.Entity{
         public String getField1();
     }
 

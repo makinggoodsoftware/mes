@@ -38,5 +38,5 @@ class MongoEntitiesSpecification extends Specification {
         result == "Entity"
     }
 
-    public static interface Entity extends com.mgs.mes.model.entity.Entity {}
+    public static interface Entity extends com.mgs.mes.model.Entity {}
 }

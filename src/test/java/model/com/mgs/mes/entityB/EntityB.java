@@ -1,6 +1,6 @@
 package com.mgs.mes.entityB;
 
-import com.mgs.mes.model.entity.Entity;
+import com.mgs.mes.model.Entity;
 
 public interface EntityB extends Entity {
 	public String getEntityBfield1();

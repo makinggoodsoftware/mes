@@ -1,6 +1,6 @@
 package com.mgs.mes.utils;
 
-import com.mgs.mes.model.entity.Entity;
+import com.mgs.mes.model.Entity;
 
 public class Entities {
 
