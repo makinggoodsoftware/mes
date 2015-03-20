@@ -1,8 +1,11 @@
 package com.mgs.mes.meta.init;
 
 import com.mgs.mes.db.MongoDao;
+import com.mgs.mes.meta.MongoInternalDependencies;
+import com.mgs.mes.meta.unlinkedContext.UnlinkedEntityDescriptorFactory;
+import com.mgs.mes.meta.unlinkedContext.UnlinkedMongoContextRegistrer;
 
-import static com.mgs.mes.meta.init.MongoInternalDependencies.init;
+import static com.mgs.mes.meta.MongoInternalDependencies.init;
 
 public class MongoInitializerFactory {
 	public MongoInitializer create (MongoDao dao) {

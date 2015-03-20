@@ -1,5 +1,7 @@
 package com.mgs.mes.meta.init;
 
+import com.mgs.mes.context.EntityDescriptor;
+import com.mgs.mes.context.MongoContext;
 import com.mgs.mes.db.MongoDao;
 
 import java.util.List;

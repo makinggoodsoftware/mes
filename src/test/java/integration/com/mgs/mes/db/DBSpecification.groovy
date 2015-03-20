@@ -1,9 +1,14 @@
 package com.mgs.mes.db
 
+import com.mgs.mes.context.EntityDescriptorFactory
+import com.mgs.mes.context.MongoContext
+import com.mgs.mes.context.MongoManager
 import com.mgs.mes.entityB.EntityB
 import com.mgs.mes.entityB.EntityBBuilder
 import com.mgs.mes.entityB.EntityBRelationships
-import com.mgs.mes.meta.init.*
+import com.mgs.mes.meta.init.MongoDaoFactory
+import com.mgs.mes.meta.init.MongoInitializerFactory
+import com.mgs.mes.meta.init.MongoOrchestrator
 import spock.lang.Specification
 
 class DBSpecification extends Specification {

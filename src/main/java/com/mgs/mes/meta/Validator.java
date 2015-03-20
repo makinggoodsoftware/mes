@@ -1,6 +1,6 @@
 package com.mgs.mes.meta;
 
-import com.mgs.mes.meta.init.EntityDescriptor;
+import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.mes.model.Relationships;

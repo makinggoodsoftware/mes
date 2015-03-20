@@ -1,27 +1,29 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.context;
 
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
+import com.mgs.mes.build.factory.relationships.RelationshipsFactory;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.mes.model.Relationships;
 
-public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> {
+public class MongoManager <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> {
 	private final EntityRetriever<T> retriever;
 	private final MongoPersister<T, Z> persister;
 	private final EntityBuilderFactory<T, Z> builder;
-	private final EntityDescriptor<T, Z, Y> entityDescriptor;
+	private final RelationshipsFactory<T, Y> relationshipsFactory;
 
-	public UnlinkedEntity(
+	public MongoManager(
 			EntityRetriever<T> retriever,
 			MongoPersister<T, Z> persister,
 			EntityBuilderFactory<T, Z> builder,
-			EntityDescriptor<T, Z, Y> entityDescriptor) {
+			RelationshipsFactory<T, Y> relationshipsFactory
+	) {
 		this.retriever = retriever;
 		this.persister = persister;
 		this.builder = builder;
-		this.entityDescriptor = entityDescriptor;
+		this.relationshipsFactory = relationshipsFactory;
 	}
 
 	public EntityRetriever<T> getRetriever() {
@@ -32,11 +34,15 @@ public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>, Y exte
 		return persister;
 	}
 
+	public Y relationshipFrom(T from){
+		return relationshipsFactory.from(from);
+	}
+
 	public EntityBuilderFactory<T, Z> getBuilder() {
 		return builder;
 	}
 
-	public EntityDescriptor<T, Z, Y> getEntityDescriptor() {
-		return entityDescriptor;
+	void setContext(MongoContext context) {
+		 relationshipsFactory.setContext (context);
 	}
 }

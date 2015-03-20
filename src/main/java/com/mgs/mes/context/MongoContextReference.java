@@ -1,4 +1,4 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.context;
 
 public class MongoContextReference {
 	private MongoContext mongoContext;

@@ -1,6 +1,10 @@
 package com.mgs.mes.meta.init;
 
+import com.mgs.mes.context.EntityDescriptor;
+import com.mgs.mes.context.MongoContext;
+import com.mgs.mes.context.MongoContextFactory;
 import com.mgs.mes.meta.Validator;
+import com.mgs.mes.meta.unlinkedContext.*;
 
 import java.util.List;
 

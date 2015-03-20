@@ -1,4 +1,8 @@
 package com.mgs.mes.features
+
+import com.mgs.mes.context.EntityDescriptorFactory
+import com.mgs.mes.context.MongoContext
+import com.mgs.mes.context.MongoManager
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
 import com.mgs.mes.entityA.EntityARelationships
@@ -8,7 +12,9 @@ import com.mgs.mes.entityB.EntityBRelationships
 import com.mgs.mes.entityC.EntityC
 import com.mgs.mes.entityC.EntityCBuilder
 import com.mgs.mes.entityC.EntityCRelationships
-import com.mgs.mes.meta.init.*
+import com.mgs.mes.meta.init.MongoDaoFactory
+import com.mgs.mes.meta.init.MongoInitializerFactory
+import com.mgs.mes.meta.init.MongoOrchestrator
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships

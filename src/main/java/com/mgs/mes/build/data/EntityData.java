@@ -21,8 +21,7 @@ public class EntityData {
 		return fieldsByGetterMethodName.get(methodName);
 	}
 
-	public boolean exists(Object getterName) {
-		//noinspection SuspiciousMethodCalls
+	public boolean exists(String getterName) {
 		return fieldsByGetterMethodName.containsKey(getterName);
 	}
 

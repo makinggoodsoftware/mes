@@ -1,5 +1,6 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.meta.unlinkedContext;
 
+import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.mes.model.Relationships;

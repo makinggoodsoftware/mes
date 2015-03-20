@@ -1,6 +1,7 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.meta.unlinkedContext;
 
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
+import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.RelationshipBuilder;
 
 import java.util.Map;

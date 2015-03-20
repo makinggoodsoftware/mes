@@ -92,10 +92,12 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getId") == of(objectIdMock)
     }
 
+    @SuppressWarnings("GroovyUnusedDeclaration")
     static interface ComplexEntity extends com.mgs.mes.model.Entity {
         public Entity getChild ();
     }
 
+    @SuppressWarnings("GroovyUnusedDeclaration")
     static interface Entity extends com.mgs.mes.model.Entity {
         public String getField1 ();
         public String getField2 ();

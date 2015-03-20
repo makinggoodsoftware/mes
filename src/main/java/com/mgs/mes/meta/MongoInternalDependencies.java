@@ -1,4 +1,4 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.meta;
 
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.data.EntityDataBuilderFactory;
@@ -9,7 +9,8 @@ import com.mgs.mes.build.factory.entity.EntityFactory;
 import com.mgs.mes.build.factory.entity.dbo.DBObjectEntityFactory;
 import com.mgs.mes.build.factory.entity.entityData.EntityDataEntityFactory;
 import com.mgs.mes.build.factory.relationships.EntityReferenceFactory;
-import com.mgs.mes.meta.Validator;
+import com.mgs.mes.context.MongoContextFactory;
+import com.mgs.mes.meta.unlinkedContext.UnlinkedMongoContextFactory;
 import com.mgs.mes.utils.Entities;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;

@@ -1,7 +1,7 @@
 package com.mgs.mes.build.factory.relationships;
 
-import com.mgs.mes.meta.init.MongoContext;
-import com.mgs.mes.meta.init.MongoContextReference;
+import com.mgs.mes.context.MongoContext;
+import com.mgs.mes.context.MongoContextReference;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.Relationships;
 import com.mgs.mes.utils.Entities;

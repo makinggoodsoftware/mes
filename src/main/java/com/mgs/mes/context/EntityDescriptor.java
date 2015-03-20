@@ -1,4 +1,4 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.context;
 
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;

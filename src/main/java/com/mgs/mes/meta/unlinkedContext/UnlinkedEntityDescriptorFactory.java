@@ -1,4 +1,4 @@
-package com.mgs.mes.meta.init;
+package com.mgs.mes.meta.unlinkedContext;
 
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.data.EntityDataBuilderFactory;
@@ -6,6 +6,7 @@ import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
 import com.mgs.mes.build.factory.entity.EntityFactory;
 import com.mgs.mes.build.factory.relationships.EntityReferenceFactory;
+import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
