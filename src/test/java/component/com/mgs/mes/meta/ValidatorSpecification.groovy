@@ -1,6 +1,5 @@
-package com.mgs.mes.build.data
+package com.mgs.mes.meta
 
-import com.mgs.mes.meta.Validator
 import com.mgs.mes.model.Entity
 import com.mgs.mes.model.EntityBuilder
 import com.mgs.mes.model.Relationship
@@ -11,7 +10,7 @@ import com.mgs.reflection.Reflections
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class ModelValidatorSpecification extends Specification {
+class ValidatorSpecification extends Specification {
     Validator testObj
     FieldAccessorParser fieldAccessorParser = new FieldAccessorParser(new BeanNamingExpert())
     Reflections reflections = new Reflections()
