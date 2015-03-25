@@ -14,8 +14,8 @@ class EntityBuilderFactorySpecification extends Specification {
     BuildConfig buildConfig = new BuildConfig(new ReflectionConfig())
 
     def "setup" (){
-        entityBBuilder = buildConfig.factories().entityBuilderFactory(EntityB, EntityBBuilder)
-        entityABuilder = buildConfig.factories().entityBuilderFactory(EntityA, EntityABuilder)
+        entityBBuilder = buildConfig.factories().entityBuilder(EntityB, EntityBBuilder)
+        entityABuilder = buildConfig.factories().entityBuilder(EntityA, EntityABuilder)
     }
 
     def "should create a simple model with partial values"(){

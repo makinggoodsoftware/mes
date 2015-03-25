@@ -24,7 +24,7 @@ public class EntityDataConfig {
 		return new EntityDataBuilderFactory(factory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser());
 	}
 
-	private EntityDataFactory factory() {
+	public EntityDataFactory factory() {
 		return new EntityDataFactory(dboEntityDataTransformer(), mapEntityDataTransformer());
 	}
 

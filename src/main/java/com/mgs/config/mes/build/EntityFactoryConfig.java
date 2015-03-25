@@ -2,8 +2,11 @@ package com.mgs.config.mes.build;
 
 import com.mgs.config.ReflectionConfig;
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
+import com.mgs.mes.build.factory.entity.EntityFactory;
+import com.mgs.mes.build.factory.entity.dbo.DBObjectEntityFactory;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
+import com.mongodb.DBObject;
 
 public class EntityFactoryConfig {
 	private final EntityDataConfig entityDataConfig;
@@ -17,7 +20,7 @@ public class EntityFactoryConfig {
 	}
 
 	public <T extends Entity, Z extends EntityBuilder<T>>
-	EntityBuilderFactory entityBuilderFactory(Class<T> modelType, Class<Z> modelBuilderType){
+	EntityBuilderFactory<T, Z> entityBuilder(Class<T> modelType, Class<Z> modelBuilderType){
 		return new EntityBuilderFactory<>(
 				entityDataConfig.builderFactory(),
 				reflectionConfig.fieldAccessorParser(),
@@ -25,6 +28,12 @@ public class EntityFactoryConfig {
 				commonConfig.entityDataEntityFactory(),
 				modelType,
 				modelBuilderType
+		);
+	}
+	public EntityFactory<DBObject> dbObjectEntity(){
+		return new DBObjectEntityFactory(
+			commonConfig.entityDataEntityFactory(),
+			entityDataConfig.factory()
 		);
 	}
 }
