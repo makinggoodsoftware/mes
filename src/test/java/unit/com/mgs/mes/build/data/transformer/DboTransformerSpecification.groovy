@@ -109,6 +109,7 @@ class DboTransformerSpecification extends Specification {
                 append("child", simpleDbo).
                 append("_id", objectIdMock)
 
+        //noinspection GroovyAssignabilityCheck
         dynamicDataModelMock.from (_, _) >> {type, modelData ->
             if (type != Entity) throw new IllegalArgumentException("Shouldn't get call with a type different than Entity for this test cases")
             if (
@@ -119,7 +120,7 @@ class DboTransformerSpecification extends Specification {
             ) {
                 return entityMock
             } else {
-                throw new RuntimeException("Unexpected model data received " + modelData)
+                throw new RuntimeException("Unexpected model entityData received " + modelData)
             }
         }
 

@@ -13,18 +13,18 @@ import java.util.Map;
 
 public class EntityDataConfig {
 	private final ReflectionConfig reflectionConfig;
-	private final EntityFactoryConfig entityFactoryConfig;
+	private final CommonConfig commonConfig;
 
-	public EntityDataConfig(ReflectionConfig reflectionConfig, EntityFactoryConfig entityFactoryConfig) {
+	public EntityDataConfig(ReflectionConfig reflectionConfig, CommonConfig commonConfig) {
 		this.reflectionConfig = reflectionConfig;
-		this.entityFactoryConfig = entityFactoryConfig;
+		this.commonConfig = commonConfig;
 	}
 
-	public EntityDataBuilderFactory entityDataBuilderFactory (){
-		return new EntityDataBuilderFactory(entityDataFactory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser());
+	public EntityDataBuilderFactory builderFactory(){
+		return new EntityDataBuilderFactory(factory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser());
 	}
 
-	private EntityDataFactory entityDataFactory() {
+	private EntityDataFactory factory() {
 		return new EntityDataFactory(dboEntityDataTransformer(), mapEntityDataTransformer());
 	}
 
@@ -33,6 +33,6 @@ public class EntityDataConfig {
 	}
 
 	private EntityDataTransformer<DBObject> dboEntityDataTransformer() {
-		return new DboTransformer(entityFactoryConfig.entityDataEntityFactory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser());
+		return new DboTransformer(commonConfig.entityDataEntityFactory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser());
 	}
 }

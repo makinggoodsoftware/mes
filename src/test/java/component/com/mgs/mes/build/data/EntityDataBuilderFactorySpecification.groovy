@@ -1,8 +1,7 @@
 package com.mgs.mes.build.data
 
 import com.mgs.config.ReflectionConfig
-import com.mgs.config.mes.build.EntityDataConfig
-import com.mgs.config.mes.build.EntityFactoryConfig
+import com.mgs.config.mes.build.BuildConfig
 import com.mgs.mes.model.Entity
 import spock.lang.Specification
 
@@ -10,9 +9,10 @@ import static java.util.Optional.empty
 
 class EntityDataBuilderFactorySpecification extends Specification {
     EntityDataBuilderFactory testObj
+    BuildConfig buildConfig = new BuildConfig(new ReflectionConfig())
 
     def setup (){
-        testObj = new EntityDataConfig(new ReflectionConfig(), new EntityFactoryConfig()).entityDataBuilderFactory();
+        testObj = buildConfig.entityData().builderFactory();
     }
 
     def "should create an empty builder" (){
