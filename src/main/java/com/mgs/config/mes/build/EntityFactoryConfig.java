@@ -1,9 +1,11 @@
 package com.mgs.config.mes.build;
 
 import com.mgs.config.ReflectionConfig;
+import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
 import com.mgs.mes.build.factory.entity.EntityFactory;
 import com.mgs.mes.build.factory.entity.dbo.DBObjectEntityFactory;
+import com.mgs.mes.build.factory.entity.entityData.EntityDataEntityFactory;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mongodb.DBObject;
@@ -35,5 +37,9 @@ public class EntityFactoryConfig {
 			commonConfig.entityDataEntityFactory(),
 			entityDataConfig.factory()
 		);
+	}
+
+	public EntityFactory<EntityData> entityDataEntity() {
+		return new EntityDataEntityFactory();
 	}
 }
