@@ -1,12 +1,12 @@
 package com.mgs.mes.context;
 
-import com.mgs.mes.build.factory.relationships.RelationshipsFactory;
+import com.mgs.mes.build.factory.relationship.RelationshipsFactory;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.meta.unlinkedContext.UnlinkedEntity;
 import com.mgs.mes.meta.unlinkedContext.UnlinkedMongoContext;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.mes.model.Relationships;
-import com.mgs.mes.utils.Entities;
 
 import java.util.Map;
 

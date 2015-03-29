@@ -1,11 +1,11 @@
-package com.mgs.mes.build.factory.relationships;
+package com.mgs.mes.build.factory.reference;
 
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.data.EntityDataBuilderFactory;
 import com.mgs.mes.db.EntityRetriever;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityReference;
-import com.mgs.mes.utils.Entities;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 

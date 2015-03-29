@@ -1,9 +1,9 @@
 package com.mgs.mes.db;
 
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.utils.Entities;
 import org.bson.types.ObjectId;
 
 public class MongoPersister<T extends Entity, Z extends EntityBuilder<T>> {

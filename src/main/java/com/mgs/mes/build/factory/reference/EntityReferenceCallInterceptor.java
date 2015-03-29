@@ -1,4 +1,4 @@
-package com.mgs.mes.build.factory.relationships;
+package com.mgs.mes.build.factory.reference;
 
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.factory.entity.entityData.EntityCallInterceptor;

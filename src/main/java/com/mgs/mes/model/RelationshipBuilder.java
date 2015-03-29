@@ -1,7 +1,7 @@
 package com.mgs.mes.model;
 
-public interface RelationshipBuilder<T extends Entity, A extends Entity, B extends Entity> extends EntityBuilder<T> {
-	RelationshipBuilder<T, A, B> withLeft(EntityReference<A> left);
+public interface RelationshipBuilder<A extends Entity, B extends Entity, T extends Relationship<A, B>> extends EntityBuilder<T> {
+	RelationshipBuilder<A, B, T> withLeft(EntityReference<A> left);
 
-	RelationshipBuilder<T, A, B> withRight(EntityReference<B> right);
+	RelationshipBuilder<A, B, T> withRight(EntityReference<B> right);
 }

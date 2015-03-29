@@ -1,7 +1,7 @@
 package com.mgs.mes.context;
 
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
-import com.mgs.mes.build.factory.relationships.RelationshipsFactory;
+import com.mgs.mes.build.factory.relationship.RelationshipsFactory;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.model.Entity;

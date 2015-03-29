@@ -1,4 +1,4 @@
-package com.mgs.mes.build.factory.relationships
+package com.mgs.mes.build.factory.relationship
 
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory
 import com.mgs.mes.entityA.EntityA

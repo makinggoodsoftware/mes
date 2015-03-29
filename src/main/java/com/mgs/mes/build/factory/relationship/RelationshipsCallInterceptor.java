@@ -1,13 +1,13 @@
-package com.mgs.mes.build.factory.relationships;
+package com.mgs.mes.build.factory.relationship;
 
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
 import com.mgs.mes.context.MongoContext;
 import com.mgs.mes.db.EntityRetriever;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.Relationship;
 import com.mgs.mes.model.RelationshipBuilder;
 import com.mgs.mes.model.Relationships;
-import com.mgs.mes.utils.Entities;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -46,10 +46,10 @@ public class RelationshipsCallInterceptor <T extends Entity> implements Invocati
 	}
 
 	private <B extends Entity, Y extends Relationship<T, B>>
-	RelationshipBuilder<Y, T, B> generateRelationshipBuilder(Method method, T fromRelationship, B toRelationship) {
+	RelationshipBuilder<T, B, Y> generateRelationshipBuilder(Method method, T fromRelationship, B toRelationship) {
 		//noinspection unchecked
-		Class<? extends RelationshipBuilder<Y, T, B>> relationshipToBuild = (Class<? extends RelationshipBuilder<Y, T, B>>) method.getReturnType();
-		RelationshipBuilderFactory<T, B, Y, RelationshipBuilder<Y, T, B>> relationshipBuilderFactory = mongoContext.getRelationshipBuilderFactory(relationshipToBuild);
+		Class<? extends RelationshipBuilder<T, B, Y>> relationshipToBuild = (Class<? extends RelationshipBuilder<T, B, Y>>) method.getReturnType();
+		RelationshipBuilderFactory<T, B, Y, RelationshipBuilder<T, B, Y>> relationshipBuilderFactory = mongoContext.getRelationshipBuilderFactory(relationshipToBuild);
 		//noinspection unchecked
 		Class<T> leftType = (Class<T>) entities.findBaseMongoEntityType(fromRelationship.getClass());
 		//noinspection unchecked

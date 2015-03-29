@@ -1,10 +1,10 @@
-package com.mgs.mes.build.factory.relationships;
+package com.mgs.mes.build.factory.relationship;
 
 import com.mgs.mes.context.MongoContext;
 import com.mgs.mes.context.MongoContextReference;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.Relationships;
-import com.mgs.mes.utils.Entities;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 

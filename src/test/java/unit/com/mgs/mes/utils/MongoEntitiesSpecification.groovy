@@ -1,5 +1,6 @@
 package com.mgs.mes.utils
 
+import com.mgs.mes.meta.Entities
 import spock.lang.Specification
 
 import java.lang.reflect.InvocationHandler

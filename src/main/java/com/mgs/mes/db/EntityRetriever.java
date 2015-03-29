@@ -1,8 +1,8 @@
 package com.mgs.mes.db;
 
 import com.mgs.mes.build.factory.entity.EntityFactory;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.Entity;
-import com.mgs.mes.utils.Entities;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;

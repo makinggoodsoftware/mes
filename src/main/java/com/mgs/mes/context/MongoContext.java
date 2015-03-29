@@ -27,8 +27,8 @@ public class MongoContext {
 				get(0);
 	}
 
-	public <A extends Entity, B extends Entity, T extends Relationship<A, B>, Z extends RelationshipBuilder<T, A, B> >
-	RelationshipBuilderFactory <A, B, T, Z> getRelationshipBuilderFactory (Class<? extends RelationshipBuilder<T, A, B>> ofType){
+	public <A extends Entity, B extends Entity, T extends Relationship<A, B>, Z extends RelationshipBuilder<A, B, T> >
+	RelationshipBuilderFactory <A, B, T, Z> getRelationshipBuilderFactory (Class<? extends RelationshipBuilder<A, B, T>> ofType){
 		//noinspection unchecked
 		return modelBuildersByType.get(ofType);
 	}

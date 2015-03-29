@@ -5,13 +5,13 @@ import com.mgs.mes.build.data.EntityDataBuilderFactory;
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
 import com.mgs.mes.build.factory.entity.EntityFactory;
-import com.mgs.mes.build.factory.relationships.EntityReferenceFactory;
+import com.mgs.mes.build.factory.reference.EntityReferenceFactory;
 import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
+import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.*;
-import com.mgs.mes.utils.Entities;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mongodb.DBObject;
@@ -54,7 +54,7 @@ public class UnlinkedEntityDescriptorFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <A extends Entity, B extends Entity, T extends Entity, Z extends EntityBuilder<T>, T2 extends Relationship<A, B>, Z2 extends RelationshipBuilder<T2, A, B>>
+	private <A extends Entity, B extends Entity, T extends Entity, Z extends EntityBuilder<T>, T2 extends Relationship<A, B>, Z2 extends RelationshipBuilder<A, B, T2>>
 	EntityBuilderFactory<T, Z> builder(Class<? extends T> typeOfModel, Class<Z> typeOfBuilder) {
 		if (RelationshipBuilder.class.isAssignableFrom(typeOfBuilder)){
 			Class<T2> typeOfModel1 = (Class<T2>) typeOfModel;
