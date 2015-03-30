@@ -1,6 +1,5 @@
-package com.mgs.mes.utils
+package com.mgs.mes.meta
 
-import com.mgs.mes.meta.Entities
 import spock.lang.Specification
 
 import java.lang.reflect.InvocationHandler
@@ -8,7 +7,7 @@ import java.lang.reflect.Method
 
 import static java.lang.reflect.Proxy.newProxyInstance
 
-class MongoEntitiesSpecification extends Specification {
+class EntitiesSpecification extends Specification {
     Entities testObj = new Entities()
 
     def "should get collection name for simple interface" (){
@@ -22,7 +21,7 @@ class MongoEntitiesSpecification extends Specification {
     def "should work with proxy classes" (){
         given:
         def proxied = newProxyInstance(
-                MongoEntitiesSpecification.getClassLoader(),
+                EntitiesSpecification.getClassLoader(),
                 [Entity].toArray() as Class<?>[],
                 new InvocationHandler() {
                     @Override
