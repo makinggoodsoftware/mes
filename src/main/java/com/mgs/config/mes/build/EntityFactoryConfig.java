@@ -9,10 +9,9 @@ import com.mgs.mes.build.factory.entity.EntityFactory;
 import com.mgs.mes.build.factory.entity.dbo.DBObjectEntityFactory;
 import com.mgs.mes.build.factory.entity.entityData.EntityDataEntityFactory;
 import com.mgs.mes.build.factory.reference.EntityReferenceFactory;
-import com.mgs.mes.model.Entity;
-import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.model.Relationship;
-import com.mgs.mes.model.RelationshipBuilder;
+import com.mgs.mes.build.factory.relationship.RelationshipsFactory;
+import com.mgs.mes.context.MongoContextReference;
+import com.mgs.mes.model.*;
 import com.mongodb.DBObject;
 
 public class EntityFactoryConfig {
@@ -51,6 +50,11 @@ public class EntityFactoryConfig {
 				relationshipType,
 				relationshipBuilderType
 		);
+	}
+
+	public <T extends Entity, Y extends Relationships<T>>
+	RelationshipsFactory<T, Y> relationships(Class<T> entityType, Class<Y> relationshipsType, MongoContextReference contextReference) {
+		return new RelationshipsFactory<>(relationshipsType, contextReference, metaConfig.entities());
 	}
 
 	public EntityReferenceFactory reference() {
