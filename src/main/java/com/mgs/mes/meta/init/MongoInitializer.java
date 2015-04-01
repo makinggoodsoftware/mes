@@ -38,6 +38,6 @@ public class MongoInitializer {
 
 
 		UnlinkedMongoContext unlinkedEntities = unlinkedMongoContextFactory.create (registrer);
-		return mongoContextFactory.create(unlinkedEntities);
+		return mongoContextFactory.create(unlinkedEntities).get();
 	}
 }

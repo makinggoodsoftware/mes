@@ -37,8 +37,24 @@ public class MongoContext {
 		return manager(entityType).getRetriever();
 	}
 
-	public MongoContext initialise() {
-		managersByEntity.entrySet().stream().forEach((entry)->entry.getValue().setContext(this));
-		return this;
+	@SuppressWarnings("RedundantIfStatement")
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof MongoContext)) return false;
+
+		MongoContext that = (MongoContext) o;
+
+		if (!managersByEntity.equals(that.managersByEntity)) return false;
+		if (!modelBuildersByType.equals(that.modelBuildersByType)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = managersByEntity.hashCode();
+		result = 31 * result + modelBuildersByType.hashCode();
+		return result;
 	}
 }

@@ -19,11 +19,12 @@ public class MongoContextFactory {
 		this.entities = entities;
 	}
 
-	public MongoContext create(UnlinkedMongoContext unlinkedEntities) {
+	public MongoContextReference create(UnlinkedMongoContext unlinkedEntities) {
 		MongoContextReference mongoContextReference = new MongoContextReference();
 		Map<EntityDescriptor, MongoManager> managersByEntity = buildManagersMap(unlinkedEntities, mongoContextReference);
 		MongoContext mongoContext = new MongoContext(managersByEntity, unlinkedEntities.getRelationshipBuilderFactories());
-		return mongoContext.initialise();
+		mongoContextReference.set(mongoContext);
+		return mongoContextReference;
 	}
 
 	private Map<EntityDescriptor, MongoManager> buildManagersMap(UnlinkedMongoContext unlinkedMongoContext, MongoContextReference mongoContextReference) {
@@ -34,7 +35,7 @@ public class MongoContextFactory {
 						(entrySet) ->
 								createMongoManager(
 												entrySet.getValue(),
-										mongoContextReference,
+												mongoContextReference,
 												entrySet.getKey().getRelationshipsType()
 								)
 				));

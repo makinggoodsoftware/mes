@@ -41,8 +41,4 @@ public class MongoManager <T extends Entity, Z extends EntityBuilder<T>, Y exten
 	public EntityBuilderFactory<T, Z> getBuilder() {
 		return builder;
 	}
-
-	void setContext(MongoContext context) {
-		 relationshipsFactory.setContext (context);
-	}
 }

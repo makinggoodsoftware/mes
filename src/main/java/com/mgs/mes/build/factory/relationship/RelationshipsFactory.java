@@ -1,6 +1,5 @@
 package com.mgs.mes.build.factory.relationship;
 
-import com.mgs.mes.context.MongoContext;
 import com.mgs.mes.context.MongoContextReference;
 import com.mgs.mes.meta.Entities;
 import com.mgs.mes.model.Entity;
@@ -31,9 +30,5 @@ public class RelationshipsFactory<T extends Entity, Y extends Relationships<T>> 
 		);
 		//noinspection unchecked
 		return (Y) proxy.from(from);
-	}
-
-	public void setContext(MongoContext context) {
-		contextReference.set(context);
 	}
 }
