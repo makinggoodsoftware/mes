@@ -1,6 +1,6 @@
 package com.mgs.mes.db
 
-import com.mgs.mes.context.EntityDescriptorFactory
+import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
 import com.mgs.mes.entityB.EntityB
@@ -15,11 +15,10 @@ class DBSpecification extends Specification {
     MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs
 
     def "setup" (){
-        EntityDescriptorFactory descriptorFactory = new EntityDescriptorFactory ();
         MongoContext context = new MongoOrchestrator(new MongoDaoFactory(), new MongoInitializerFactory()).
                 createContext(
                         "localhost", 27017, "testDb",
-                        [descriptorFactory.create(EntityB, EntityBBuilder, EntityBRelationships)]
+                        [new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships)]
                 )
         Bs = context.manager(EntityB)
     }

@@ -1,6 +1,6 @@
 package com.mgs.mes.features
 
-import com.mgs.mes.context.EntityDescriptorFactory
+import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
 import com.mgs.mes.entityA.EntityA
@@ -29,15 +29,14 @@ class MongoBasicFeatures extends Specification{
     MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
 
     def "setup" () {
-        EntityDescriptorFactory descriptorFactory = new EntityDescriptorFactory ();
         MongoContext context = new MongoOrchestrator(new MongoDaoFactory(), new MongoInitializerFactory()).
                 createContext(
                         "localhost", 27017, "bddDb",
                         [
-                                descriptorFactory.create(EntityA, EntityABuilder, EntityARelationships),
-                                descriptorFactory.create(EntityB, EntityBBuilder, EntityBRelationships),
-                                descriptorFactory.create(EntityC, EntityCBuilder, EntityCRelationships),
-                                descriptorFactory.create(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
+                                new EntityDescriptor<>(EntityA, EntityABuilder, EntityARelationships),
+                                new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
+                                new EntityDescriptor<>(EntityC, EntityCBuilder, EntityCRelationships),
+                                new EntityDescriptor<>(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
                         ]
                 )
         Bs = context.manager(EntityB)
