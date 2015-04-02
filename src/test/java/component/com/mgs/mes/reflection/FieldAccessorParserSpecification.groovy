@@ -1,5 +1,5 @@
 package com.mgs.mes.reflection
-import com.mgs.config.ReflectionConfig
+import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
 import com.mgs.reflection.FieldAccessor

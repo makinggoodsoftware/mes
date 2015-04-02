@@ -1,9 +1,9 @@
 package com.mgs.config.mes.context;
 
 
-import com.mgs.config.ReflectionConfig;
 import com.mgs.config.mes.build.BuildConfig;
 import com.mgs.config.mes.meta.MetaConfig;
+import com.mgs.config.reflection.ReflectionConfig;
 import com.mgs.mes.context.MongoContextFactory;
 import com.mgs.mes.context.unlinkedContext.UnlinkedEntityFactory;
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContextFactory;

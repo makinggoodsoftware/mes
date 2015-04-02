@@ -1,13 +1,9 @@
 package com.mgs.mes.features
-import com.mgs.config.ReflectionConfig
-import com.mgs.config.mes.build.BuildConfig
-import com.mgs.config.mes.context.ContextConfig
-import com.mgs.config.mes.db.DatabaseConfig
-import com.mgs.config.mes.meta.MetaConfig
+
+import com.mgs.config.MesConfigFactory
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
-import com.mgs.mes.db.MongoDao
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
 import com.mgs.mes.entityA.EntityARelationships
@@ -23,36 +19,27 @@ import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
 
 class MongoBasicFeatures extends Specification{
-    String randomValue
     EntityA fromDb
     MongoManager<EntityA, EntityABuilder, EntityARelationships> As;
     MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs;
     MongoManager<EntityC, EntityCBuilder, EntityCRelationships> Cs;
     MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
-    DatabaseConfig databaseConfig = new DatabaseConfig();
-    ReflectionConfig reflectionConfig = new ReflectionConfig()
-    ContextConfig contextConfig = new ContextConfig(
-            new MetaConfig(reflectionConfig),
-            new BuildConfig(reflectionConfig),
-            reflectionConfig
-    )
 
     def "setup" () {
-        MongoDao dao = databaseConfig.dao("localhost", 27017, "bddDb")
-        MongoContext context = contextConfig.contextFactory().create(
-                contextConfig.unlinkedMongoContextFactory(dao).createUnlinkedContext([
+        MongoContext context =
+                new MesConfigFactory().
+                simple("localhost", 27017, "bddDb").
+                mongoContext([
                     new EntityDescriptor<>(EntityA, EntityABuilder, EntityARelationships),
                     new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
                     new EntityDescriptor<>(EntityC, EntityCBuilder, EntityCRelationships),
                     new EntityDescriptor<>(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
-                ])
-        ).get()
+                ]);
         Bs = context.manager(EntityB)
         As = context.manager(EntityA);
         Bs = context.manager(EntityB);
         Cs = context.manager(EntityC);
         A_Cs = context.manager(EntityA_EntityC);
-        randomValue = UUID.randomUUID().toString()
     }
 
     def "should perform simple CRUD operations" () {

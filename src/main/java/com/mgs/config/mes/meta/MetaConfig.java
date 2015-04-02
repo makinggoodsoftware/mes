@@ -1,6 +1,6 @@
 package com.mgs.config.mes.meta;
 
-import com.mgs.config.ReflectionConfig;
+import com.mgs.config.reflection.ReflectionConfig;
 import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.meta.utils.Validator;
 

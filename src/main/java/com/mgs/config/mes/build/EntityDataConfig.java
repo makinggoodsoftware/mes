@@ -1,6 +1,6 @@
 package com.mgs.config.mes.build;
 
-import com.mgs.config.ReflectionConfig;
+import com.mgs.config.reflection.ReflectionConfig;
 import com.mgs.mes.build.data.EntityDataBuilderFactory;
 import com.mgs.mes.build.data.EntityDataFactory;
 import com.mgs.mes.build.data.transformer.DboTransformer;

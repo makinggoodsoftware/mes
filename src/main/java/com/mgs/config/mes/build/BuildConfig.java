@@ -1,7 +1,7 @@
 package com.mgs.config.mes.build;
 
-import com.mgs.config.ReflectionConfig;
 import com.mgs.config.mes.meta.MetaConfig;
+import com.mgs.config.reflection.ReflectionConfig;
 
 public class BuildConfig {
 	private final ReflectionConfig reflectionConfig;

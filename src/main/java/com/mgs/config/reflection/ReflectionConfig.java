@@ -1,4 +1,4 @@
-package com.mgs.config;
+package com.mgs.config.reflection;
 
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;

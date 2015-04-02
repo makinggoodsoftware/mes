@@ -1,6 +1,7 @@
 package com.mgs.mes.build.factory.entity.entityData
-import com.mgs.config.ReflectionConfig
+
 import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.build.data.EntityData
 import com.mgs.mes.build.factory.entity.EntityFactory
 import com.mgs.mes.model.Entity

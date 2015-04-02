@@ -1,7 +1,7 @@
 package com.mgs.config.mes.build;
 
-import com.mgs.config.ReflectionConfig;
 import com.mgs.config.mes.meta.MetaConfig;
+import com.mgs.config.reflection.ReflectionConfig;
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
@@ -53,7 +53,7 @@ public class EntityFactoryConfig {
 	}
 
 	public <T extends Entity, Y extends Relationships<T>>
-	RelationshipsFactory<T, Y> relationships(Class<T> entityType, Class<Y> relationshipsType, MongoContextReference contextReference) {
+	RelationshipsFactory<T, Y> relationships(Class<Y> relationshipsType, MongoContextReference contextReference) {
 		return new RelationshipsFactory<>(relationshipsType, contextReference, metaConfig.entities());
 	}
 

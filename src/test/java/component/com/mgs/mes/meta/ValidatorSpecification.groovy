@@ -1,7 +1,7 @@
 package com.mgs.mes.meta
 
-import com.mgs.config.ReflectionConfig
 import com.mgs.config.mes.meta.MetaConfig
+import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.meta.utils.Validator
 import com.mgs.mes.model.*
@@ -87,7 +87,10 @@ class ValidatorSpecification extends Specification {
     public static interface Relatioship1 extends Relationship<Getter1, Getter2>{
     }
 
-    public static interface Relatioship1Builder extends RelationshipBuilder<Relatioship1, Getter1, Getter2> {
+    public static interface Getter1_Getter2 extends Relationship<Getter1, Getter2>{
+    }
+
+    public static interface Relatioship1Builder extends RelationshipBuilder<Getter1, Getter2, Getter1_Getter2> {
     }
 
     public static interface Relatioship1Relationships extends Relationships<Relatioship1>{

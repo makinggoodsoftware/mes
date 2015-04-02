@@ -1,8 +1,9 @@
 package com.mgs.mes.context.unlinkedContext
-import com.mgs.config.ReflectionConfig
+
 import com.mgs.config.mes.build.BuildConfig
 import com.mgs.config.mes.context.ContextConfig
 import com.mgs.config.mes.meta.MetaConfig
+import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.db.MongoDao
 import com.mgs.mes.entityA.EntityA

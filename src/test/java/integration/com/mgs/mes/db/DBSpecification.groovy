@@ -1,10 +1,10 @@
 package com.mgs.mes.db
 
-import com.mgs.config.ReflectionConfig
 import com.mgs.config.mes.build.BuildConfig
 import com.mgs.config.mes.context.ContextConfig
 import com.mgs.config.mes.db.DatabaseConfig
 import com.mgs.config.mes.meta.MetaConfig
+import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.unlinkedContext.UnlinkedEntity
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext

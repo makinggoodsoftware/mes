@@ -1,6 +1,7 @@
 package com.mgs.mes.build.factory.relationship
-import com.mgs.config.ReflectionConfig
+
 import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoContextReference
 import com.mgs.mes.db.EntityRetriever
@@ -29,7 +30,7 @@ class RelationshipsFactorySpecification extends Specification {
     BuildConfig buildConfig = new BuildConfig(new ReflectionConfig())
 
     def setup () {
-        testObj = buildConfig.factories().relationships(EntityA, EntityARelationships, contextReferenceMock)
+        testObj = buildConfig.factories().relationships(EntityARelationships, contextReferenceMock)
 
         a.id >> of(aIdMock)
         c.id >> of(cIdMock)
