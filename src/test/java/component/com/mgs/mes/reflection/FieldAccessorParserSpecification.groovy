@@ -1,7 +1,9 @@
-package com.mgs.reflection
-
+package com.mgs.mes.reflection
+import com.mgs.config.ReflectionConfig
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
+import com.mgs.reflection.FieldAccessor
+import com.mgs.reflection.FieldAccessorParser
 import spock.lang.Specification
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER
@@ -10,9 +12,10 @@ import static java.util.stream.Collectors.toList
 
 class FieldAccessorParserSpecification extends Specification {
     FieldAccessorParser testObj
+    ReflectionConfig reflectionConfig = new ReflectionConfig()
 
     def "setup" (){
-        testObj = new FieldAccessorParser(new BeanNamingExpert())
+        testObj = reflectionConfig.fieldAccessorParser()
     }
 
     def "should parse get method" () {
