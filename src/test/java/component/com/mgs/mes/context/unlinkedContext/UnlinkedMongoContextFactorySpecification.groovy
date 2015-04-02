@@ -52,9 +52,10 @@ class UnlinkedMongoContextFactorySpecification extends Specification {
         unlinkedEntityA.builder.newEntityBuilder().withEntityAfield1("value1").create().getEntityAfield1() == "value1"
 
         when:
-        unlinkedEntityA.persister.update(entityAMock)
+        unlinkedEntityA.persister.touch(entityAMock)
 
         then:
+        //noinspection GroovyAssignabilityCheck
         1 * mongoDaoMock.touch ("EntityA", aDbObjectMock)
 
         when:
@@ -67,6 +68,7 @@ class UnlinkedMongoContextFactorySpecification extends Specification {
         unlinkedEntityA.retriever.byId(aObjectIdMock)
 
         then:
+        //noinspection GroovyAssignabilityCheck
         1 * mongoDaoMock.findOne("EntityA", new BasicDBObject("_id", aObjectIdMock)) >> of(aDbObjectMock)
     }
 

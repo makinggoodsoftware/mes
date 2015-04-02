@@ -40,7 +40,7 @@ class DBSpecification extends Specification {
                 create()
 
         when:
-        def savedObject = Bs.persister.create(b)
+        def savedObject = Bs.persister.touch(b)
 
         then:
         savedObject != b

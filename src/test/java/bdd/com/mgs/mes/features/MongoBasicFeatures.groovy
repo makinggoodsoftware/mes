@@ -55,8 +55,8 @@ class MongoBasicFeatures extends Specification{
         randomValue = UUID.randomUUID().toString()
     }
 
-    def "shouldPerformCRUDInSimpleEntity" () {
-        when:
+    def "should perform simple CRUD operations" () {
+        when: "build new entity"
         EntityA original = As.builder.newEntityBuilder().
                             withEntityAfield1("value1").
                             withEntityAfield2( "value2").
@@ -70,21 +70,21 @@ class MongoBasicFeatures extends Specification{
         then:
         !original.id.present
 
-        when:
-        def afterPersist = As.persister.create(original)
+        when: "creating entity"
+        def afterPersist = As.persister.touch(original)
 
         then:
         !original.id.present
         afterPersist.id.present
 
-        when:
+        when: "retrieving entity"
         this.fromDb = As.retriever.byId (afterPersist.id.get()).get()
 
         then:
         this.fromDb != original
         this.fromDb == afterPersist
 
-        when:
+        when: "updating entity"
         EntityA updated = As.builder.update(afterPersist as EntityA).
                             withEntityAfield2("entityAfield2 new values").
                             withEmbedded(Bs.builder.update(original.getEmbedded()).
@@ -95,8 +95,8 @@ class MongoBasicFeatures extends Specification{
         then:
         updated.id.get() == afterPersist.id.get()
 
-        when:
-        As.persister.update (updated)
+        when: "updating database"
+        As.persister.touch (updated)
         this.fromDb = As.retriever.byId (updated.id.get()).get()
 
         then:
@@ -104,9 +104,9 @@ class MongoBasicFeatures extends Specification{
         this.fromDb == updated
     }
 
-    def "should save relationships" () {
+    def "should save simple relationships" () {
         given:
-        EntityA entityA = As.persister.create(As.builder.newEntityBuilder().
+        EntityA entityA = As.persister.touch(As.builder.newEntityBuilder().
                 withEntityAfield1("value1").
                 withEntityAfield2( "value2").
                 withEmbedded(Bs.builder.newEntityBuilder().
@@ -117,14 +117,14 @@ class MongoBasicFeatures extends Specification{
                 create()
         )
 
-        EntityC entityC = Cs.persister.create(Cs.builder.newEntityBuilder().
+        EntityC entityC = Cs.persister.touch(Cs.builder.newEntityBuilder().
                 withEntityCfield1("valueC1").
                 withEntityCfield2("valueC2").
                 create()
         )
 
         when:
-        EntityA_EntityC a_c = A_Cs.persister.create(As.
+        EntityA_EntityC a_c = A_Cs.persister.touch(As.
                                 relationshipFrom(entityA).
                                 hasEntityC(entityC).
                                 create()

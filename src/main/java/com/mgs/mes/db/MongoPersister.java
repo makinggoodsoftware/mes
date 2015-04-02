@@ -17,18 +17,14 @@ public class MongoPersister<T extends Entity, Z extends EntityBuilder<T>> {
 		this.entities = entities;
 	}
 
-	public T create(T toCreate) {
-		if (toCreate.getId().isPresent()) throw new IllegalStateException("Can't create a mongo entity if it already has an Id");
+	public T touch(T toCreate) {
+		boolean isNew = !toCreate.getId().isPresent();
 
 		String collectionName = entities.collectionName(toCreate.getClass());
 		ObjectId save = mongoDao.touch(collectionName, toCreate.asDbo());
-		return entityBuilderFactory.update(toCreate).withId(save).create();
-	}
-
-	public void update(Entity toUpdate) {
-		if (! toUpdate.getId().isPresent()) throw new IllegalStateException("Can't update a mongo entity if it doesn't have an Id");
-
-		String collectionName = entities.collectionName(toUpdate.getClass());
-		mongoDao.touch(collectionName, toUpdate.asDbo());
+		if (isNew){
+			return entityBuilderFactory.update(toCreate).withId(save).create();
+		}
+		return toCreate;
 	}
 }
