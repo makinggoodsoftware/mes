@@ -1,26 +1,35 @@
 package com.mgs.mes.db
 
+import com.mgs.config.ReflectionConfig
+import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.mes.context.ContextConfig
+import com.mgs.config.mes.db.DatabaseConfig
+import com.mgs.config.mes.meta.MetaConfig
 import com.mgs.mes.context.EntityDescriptor
-import com.mgs.mes.context.MongoContext
-import com.mgs.mes.context.MongoManager
+import com.mgs.mes.context.unlinkedContext.UnlinkedEntity
+import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext
+import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContextFactory
 import com.mgs.mes.entityB.EntityB
 import com.mgs.mes.entityB.EntityBBuilder
 import com.mgs.mes.entityB.EntityBRelationships
-import com.mgs.mes.meta.init.MongoDaoFactory
-import com.mgs.mes.meta.init.MongoInitializerFactory
-import com.mgs.mes.meta.init.MongoOrchestrator
 import spock.lang.Specification
 
 class DBSpecification extends Specification {
-    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs
+    UnlinkedEntity<EntityB, EntityBBuilder, EntityBRelationships> Bs
+    DatabaseConfig databaseConfig = new DatabaseConfig();
+    ReflectionConfig reflectionConfig = new ReflectionConfig()
+    ContextConfig contextConfig = new ContextConfig(
+            new MetaConfig(reflectionConfig),
+            new BuildConfig(reflectionConfig),
+            reflectionConfig
+    )
 
     def "setup" (){
-        MongoContext context = new MongoOrchestrator(new MongoDaoFactory(), new MongoInitializerFactory()).
-                createContext(
-                        "localhost", 27017, "testDb",
-                        [new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships)]
-                )
-        Bs = context.manager(EntityB)
+        MongoDao dao = databaseConfig.dao("localhost", 27017, "testDb")
+        final UnlinkedMongoContextFactory orchestrator = contextConfig.unlinkedMongoContextFactory(dao)
+        EntityDescriptor<EntityB, EntityBBuilder, EntityBRelationships> descriptor = new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships)
+        UnlinkedMongoContext context = orchestrator.createUnlinkedContext([descriptor])
+        Bs = context.unlinkedEntities[descriptor]
     }
 
     def "should save simple object into collection" (){

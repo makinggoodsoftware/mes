@@ -1,4 +1,4 @@
-package com.mgs.mes.meta.unlinkedContext;
+package com.mgs.mes.context.unlinkedContext;
 
 import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.Entity;

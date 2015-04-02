@@ -1,8 +1,13 @@
 package com.mgs.mes.features
-
+import com.mgs.config.ReflectionConfig
+import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.mes.context.ContextConfig
+import com.mgs.config.mes.db.DatabaseConfig
+import com.mgs.config.mes.meta.MetaConfig
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
+import com.mgs.mes.db.MongoDao
 import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.entityA.EntityABuilder
 import com.mgs.mes.entityA.EntityARelationships
@@ -12,9 +17,6 @@ import com.mgs.mes.entityB.EntityBRelationships
 import com.mgs.mes.entityC.EntityC
 import com.mgs.mes.entityC.EntityCBuilder
 import com.mgs.mes.entityC.EntityCRelationships
-import com.mgs.mes.meta.init.MongoDaoFactory
-import com.mgs.mes.meta.init.MongoInitializerFactory
-import com.mgs.mes.meta.init.MongoOrchestrator
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
@@ -27,18 +29,24 @@ class MongoBasicFeatures extends Specification{
     MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs;
     MongoManager<EntityC, EntityCBuilder, EntityCRelationships> Cs;
     MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
+    DatabaseConfig databaseConfig = new DatabaseConfig();
+    ReflectionConfig reflectionConfig = new ReflectionConfig()
+    ContextConfig contextConfig = new ContextConfig(
+            new MetaConfig(reflectionConfig),
+            new BuildConfig(reflectionConfig),
+            reflectionConfig
+    )
 
     def "setup" () {
-        MongoContext context = new MongoOrchestrator(new MongoDaoFactory(), new MongoInitializerFactory()).
-                createContext(
-                        "localhost", 27017, "bddDb",
-                        [
-                                new EntityDescriptor<>(EntityA, EntityABuilder, EntityARelationships),
-                                new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
-                                new EntityDescriptor<>(EntityC, EntityCBuilder, EntityCRelationships),
-                                new EntityDescriptor<>(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
-                        ]
-                )
+        MongoDao dao = databaseConfig.dao("localhost", 27017, "bddDb")
+        MongoContext context = contextConfig.contextFactory().create(
+                contextConfig.unlinkedMongoContextFactory(dao).createUnlinkedContext([
+                    new EntityDescriptor<>(EntityA, EntityABuilder, EntityARelationships),
+                    new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
+                    new EntityDescriptor<>(EntityC, EntityCBuilder, EntityCRelationships),
+                    new EntityDescriptor<>(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
+                ])
+        ).get()
         Bs = context.manager(EntityB)
         As = context.manager(EntityA);
         Bs = context.manager(EntityB);

@@ -1,7 +1,7 @@
 package com.mgs.mes.db;
 
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
-import com.mgs.mes.meta.Entities;
+import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import org.bson.types.ObjectId;

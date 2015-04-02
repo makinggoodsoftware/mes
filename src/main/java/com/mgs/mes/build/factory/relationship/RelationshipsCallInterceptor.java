@@ -3,7 +3,7 @@ package com.mgs.mes.build.factory.relationship;
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
 import com.mgs.mes.context.MongoContext;
 import com.mgs.mes.db.EntityRetriever;
-import com.mgs.mes.meta.Entities;
+import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.Relationship;
 import com.mgs.mes.model.RelationshipBuilder;

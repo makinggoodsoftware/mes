@@ -16,6 +16,6 @@ public class BuildConfig {
 	}
 
 	public EntityFactoryConfig factories(){
-		return new EntityFactoryConfig(entityData(), reflectionConfig, commonConfig, new MetaConfig());
+		return new EntityFactoryConfig(entityData(), reflectionConfig, commonConfig, new MetaConfig(reflectionConfig));
 	}
 }

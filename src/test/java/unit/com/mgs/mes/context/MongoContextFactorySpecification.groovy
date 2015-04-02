@@ -1,6 +1,9 @@
 package com.mgs.mes.context
+
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory
 import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory
+import com.mgs.mes.context.unlinkedContext.UnlinkedEntity
+import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext
 import com.mgs.mes.db.EntityRetriever
 import com.mgs.mes.db.MongoPersister
 import com.mgs.mes.entityA.EntityA
@@ -9,9 +12,7 @@ import com.mgs.mes.entityA.EntityARelationships
 import com.mgs.mes.entityC.EntityC
 import com.mgs.mes.entityC.EntityCBuilder
 import com.mgs.mes.entityC.EntityCRelationships
-import com.mgs.mes.meta.Entities
-import com.mgs.mes.meta.unlinkedContext.UnlinkedEntity
-import com.mgs.mes.meta.unlinkedContext.UnlinkedMongoContext
+import com.mgs.mes.meta.utils.Entities
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships

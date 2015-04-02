@@ -2,6 +2,7 @@ package com.mgs.config;
 
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
+import com.mgs.reflection.Reflections;
 
 public class ReflectionConfig {
 	public BeanNamingExpert beanNamingExpert() {
@@ -10,5 +11,9 @@ public class ReflectionConfig {
 
 	public FieldAccessorParser fieldAccessorParser() {
 		return new FieldAccessorParser(beanNamingExpert());
+	}
+
+	public Reflections reflections() {
+		return new Reflections();
 	}
 }

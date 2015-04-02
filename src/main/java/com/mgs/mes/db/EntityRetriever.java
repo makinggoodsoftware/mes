@@ -1,14 +1,12 @@
 package com.mgs.mes.db;
 
 import com.mgs.mes.build.factory.entity.EntityFactory;
-import com.mgs.mes.meta.Entities;
+import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.model.Entity;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 
-import java.util.Iterator;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -28,12 +26,9 @@ public class EntityRetriever<T extends Entity> {
 	}
 
 	public Optional<T> byId(ObjectId id) {
-		DBCursor dbObjects = mongoDao.find(entities.collectionName(type), new BasicDBObject("_id", id));
-		Iterator<DBObject> iterator = dbObjects.iterator();
-		if (! iterator.hasNext()) return empty();
-
-		DBObject fromDb = iterator.next();
-		if (iterator.hasNext()) throw new IllegalStateException("More than one element with the same ID");
-		return of(entityFactory.from(type, fromDb));
+		Optional<DBObject> fromDb = mongoDao.findOne(entities.collectionName(type), new BasicDBObject("_id", id));
+		return !fromDb.isPresent() ?
+				empty() :
+				of(entityFactory.from(type, fromDb.get()));
 	}
 }

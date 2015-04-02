@@ -5,6 +5,12 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 
+import java.util.Iterator;
+import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+
 public class MongoDao {
 	private final DB db;
 
@@ -19,5 +25,15 @@ public class MongoDao {
 
 	public DBCursor find(String collectionName, DBObject query){
 		return db.getCollection(collectionName).find(query);
+	}
+
+	public Optional<DBObject> findOne(String collectionName, DBObject query){
+		DBCursor dbObjects = find(collectionName, query);
+		Iterator<DBObject> iterator = dbObjects.iterator();
+		if (! iterator.hasNext()) return empty();
+
+		DBObject fromDb = iterator.next();
+		if (iterator.hasNext()) throw new IllegalStateException("More than one element with the same ID");
+		return of(fromDb);
 	}
 }

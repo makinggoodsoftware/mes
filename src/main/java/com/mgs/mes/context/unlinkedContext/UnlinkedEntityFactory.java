@@ -1,4 +1,4 @@
-package com.mgs.mes.meta.unlinkedContext;
+package com.mgs.mes.context.unlinkedContext;
 
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.data.EntityDataBuilderFactory;
@@ -10,13 +10,13 @@ import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
-import com.mgs.mes.meta.Entities;
+import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.model.*;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mongodb.DBObject;
 
-public class UnlinkedEntityDescriptorFactory {
+public class UnlinkedEntityFactory {
 	private final MongoDao mongoDao;
 	private final FieldAccessorParser fieldAccessorParser;
 	private final EntityDataBuilderFactory entityDataBuilderFactory;
@@ -26,7 +26,7 @@ public class UnlinkedEntityDescriptorFactory {
 	private final BeanNamingExpert beanNamingExpert;
 	private final EntityReferenceFactory entityReferenceFactory;
 
-	public UnlinkedEntityDescriptorFactory(MongoDao mongoDao, FieldAccessorParser fieldAccessorParser, EntityDataBuilderFactory entityDataBuilderFactory, EntityFactory<DBObject> dbObjectEntityFactory, EntityFactory<EntityData> modelDataEntityFactory, Entities entities, BeanNamingExpert beanNamingExpert, EntityReferenceFactory entityReferenceFactory) {
+	public UnlinkedEntityFactory(MongoDao mongoDao, FieldAccessorParser fieldAccessorParser, EntityDataBuilderFactory entityDataBuilderFactory, EntityFactory<DBObject> dbObjectEntityFactory, EntityFactory<EntityData> modelDataEntityFactory, Entities entities, BeanNamingExpert beanNamingExpert, EntityReferenceFactory entityReferenceFactory) {
 		this.mongoDao = mongoDao;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.entityDataBuilderFactory = entityDataBuilderFactory;
@@ -83,8 +83,8 @@ public class UnlinkedEntityDescriptorFactory {
 		}
 	}
 
-	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> UnlinkedEntity<T, Z, Y>
-	create(EntityDescriptor<T, Z, Y> entityDescriptor) {
+	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
+	UnlinkedEntity<T, Z, Y> create(EntityDescriptor<T, Z, Y> entityDescriptor) {
 		EntityRetriever<T> retriever = retriever(entityDescriptor.getEntityType());
 		MongoPersister<T, Z> persister = persister(entityDescriptor.getEntityType(), entityDescriptor.getBuilderType());
 		EntityBuilderFactory<T, Z> builder = builder(entityDescriptor.getEntityType(), entityDescriptor.getBuilderType());

@@ -1,4 +1,4 @@
-package com.mgs.mes.meta;
+package com.mgs.mes.meta.utils;
 
 import com.mgs.mes.model.Entity;
 
