@@ -5,11 +5,11 @@ import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoContextReference
 import com.mgs.mes.db.EntityRetriever
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityA.EntityARelationships
-import com.mgs.mes.entityC.EntityC
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityA.EntityARelationships
+import com.mgs.mes.simpleModel.entityC.EntityC
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityC
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import org.bson.types.ObjectId
 import spock.lang.Specification
 

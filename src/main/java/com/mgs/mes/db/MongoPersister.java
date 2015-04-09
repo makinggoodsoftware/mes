@@ -27,4 +27,10 @@ public class MongoPersister<T extends Entity, Z extends EntityBuilder<T>> {
 		}
 		return toCreate;
 	}
+
+	public T create(Z toCreate) {
+		String collectionName = entities.builderCollectionName(toCreate);
+		ObjectId id = mongoDao.touch(collectionName, toCreate.asDbo());
+		return toCreate.withId(id).create();
+	}
 }

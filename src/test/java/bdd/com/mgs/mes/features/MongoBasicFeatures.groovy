@@ -4,18 +4,18 @@ import com.mgs.config.MesConfigFactory
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityA.EntityABuilder
-import com.mgs.mes.entityA.EntityARelationships
-import com.mgs.mes.entityB.EntityB
-import com.mgs.mes.entityB.EntityBBuilder
-import com.mgs.mes.entityB.EntityBRelationships
-import com.mgs.mes.entityC.EntityC
-import com.mgs.mes.entityC.EntityCBuilder
-import com.mgs.mes.entityC.EntityCRelationships
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityA.EntityABuilder
+import com.mgs.mes.simpleModel.entityA.EntityARelationships
+import com.mgs.mes.simpleModel.entityB.EntityB
+import com.mgs.mes.simpleModel.entityB.EntityBBuilder
+import com.mgs.mes.simpleModel.entityB.EntityBRelationships
+import com.mgs.mes.simpleModel.entityC.EntityC
+import com.mgs.mes.simpleModel.entityC.EntityCBuilder
+import com.mgs.mes.simpleModel.entityC.EntityCRelationships
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityC
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCBuilder
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
 
 class MongoBasicFeatures extends Specification{
@@ -112,7 +112,7 @@ class MongoBasicFeatures extends Specification{
 
         when:
         EntityA_EntityC a_c = A_Cs.persister.touch(As.
-                                relationshipFrom(entityA).
+                                newRelationshipFrom(entityA).
                                 hasEntityC(entityC).
                                 create()
         )

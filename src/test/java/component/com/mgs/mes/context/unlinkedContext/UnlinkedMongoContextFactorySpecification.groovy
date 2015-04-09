@@ -6,9 +6,9 @@ import com.mgs.config.mes.meta.MetaConfig
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.db.MongoDao
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityA.EntityABuilder
-import com.mgs.mes.entityA.EntityARelationships
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityA.EntityABuilder
+import com.mgs.mes.simpleModel.entityA.EntityARelationships
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
 import org.bson.types.ObjectId

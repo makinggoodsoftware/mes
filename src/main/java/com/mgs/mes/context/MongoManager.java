@@ -8,6 +8,8 @@ import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.mes.model.Relationships;
 
+import java.util.function.Function;
+
 public class MongoManager <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> {
 	private final EntityRetriever<T> retriever;
 	private final MongoPersister<T, Z> persister;
@@ -34,11 +36,20 @@ public class MongoManager <T extends Entity, Z extends EntityBuilder<T>, Y exten
 		return persister;
 	}
 
-	public Y relationshipFrom(T from){
+	public Y newRelationshipFrom(T from){
 		return relationshipsFactory.from(from);
 	}
 
 	public EntityBuilderFactory<T, Z> getBuilder() {
 		return builder;
+	}
+
+	public Z newEntity() {
+		return getBuilder().newEntityBuilder();
+	}
+
+	public T createAndPersist(Function<Z, Z> fieldEnricher) {
+		Z toSave = fieldEnricher.apply(newEntity());
+		return getPersister().create(toSave);
 	}
 }

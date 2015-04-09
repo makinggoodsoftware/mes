@@ -1,7 +1,7 @@
-package com.mgs.mes.entityA;
+package com.mgs.mes.simpleModel.entityA;
 
-import com.mgs.mes.entityB.EntityB;
 import com.mgs.mes.model.Entity;
+import com.mgs.mes.simpleModel.entityB.EntityB;
 
 public interface EntityA extends Entity {
 	public String getEntityAfield1();

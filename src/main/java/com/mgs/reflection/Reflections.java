@@ -1,6 +1,7 @@
 package com.mgs.reflection;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class Reflections {
@@ -8,7 +9,8 @@ public class Reflections {
 			String.class,
 			Double.class,
 			Integer.class,
-			Float.class
+			Float.class,
+			Date.class
 	);
 
 	public boolean isSimpleOrAssignableTo(Class<?> type, Class<?> assignableTo) {

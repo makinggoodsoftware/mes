@@ -18,6 +18,12 @@ public class MongoContext {
 	}
 
 	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
+	MongoManager<T, Z, Y> manager (EntityDescriptor<T, Z, Y> entityDescriptor) {
+		//noinspection unchecked
+		return managersByEntity.get(entityDescriptor);
+	}
+
+	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
 	MongoManager<T, Z, Y> manager (Class<T> entityType) {
 		//noinspection unchecked
 		return managersByEntity.entrySet().stream().

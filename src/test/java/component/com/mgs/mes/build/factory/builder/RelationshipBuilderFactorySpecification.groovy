@@ -3,10 +3,10 @@ package com.mgs.mes.build.factory.builder
 import com.mgs.config.mes.build.BuildConfig
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.db.EntityRetriever
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityC.EntityC
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityC.EntityC
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityC
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCBuilder
 import org.bson.types.ObjectId
 import spock.lang.Specification
 

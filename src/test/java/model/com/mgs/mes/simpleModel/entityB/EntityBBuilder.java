@@ -1,4 +1,4 @@
-package com.mgs.mes.entityB;
+package com.mgs.mes.simpleModel.entityB;
 
 import com.mgs.mes.model.EntityBuilder;
 

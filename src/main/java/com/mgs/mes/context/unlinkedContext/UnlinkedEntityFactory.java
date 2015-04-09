@@ -41,7 +41,8 @@ public class UnlinkedEntityFactory {
 		return new EntityRetriever<>(entities, mongoDao, dbObjectEntityFactory, retrieveType);
 	}
 
-	private <T extends Entity, Z extends EntityBuilder<T>> MongoPersister<T, Z> persister(Class<T> persistType, Class<Z> updaterType) {
+	private <T extends Entity, Z extends EntityBuilder<T>>
+	MongoPersister<T, Z> persister(Class<T> persistType, Class<Z> updaterType) {
 		EntityBuilderFactory<T, Z> tzEntityBuilderFactory = new EntityBuilderFactory<>(
 				entityDataBuilderFactory,
 				fieldAccessorParser,

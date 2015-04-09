@@ -1,4 +1,4 @@
-package com.mgs.mes.relationships.entityA_EntityC;
+package com.mgs.mes.simpleModel.relationships.entityA_EntityC;
 
 import com.mgs.mes.model.Relationships;
 

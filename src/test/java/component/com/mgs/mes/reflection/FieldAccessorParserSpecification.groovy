@@ -1,7 +1,7 @@
 package com.mgs.mes.reflection
 import com.mgs.config.reflection.ReflectionConfig
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityA.EntityABuilder
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityA.EntityABuilder
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
 import spock.lang.Specification

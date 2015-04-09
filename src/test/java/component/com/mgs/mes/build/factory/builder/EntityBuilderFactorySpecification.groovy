@@ -2,10 +2,10 @@ package com.mgs.mes.build.factory.builder
 
 import com.mgs.config.mes.build.BuildConfig
 import com.mgs.config.reflection.ReflectionConfig
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityA.EntityABuilder
-import com.mgs.mes.entityB.EntityB
-import com.mgs.mes.entityB.EntityBBuilder
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityA.EntityABuilder
+import com.mgs.mes.simpleModel.entityB.EntityB
+import com.mgs.mes.simpleModel.entityB.EntityBBuilder
 import com.mongodb.BasicDBObject
 import spock.lang.Specification
 

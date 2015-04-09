@@ -43,7 +43,7 @@ public class Validator {
 
 	private <T extends Entity, Z extends EntityBuilder<T>> void tryToValidate(Class<T> entityType, Class<Z> builderType) {
 		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(entityType, GET, asList("asDbo","getLeft","getRight"));
-		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId","withLeft","withRight"));
+		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId","withLeft","withRight","getEntityType","asDbo"));
 
 		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
 			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, entityType);

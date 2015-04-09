@@ -9,9 +9,9 @@ import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.unlinkedContext.UnlinkedEntity
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContextFactory
-import com.mgs.mes.entityB.EntityB
-import com.mgs.mes.entityB.EntityBBuilder
-import com.mgs.mes.entityB.EntityBRelationships
+import com.mgs.mes.simpleModel.entityB.EntityB
+import com.mgs.mes.simpleModel.entityB.EntityBBuilder
+import com.mgs.mes.simpleModel.entityB.EntityBRelationships
 import spock.lang.Specification
 
 class DBSpecification extends Specification {

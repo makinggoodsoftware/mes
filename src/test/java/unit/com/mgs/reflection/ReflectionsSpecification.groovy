@@ -1,10 +1,9 @@
 package com.mgs.reflection
 
-import com.mgs.mes.entityA.EntityA
 import com.mgs.mes.model.Entity
+import com.mgs.mes.simpleModel.entityA.EntityA
 import spock.lang.Specification
 import spock.lang.Unroll
-
 
 class ReflectionsSpecification extends Specification {
     Reflections testObj

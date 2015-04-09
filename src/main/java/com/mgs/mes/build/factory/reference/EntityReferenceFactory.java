@@ -19,7 +19,7 @@ public class EntityReferenceFactory {
 	}
 
 	public <T extends Entity> EntityReference<T> newReference(T from, EntityRetriever retriever) {
-		if (!from.getId().isPresent()) throw new IllegalStateException("Can't create a reference to an empty object");
+		if (!from.getId().isPresent()) throw new IllegalStateException("Can't create a reference to an object that has not yet been persisted " + from);
 
 		EntityData data = entityDataBuilderFactory.empty(EntityReference.class).
 				with("refName", entities.collectionName(from.getClass())).

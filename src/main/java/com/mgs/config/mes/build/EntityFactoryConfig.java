@@ -35,8 +35,7 @@ public class EntityFactoryConfig {
 				reflectionConfig.beanNamingExpert(),
 				commonConfig.entityDataEntityFactory(),
 				modelType,
-				modelBuilderType
-		);
+				modelBuilderType);
 	}
 
 	public <A extends Entity, B extends Entity, T extends Relationship<A, B>, Z extends RelationshipBuilder<A, B, T>>

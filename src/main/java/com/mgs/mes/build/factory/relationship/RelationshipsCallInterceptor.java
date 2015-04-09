@@ -51,9 +51,9 @@ public class RelationshipsCallInterceptor <T extends Entity> implements Invocati
 		Class<? extends RelationshipBuilder<T, B, Y>> relationshipToBuild = (Class<? extends RelationshipBuilder<T, B, Y>>) method.getReturnType();
 		RelationshipBuilderFactory<T, B, Y, RelationshipBuilder<T, B, Y>> relationshipBuilderFactory = mongoContext.getRelationshipBuilderFactory(relationshipToBuild);
 		//noinspection unchecked
-		Class<T> leftType = (Class<T>) entities.findBaseMongoEntityType(fromRelationship.getClass());
+		Class<T> leftType = (Class<T>) entities.findBaseType(fromRelationship.getClass(), Entity.class);
 		//noinspection unchecked
-		Class<B> rightType = (Class<B>) entities.findBaseMongoEntityType(toRelationship.getClass());
+		Class<B> rightType = (Class<B>) entities.findBaseType(toRelationship.getClass(), Entity.class);
 		EntityRetriever<T> retrieverLeft = mongoContext.getRetriever(leftType);
 		EntityRetriever<B> retrieverRight = mongoContext.getRetriever(rightType);
 		return relationshipBuilderFactory.newRelationshipBuilder(fromRelationship, retrieverLeft, toRelationship, retrieverRight);

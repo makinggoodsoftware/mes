@@ -6,16 +6,17 @@ import com.mgs.mes.context.unlinkedContext.UnlinkedEntity
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext
 import com.mgs.mes.db.EntityRetriever
 import com.mgs.mes.db.MongoPersister
-import com.mgs.mes.entityA.EntityA
-import com.mgs.mes.entityA.EntityABuilder
-import com.mgs.mes.entityA.EntityARelationships
-import com.mgs.mes.entityC.EntityC
-import com.mgs.mes.entityC.EntityCBuilder
-import com.mgs.mes.entityC.EntityCRelationships
 import com.mgs.mes.meta.utils.Entities
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityC
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCBuilder
-import com.mgs.mes.relationships.entityA_EntityC.EntityA_EntityCRelationships
+import com.mgs.mes.model.Entity
+import com.mgs.mes.simpleModel.entityA.EntityA
+import com.mgs.mes.simpleModel.entityA.EntityABuilder
+import com.mgs.mes.simpleModel.entityA.EntityARelationships
+import com.mgs.mes.simpleModel.entityC.EntityC
+import com.mgs.mes.simpleModel.entityC.EntityCBuilder
+import com.mgs.mes.simpleModel.entityC.EntityCRelationships
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityC
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCBuilder
+import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
 
 class MongoContextFactorySpecification extends Specification {
@@ -43,8 +44,8 @@ class MongoContextFactorySpecification extends Specification {
     def "setup" (){
         testObj = new MongoContextFactory(entitiesMock)
 
-        entitiesMock.findBaseMongoEntityType(entityAMock.class) >> EntityA
-        entitiesMock.findBaseMongoEntityType(entityCMock.class) >> EntityC
+        entitiesMock.findBaseType(entityAMock.class, Entity.class) >> EntityA
+        entitiesMock.findBaseType(entityCMock.class, Entity.class) >> EntityC
 
         unlinkedMongoContextMock.relationshipBuilderFactories >> [(EntityA_EntityCBuilder) : a_cBuilderFactoryMock]
 
@@ -100,7 +101,7 @@ class MongoContextFactorySpecification extends Specification {
         aManager.retriever == aRetrieverMock
         aManager.persister == aPersisterMock
         aManager.builder == aBuilderFactoryMock
-        aManager.relationshipFrom(entityAMock).hasEntityC(entityCMock) == a_cEntityCBuilder
+        aManager.newRelationshipFrom(entityAMock).hasEntityC(entityCMock) == a_cEntityCBuilder
 
         when:
         MongoManager<EntityC, EntityCBuilder, EntityCRelationships> cManager = context.manager(EntityC)
@@ -109,7 +110,7 @@ class MongoContextFactorySpecification extends Specification {
         cManager.retriever == cRetrieverMock
         cManager.persister == cPersisterMock
         cManager.builder == cBuilderFactoryMock
-        cManager.relationshipFrom(entityCMock).class.interfaces == [EntityCRelationships]
+        cManager.newRelationshipFrom(entityCMock).class.interfaces == [EntityCRelationships]
 
         when:
         MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> a_cManager = context.manager(EntityA_EntityC)
@@ -118,6 +119,6 @@ class MongoContextFactorySpecification extends Specification {
         a_cManager.retriever == a_cRetrieverMock
         a_cManager.persister == a_cPersisterMock
         a_cManager.builder == a_cBuilderFactoryMock
-        a_cManager.relationshipFrom(entityA_CMok).class.interfaces == [EntityA_EntityCRelationships]
+        a_cManager.newRelationshipFrom(entityA_CMok).class.interfaces == [EntityA_EntityCRelationships]
     }
 }

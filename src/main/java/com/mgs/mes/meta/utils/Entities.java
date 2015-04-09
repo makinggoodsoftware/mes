@@ -1,6 +1,7 @@
 package com.mgs.mes.meta.utils;
 
 import com.mgs.mes.model.Entity;
+import com.mgs.mes.model.EntityBuilder;
 
 public class Entities {
 
@@ -8,17 +9,22 @@ public class Entities {
 		return aClass.getInterfaces()[0];
 	}
 
-	public Class<? extends Entity> findBaseMongoEntityType(Class<? extends Entity> sourceClass) {
+	@SuppressWarnings("unchecked")
+	public <T>
+	Class<T> findBaseType(Class sourceClass, Class<T> typeToFind) {
 		Class<?> parentFirstInterface = extractFirstInterface(sourceClass);
 
-		if (parentFirstInterface == Entity.class) return sourceClass;
+		if (parentFirstInterface == typeToFind) return (Class<T>)sourceClass;
 
-		//noinspection unchecked
-		return findBaseMongoEntityType((Class<? extends Entity>) parentFirstInterface);
+		return findBaseType(parentFirstInterface, typeToFind);
 	}
 
 	public String collectionName(Class<? extends Entity> sourceClass){
-		Class<? extends Entity> baseMongoEntityType = findBaseMongoEntityType(sourceClass);
+		Class<? extends Entity> baseMongoEntityType = findBaseType(sourceClass, Entity.class);
 		return baseMongoEntityType.getSimpleName();
+	}
+
+	public String builderCollectionName(EntityBuilder source) {
+		return source.getEntityType().getSimpleName();
 	}
 }
