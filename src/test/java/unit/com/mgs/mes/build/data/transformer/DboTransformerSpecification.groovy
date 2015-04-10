@@ -1,6 +1,9 @@
 package com.mgs.mes.build.data.transformer
 
+import com.mgs.mes.build.data.EntityData
 import com.mgs.mes.build.factory.entity.entityData.EntityDataEntityFactory
+import com.mgs.mes.model.Entity
+import com.mgs.mes.model.EntityReference
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
@@ -16,27 +19,35 @@ class DboTransformerSpecification extends Specification {
     DboTransformer testObj
     FieldAccessorParser fieldAccessorParserMock = Mock (FieldAccessorParser)
     BeanNamingExpert beanNamingExpertMock = Mock (BeanNamingExpert)
-    EntityDataEntityFactory dynamicDataModelMock = Mock (EntityDataEntityFactory)
-    Entity entityMock = Mock (Entity)
+    EntityDataEntityFactory entityFactoryMock = Mock (EntityDataEntityFactory)
+    SimpleEntity entityMock = Mock (SimpleEntity)
     ObjectId objectIdMock = Mock (ObjectId)
+    EntityReference<SimpleEntity> referenceMock = Mock(EntityReference)
 
     def "setup" (){
-        FieldAccessor field1Accessor = new FieldAccessor(Entity, "getField1", "field1", "get", GET)
-        FieldAccessor field2Accessor = new FieldAccessor(Entity, "getField2", "field2", "get", GET)
-        FieldAccessor childAccessor = new FieldAccessor(Entity, "getChild", "child", "get", GET)
+        FieldAccessor field1Accessor = new FieldAccessor(String, "getField1", "field1", "get", GET)
+        FieldAccessor field2Accessor = new FieldAccessor(String, "getField2", "field2", "get", GET)
+        FieldAccessor childAccessor = new FieldAccessor(SimpleEntity, "getChild", "child", "get", GET)
+        FieldAccessor relationshipAccessor = new FieldAccessor(EntityReference, "getRelationship", "relationship", "get", GET)
 
-        fieldAccessorParserMock.parse(Entity) >> [field1Accessor, field2Accessor].stream()
-        fieldAccessorParserMock.parse(Entity, "getField1") >> of(field1Accessor)
-        fieldAccessorParserMock.parse(Entity, "getField2") >> of(field2Accessor)
+        fieldAccessorParserMock.parse(SimpleEntity) >> [field1Accessor, field2Accessor].stream()
+        fieldAccessorParserMock.parse(SimpleEntity, "getField1") >> of(field1Accessor)
+        fieldAccessorParserMock.parse(SimpleEntity, "getField2") >> of(field2Accessor)
 
         fieldAccessorParserMock.parse(ComplexEntity) >> [childAccessor].stream()
         fieldAccessorParserMock.parse(ComplexEntity, "getChild") >> of(childAccessor)
 
+        fieldAccessorParserMock.parse(RelationshipEntity) >> [relationshipAccessor].stream()
+        fieldAccessorParserMock.parse(RelationshipEntity, "getRelationship") >> of(relationshipAccessor)
+
         beanNamingExpertMock.getGetterName("field1") >> "getField1"
         beanNamingExpertMock.getGetterName("field2") >> "getField2"
         beanNamingExpertMock.getGetterName("child") >> "getChild"
+        beanNamingExpertMock.getGetterName("relationship") >> "getRelationship"
+        beanNamingExpertMock.getGetterName("refName") >> "getRefName"
+        beanNamingExpertMock.getGetterName("refId") >> "getRefId"
 
-        testObj = new DboTransformer(dynamicDataModelMock, beanNamingExpertMock, fieldAccessorParserMock)
+        testObj = new DboTransformer(entityFactoryMock, beanNamingExpertMock, fieldAccessorParserMock)
     }
 
     def "should ignore field is there is not matching getter" (){
@@ -45,7 +56,7 @@ class DboTransformerSpecification extends Specification {
                 append("blah", "value1")
 
         when:
-        def result = testObj.transform(Entity, dbo)
+        def result = testObj.transform(SimpleEntity, dbo)
 
         then:
         result.dbo.is(dbo)
@@ -58,7 +69,7 @@ class DboTransformerSpecification extends Specification {
                 append("field1", "value1")
 
         when:
-        def result = testObj.transform(Entity, dbo)
+        def result = testObj.transform(SimpleEntity, dbo)
 
         then:
         result.dbo.is(dbo)
@@ -73,7 +84,7 @@ class DboTransformerSpecification extends Specification {
                     append("field2", "value2")
 
         when:
-        def result = testObj.transform(Entity, dbo)
+        def result = testObj.transform(SimpleEntity, dbo)
 
         then:
         result.dbo.is(dbo)
@@ -90,7 +101,7 @@ class DboTransformerSpecification extends Specification {
                 append("_id", objectIdMock)
 
         when:
-        def result = testObj.transform(Entity, dbo)
+        def result = testObj.transform(SimpleEntity, dbo)
 
         then:
         result.dbo.is(dbo)
@@ -110,17 +121,17 @@ class DboTransformerSpecification extends Specification {
                 append("_id", objectIdMock)
 
         //noinspection GroovyAssignabilityCheck
-        dynamicDataModelMock.from (_, _) >> {type, modelData ->
-            if (type != Entity) throw new IllegalArgumentException("Shouldn't get call with a type different than Entity for this test cases")
+        entityFactoryMock.from (_, _) >> {type, entityData ->
+            if (type != SimpleEntity) throw new IllegalArgumentException("Shouldn't get call with a type different than Entity for this test cases")
             if (
-                (modelData.dbo.get("field1") == "value1") &&
-                (modelData.dbo.get("field2") == "value2") &&
-                (modelData.get("getField1") == "value1") &&
-                (modelData.get("getField2") == "value2")
+                (entityData.dbo.get("field1") == "value1") &&
+                (entityData.dbo.get("field2") == "value2") &&
+                (entityData.get("getField1") == "value1") &&
+                (entityData.get("getField2") == "value2")
             ) {
                 return entityMock
             } else {
-                throw new RuntimeException("Unexpected model entityData received " + modelData)
+                throw new RuntimeException("Unexpected model entityData received " + entityData)
             }
         }
 
@@ -131,6 +142,28 @@ class DboTransformerSpecification extends Specification {
         result.dbo.is(complexDbo)
         result.get("getChild").is(entityMock)
         result.get("getId") == of(objectIdMock)
+    }
+
+    def "should transfrom a relationship dbo" (){
+        given:
+        def referencedDbo = new BasicDBObject().
+                append("refName", "SimpleEntity").
+                append("refId", objectIdMock).
+                append("_id", null)
+        def relationshipDbo = new BasicDBObject().
+                append("relationship", referencedDbo)
+        entityFactoryMock.from(EntityReference, new EntityData(referencedDbo, [
+                getRefName : 'SimpleEntity',
+                getRefId : objectIdMock,
+                getId   : empty()
+        ])) >> referenceMock
+
+        when:
+        def result = testObj.transform(RelationshipEntity, relationshipDbo)
+
+        then:
+        result.dbo.is(relationshipDbo)
+        result.get("getRelationship") == referenceMock
     }
 
     def "should throw an exception if inner object has an ID" (){
@@ -156,21 +189,27 @@ class DboTransformerSpecification extends Specification {
                 append("id", "value1")
 
         when:
-        testObj.transform(Entity, dbo)
+        testObj.transform(SimpleEntity, dbo)
 
         then:
         thrown IllegalArgumentException
     }
 
 
-
-    public static interface ComplexEntity extends com.mgs.mes.model.Entity {
-        public Entity getChild();
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    public static interface ComplexEntity extends Entity {
+        public SimpleEntity getChild();
     }
 
-    public static interface Entity extends com.mgs.mes.model.Entity {
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    public static interface SimpleEntity extends Entity {
         public String getField1();
         public String getField2();
+    }
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    static interface RelationshipEntity extends Entity {
+        public EntityReference<SimpleEntity> getRelationship ();
     }
 
 }
