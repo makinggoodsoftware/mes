@@ -1,35 +1,24 @@
 package com.mgs.mes.db
-
-import com.mgs.config.mes.build.BuildConfig
-import com.mgs.config.mes.context.ContextConfig
-import com.mgs.config.mes.db.DatabaseConfig
-import com.mgs.config.mes.meta.MetaConfig
-import com.mgs.config.reflection.ReflectionConfig
+import com.mgs.config.MesConfigFactory
 import com.mgs.mes.context.EntityDescriptor
-import com.mgs.mes.context.unlinkedContext.UnlinkedEntity
-import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext
-import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContextFactory
+import com.mgs.mes.context.MongoContext
+import com.mgs.mes.context.MongoManager
 import com.mgs.mes.simpleModel.entityB.EntityB
 import com.mgs.mes.simpleModel.entityB.EntityBBuilder
 import com.mgs.mes.simpleModel.entityB.EntityBRelationships
 import spock.lang.Specification
 
 class DBSpecification extends Specification {
-    UnlinkedEntity<EntityB, EntityBBuilder, EntityBRelationships> Bs
-    DatabaseConfig databaseConfig = new DatabaseConfig();
-    ReflectionConfig reflectionConfig = new ReflectionConfig()
-    ContextConfig contextConfig = new ContextConfig(
-            new MetaConfig(reflectionConfig),
-            new BuildConfig(reflectionConfig),
-            reflectionConfig
-    )
+    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs
 
     def "setup" (){
-        MongoDao dao = databaseConfig.dao("localhost", 27017, "testDb")
-        final UnlinkedMongoContextFactory orchestrator = contextConfig.unlinkedMongoContextFactory(dao)
-        EntityDescriptor<EntityB, EntityBBuilder, EntityBRelationships> descriptor = new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships)
-        UnlinkedMongoContext context = orchestrator.createUnlinkedContext([descriptor])
-        Bs = context.unlinkedEntities[descriptor]
+        MongoContext context =
+                new MesConfigFactory().
+                        simple("localhost", 27017, "testDb").
+                        mongoContext([
+                                new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
+                        ]);
+        Bs = context.manager(EntityB)
     }
 
     def "should save simple object into collection" (){

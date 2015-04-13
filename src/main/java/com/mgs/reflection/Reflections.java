@@ -17,7 +17,11 @@ public class Reflections {
 		//noinspection SimplifiableIfStatement
 		if (type.equals(void.class)) return false;
 
-		return type.isPrimitive() || PRIMITIVE_WRAPPERS.contains(type) || assignableTo.isAssignableFrom(type);
+		return type.isPrimitive() || PRIMITIVE_WRAPPERS.contains(type) || isAssignableTo(type, assignableTo);
 
+	}
+
+	public boolean isAssignableTo(Class<?> type, Class<?> assignableTo) {
+		return assignableTo.isAssignableFrom(type);
 	}
 }

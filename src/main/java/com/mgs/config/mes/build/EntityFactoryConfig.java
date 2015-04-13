@@ -28,39 +28,34 @@ public class EntityFactoryConfig {
 	}
 
 	public <T extends Entity, Z extends EntityBuilder<T>>
-	EntityBuilderFactory<T, Z> entityBuilder(Class<T> modelType, Class<Z> modelBuilderType){
+	EntityBuilderFactory<T, Z> entityBuilder(Class<T> modelType, Class<Z> modelBuilderType, EntityReferenceFactory entityReferenceFactory){
 		return new EntityBuilderFactory<>(
 				entityDataConfig.builderFactory(),
 				reflectionConfig.fieldAccessorParser(),
 				reflectionConfig.beanNamingExpert(),
 				commonConfig.entityDataEntityFactory(),
 				modelType,
-				modelBuilderType);
+				modelBuilderType,
+				reflectionConfig.reflections(),
+				entityReferenceFactory);
 	}
 
 	public <A extends Entity, B extends Entity, T extends Relationship<A, B>, Z extends RelationshipBuilder<A, B, T>>
-	RelationshipBuilderFactory<A, B, T, Z> relationshipBuilder(Class<T> relationshipType, Class<Z> relationshipBuilderType) {
+	RelationshipBuilderFactory<A, B, T, Z> relationshipBuilder(Class<T> relationshipType, Class<Z> relationshipBuilderType, EntityReferenceFactory entityReferenceFactory) {
 		return new RelationshipBuilderFactory<> (
 				entityDataConfig.builderFactory(),
 				reflectionConfig.fieldAccessorParser(),
 				reflectionConfig.beanNamingExpert(),
 				entityDataEntity(),
-				reference (),
+				entityReferenceFactory,
 				relationshipType,
-				relationshipBuilderType
-		);
+				relationshipBuilderType,
+				reflectionConfig.reflections());
 	}
 
 	public <T extends Entity, Y extends Relationships<T>>
 	RelationshipsFactory<T, Y> relationships(Class<Y> relationshipsType, MongoContextReference contextReference) {
 		return new RelationshipsFactory<>(relationshipsType, contextReference, metaConfig.entities());
-	}
-
-	public EntityReferenceFactory reference() {
-		return new EntityReferenceFactory(
-				entityDataConfig.builderFactory(),
-				metaConfig.entities()
-		);
 	}
 
 	public EntityFactory<DBObject> dbObjectEntity(){

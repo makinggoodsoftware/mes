@@ -26,7 +26,7 @@ public class RelationshipsFactory<T extends Entity, Y extends Relationships<T>> 
 		Y proxy = (Y) newProxyInstance(
 				RelationshipsFactory.class.getClassLoader(),
 				new Class[]{relationshipType},
-				new RelationshipsCallInterceptor(contextReference.get(), entities)
+				new RelationshipsCallInterceptor(contextReference.get())
 		);
 		//noinspection unchecked
 		return (Y) proxy.from(from);

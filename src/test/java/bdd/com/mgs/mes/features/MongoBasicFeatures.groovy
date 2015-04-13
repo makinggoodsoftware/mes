@@ -91,35 +91,7 @@ class MongoBasicFeatures extends Specification{
         this.fromDb == updated
     }
 
-    def "should save simple relationships" () {
-        given:
-        EntityA entityA = As.persister.touch(As.builder.newEntityBuilder().
-                withEntityAfield1("value1").
-                withEntityAfield2( "value2").
-                withEmbedded(Bs.builder.newEntityBuilder().
-                        withEntityBfield1("entityAfield1").
-                        withEntityBfield2("entityAfield2").
-                        create()
-                ).
-                create()
-        )
-
-        EntityC entityC = Cs.persister.touch(Cs.builder.newEntityBuilder().
-                withEntityCfield1("valueC1").
-                withEntityCfield2("valueC2").
-                create()
-        )
-
-        when:
-        EntityA_EntityC a_c = A_Cs.persister.touch(As.
-                                newRelationshipFrom(entityA).
-                                hasEntityC(entityC).
-                                create()
-        )
-
-        then:
-        a_c.id.isPresent()
-        a_c.left.retrieve() == entityA
-        a_c.right.retrieve() == entityC
-    }
-}
+    def "WIP Relationships" (){
+        expect:
+        false
+    }}

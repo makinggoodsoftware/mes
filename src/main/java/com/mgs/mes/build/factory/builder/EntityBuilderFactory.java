@@ -4,10 +4,12 @@ import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.data.EntityDataBuilder;
 import com.mgs.mes.build.data.EntityDataBuilderFactory;
 import com.mgs.mes.build.factory.entity.EntityFactory;
+import com.mgs.mes.build.factory.reference.EntityReferenceFactory;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
+import com.mgs.reflection.Reflections;
 
 import java.lang.reflect.Proxy;
 
@@ -18,14 +20,18 @@ public class EntityBuilderFactory<T extends Entity, Z extends EntityBuilder<T>> 
 	private final Class<T> modelType;
 	private final Class<Z> modelBuilderType;
 	private final EntityFactory<EntityData> entityFactory;
+	private final Reflections reflections;
+	private final EntityReferenceFactory entityReferenceFactory;
 
-	public EntityBuilderFactory(EntityDataBuilderFactory entityDataBuilderFactory, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, EntityFactory<EntityData> entityFactory, Class<T> modelType, Class<Z> modelBuilderType) {
+	public EntityBuilderFactory(EntityDataBuilderFactory entityDataBuilderFactory, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, EntityFactory<EntityData> entityFactory, Class<T> modelType, Class<Z> modelBuilderType, Reflections reflections, EntityReferenceFactory entityReferenceFactory) {
 		this.entityDataBuilderFactory = entityDataBuilderFactory;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.modelType = modelType;
 		this.modelBuilderType = modelBuilderType;
 		this.entityFactory = entityFactory;
+		this.reflections = reflections;
+		this.entityReferenceFactory = entityReferenceFactory;
 	}
 
 	public Z newEntityBuilder() {
@@ -41,7 +47,15 @@ public class EntityBuilderFactory<T extends Entity, Z extends EntityBuilder<T>> 
 		return (Z) Proxy.newProxyInstance(
 				this.getClass().getClassLoader(),
 				new Class[]{modelBuilderType},
-				new EntityBuilderCallInterceptor<>(fieldAccessorParser, beanNamingExpert, modelType, entityDataBuilder, entityFactory)
+				new EntityBuilderCallInterceptor<>(
+						fieldAccessorParser,
+						beanNamingExpert,
+						modelType,
+						entityDataBuilder,
+						entityFactory,
+						reflections,
+						entityReferenceFactory
+				)
 		);
 	}
 }

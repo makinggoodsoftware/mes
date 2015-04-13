@@ -34,6 +34,14 @@ class ValidatorSpecification extends Specification {
         notThrown Exception
     }
 
+    def "should validate reference interfaces" (){
+        when:
+        testObj.validate(new EntityDescriptor<>(ReferenceGetter, ReferenceGetterBuilder, ReferenceGetterRelationships))
+
+        then:
+        notThrown Exception
+    }
+
 
     @Unroll
     def "should flag interfaces as not valid when the combination of methods is not correct" (){
@@ -94,5 +102,17 @@ class ValidatorSpecification extends Specification {
     }
 
     public static interface Relatioship1Relationships extends Relationships<Relatioship1>{
+    }
+
+    public static interface ReferenceGetter extends Entity{
+        EntityReference<Getter1> getReference ()
+    }
+
+    public static interface ReferenceGetterBuilder extends EntityBuilder<ReferenceGetter> {
+        ReferenceGetterBuilder withReference (Getter1 getter1)
+    }
+
+    public static interface ReferenceGetterRelationships extends Relationships<ReferenceGetter> {
+
     }
 }

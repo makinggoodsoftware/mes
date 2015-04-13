@@ -1,13 +1,13 @@
 package com.mgs.mes.context.unlinkedContext;
 
-import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
 import com.mgs.mes.context.EntityDescriptor;
+import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.meta.utils.Validator;
-import com.mgs.mes.model.RelationshipBuilder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 public class UnlinkedMongoContextFactory {
 	private final UnlinkedEntityFactory unlinkedEntityFactory;
@@ -34,18 +34,15 @@ public class UnlinkedMongoContextFactory {
 		});
 
 
-		return from(descriptorsByEntity, relationshipDescriptorsByEntity);
+		return from(descriptorsByEntity);
 	}
 
-	private UnlinkedMongoContext from(UnlinkedEntitiesSet descriptorsByEntity, UnlinkedEntitiesSet relationshipDescriptorsByEntity) {
-		Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> relationshipBuilderFactories;
-
+	private UnlinkedMongoContext from(UnlinkedEntitiesSet descriptorsByEntity) {
 		Map<EntityDescriptor, UnlinkedEntity>  unlinkedEntities = descriptorsByEntity.asMap();
-		relationshipBuilderFactories = relationshipDescriptorsByEntity.asMap().entrySet().stream().collect(Collectors.toMap(
-				(entry) -> entry.getKey().getBuilderType(),
-				(entry) -> (RelationshipBuilderFactory) entry.getValue().getBuilder()
+		Map<Class,EntityRetriever> retrieverMap = unlinkedEntities.entrySet().stream().collect(toMap(
+				(entry) -> entry.getKey().getEntityType(),
+				(entry) -> entry.getValue().getRetriever()
 		));
-
-		return new UnlinkedMongoContext(unlinkedEntities, relationshipBuilderFactories);
+		return new UnlinkedMongoContext(unlinkedEntities, retrieverMap);
 	}
 }

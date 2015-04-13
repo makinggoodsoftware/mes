@@ -3,11 +3,14 @@ package com.mgs.mes.build.factory.builder;
 import com.mgs.mes.build.data.EntityData;
 import com.mgs.mes.build.data.EntityDataBuilder;
 import com.mgs.mes.build.factory.entity.EntityFactory;
+import com.mgs.mes.build.factory.reference.EntityReferenceFactory;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
+import com.mgs.mes.model.EntityReference;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
+import com.mgs.reflection.Reflections;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 
@@ -24,13 +27,17 @@ class EntityBuilderCallInterceptor<T extends Entity, Z extends EntityBuilder<T>>
 	private final Class<T> modelType;
 	private final EntityDataBuilder entityDataBuilder;
 	private final EntityFactory<EntityData> entityFactory;
+	private final Reflections reflections;
+	private final EntityReferenceFactory entityReferenceFactory;
 
-	public EntityBuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, EntityDataBuilder entityDataBuilder, EntityFactory<EntityData> entityFactory) {
+	public EntityBuilderCallInterceptor(FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Class<T> modelType, EntityDataBuilder entityDataBuilder, EntityFactory<EntityData> entityFactory, Reflections reflections, EntityReferenceFactory entityReferenceFactory) {
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.modelType = modelType;
 		this.entityDataBuilder = entityDataBuilder;
 		this.entityFactory = entityFactory;
+		this.reflections = reflections;
+		this.entityReferenceFactory = entityReferenceFactory;
 	}
 
 	@Override
@@ -84,7 +91,12 @@ class EntityBuilderCallInterceptor<T extends Entity, Z extends EntityBuilder<T>>
 	private void updateField(String fieldName, Object value) {
 		String getterName = beanNamingExpert.getGetterName(fieldName);
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(modelType, getterName).orElseThrow(IllegalArgumentException::new);
-		entityDataBuilder.with(fieldAccessor, value);
+		if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), EntityReference.class)){
+			Entity casted = (Entity) value;
+			entityDataBuilder.with(fieldAccessor, entityReferenceFactory.newReference(casted));
+		} else {
+			entityDataBuilder.with(fieldAccessor, value);
+		}
 	}
 
 }

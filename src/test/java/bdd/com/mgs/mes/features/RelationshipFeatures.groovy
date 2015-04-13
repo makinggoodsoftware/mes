@@ -42,7 +42,7 @@ public class RelationshipFeatures extends Specification {
         acquires = context.manager(acquireDescriptor)
     }
 
-    def "a relationship could have additional attributes"() {
+    def "should create references as relationships"() {
         given:
         //noinspection GroovyAssignabilityCheck
         Person alberto = persons.createAndPersist(functionClosure {PersonBuilder person ->
@@ -57,17 +57,16 @@ public class RelationshipFeatures extends Specification {
         Date acquiredDate = new Date()
 
         when:
-        //noinspection GroovyAssignabilityCheck
-        Acquisition acquire = acquires.persister.create(
-            persons.newRelationshipFrom(alberto).
-                    acquire(macBookPro).
-                    withAcquiredDate(acquiredDate)
-        )
+        Acquisition acquisition = acquires.newEntity()
+            .withAcquiredDate(acquiredDate)
+            .withAcquirer(alberto)
+            .withItem(macBookPro)
+            .create()
 
         then:
-        acquire.left.retrieve() == alberto
-        acquire.right.retrieve() == macBookPro
-        acquire.acquiredDate == acquiredDate
+        acquisition.acquirer.retrieve() == alberto
+        acquisition.item.retrieve() == macBookPro
+        acquisition.acquiredDate == acquiredDate
     }
 
     def functionClosure (groovyClosure){

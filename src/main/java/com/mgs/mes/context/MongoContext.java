@@ -1,8 +1,8 @@
 package com.mgs.mes.context;
 
-import com.mgs.mes.build.factory.builder.RelationshipBuilderFactory;
-import com.mgs.mes.db.EntityRetriever;
-import com.mgs.mes.model.*;
+import com.mgs.mes.model.Entity;
+import com.mgs.mes.model.EntityBuilder;
+import com.mgs.mes.model.Relationships;
 
 import java.util.Map;
 
@@ -10,11 +10,9 @@ import static java.util.stream.Collectors.toList;
 
 public class MongoContext {
 	private final Map<EntityDescriptor, MongoManager> managersByEntity;
-	private final Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> modelBuildersByType;
 
-	public MongoContext(Map<EntityDescriptor, MongoManager> managersByEntity, Map<Class<? extends RelationshipBuilder>, RelationshipBuilderFactory> modelBuildersByType) {
+	public MongoContext(Map<EntityDescriptor, MongoManager> managersByEntity) {
 		this.managersByEntity = managersByEntity;
-		this.modelBuildersByType = modelBuildersByType;
 	}
 
 	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
@@ -33,16 +31,6 @@ public class MongoContext {
 				get(0);
 	}
 
-	public <A extends Entity, B extends Entity, T extends Relationship<A, B>, Z extends RelationshipBuilder<A, B, T> >
-	RelationshipBuilderFactory <A, B, T, Z> getRelationshipBuilderFactory (Class<? extends RelationshipBuilder<A, B, T>> ofType){
-		//noinspection unchecked
-		return modelBuildersByType.get(ofType);
-	}
-
-	public <T extends Entity> EntityRetriever<T> getRetriever(Class<T> entityType) {
-		return manager(entityType).getRetriever();
-	}
-
 	@SuppressWarnings("RedundantIfStatement")
 	@Override
 	public boolean equals(Object o) {
@@ -52,15 +40,12 @@ public class MongoContext {
 		MongoContext that = (MongoContext) o;
 
 		if (!managersByEntity.equals(that.managersByEntity)) return false;
-		if (!modelBuildersByType.equals(that.modelBuildersByType)) return false;
 
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = managersByEntity.hashCode();
-		result = 31 * result + modelBuildersByType.hashCode();
-		return result;
+		return managersByEntity.hashCode();
 	}
 }

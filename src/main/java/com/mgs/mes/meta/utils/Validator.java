@@ -3,6 +3,7 @@ package com.mgs.mes.meta.utils;
 import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
+import com.mgs.mes.model.EntityReference;
 import com.mgs.mes.model.Relationships;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
@@ -131,8 +132,8 @@ public class Validator {
 
 					Class<?> getterType = getterFieldAccessor.getDeclaredType();
 					Class<?> updaterType = updaterFieldAccessor.getDeclaredType();
-					if (! getterType.equals(updaterType)){
-						String errorMsg = format("The declared type for the field %s is of different types in the getter [%s], and the updater [%s]",
+					if (!isValidGetterAndSetter(getterType, updaterType)) {
+						String errorMsg = format("The declared type for the field %s is of different types in the getter| [%s], and the updater [%s]",
 								updaterFieldName,
 								getterType,
 								updaterType
@@ -142,5 +143,17 @@ public class Validator {
 
 					return true;
 				});
+	}
+
+	private boolean isValidGetterAndSetter(Class<?> getterType, Class<?> updaterType) {
+		return isSameType(getterType, updaterType) || isReferenceBuilder(getterType, updaterType);
+	}
+
+	private boolean isReferenceBuilder(Class<?> getterType, Class<?> updaterType) {
+		return reflections.isAssignableTo(getterType, EntityReference.class) && reflections.isAssignableTo(updaterType, Entity.class);
+	}
+
+	private boolean isSameType(Class<?> getterType, Class<?> updaterType) {
+		return getterType.equals(updaterType);
 	}
 }

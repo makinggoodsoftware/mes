@@ -20,8 +20,15 @@ public class ContextConfig {
 		this.reflectionsConfig = reflectionsConfig;
 	}
 
-	public MongoContextFactory contextFactory (){
-		return new MongoContextFactory(metaConfig.entities());
+	public MongoContextFactory contextFactory (MongoDao dao){
+		return new MongoContextFactory(
+				metaConfig.entities(),
+				buildConfig.factories().entityDataEntity(),
+				reflectionsConfig.fieldAccessorParser(),
+				buildConfig.entityData().builderFactory(),
+				reflectionsConfig.beanNamingExpert(),
+				dao,
+				reflectionsConfig.reflections());
 	}
 
 	public UnlinkedMongoContextFactory unlinkedMongoContextFactory(MongoDao dao) {
@@ -31,13 +38,8 @@ public class ContextConfig {
 	private UnlinkedEntityFactory unlinkedEntityFactory(MongoDao dao) {
 		return new UnlinkedEntityFactory(
 				dao,
-				reflectionsConfig.fieldAccessorParser(),
-				buildConfig.entityData().builderFactory(),
 				buildConfig.factories().dbObjectEntity(),
-				buildConfig.factories().entityDataEntity(),
-				metaConfig.entities(),
-				reflectionsConfig.beanNamingExpert(),
-				buildConfig.factories().reference()
+				metaConfig.entities()
 		);
 	}
 }
