@@ -20,17 +20,12 @@ public class UnlinkedMongoContextFactory {
 
 	public UnlinkedMongoContext createUnlinkedContext(List<EntityDescriptor> descriptors){
 		UnlinkedEntitiesSet descriptorsByEntity = new UnlinkedEntitiesSet();
-		UnlinkedEntitiesSet relationshipDescriptorsByEntity = new UnlinkedEntitiesSet();
 
 		descriptors.stream().forEach((descriptor)->{
 				validator.validate(descriptor);
 
 				UnlinkedEntity unlinkedEntity = unlinkedEntityFactory.create(descriptor);
 				descriptorsByEntity.put(unlinkedEntity);
-
-				if (unlinkedEntity.getEntityDescriptor().isRelationshipEntity()){
-					relationshipDescriptorsByEntity.put(unlinkedEntity);
-				}
 		});
 
 

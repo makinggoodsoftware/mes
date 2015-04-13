@@ -2,18 +2,14 @@ package com.mgs.mes.context;
 
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.model.Relationship;
-import com.mgs.mes.model.Relationships;
 
-public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>{
+public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>>{
 	private final Class<T> entityType;
 	private final Class<Z> builderType;
-	private final Class<Y> relationshipsType;
 
-	public EntityDescriptor(Class<T> entityType, Class<Z> builderType, Class<Y> relationshipsType) {
+	public EntityDescriptor(Class<T> entityType, Class<Z> builderType) {
 		this.entityType = entityType;
 		this.builderType = builderType;
-		this.relationshipsType = relationshipsType;
 	}
 
 	public Class<T> getEntityType() {
@@ -22,14 +18,6 @@ public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>, Y e
 
 	public Class<Z> getBuilderType() {
 		return builderType;
-	}
-
-	public Class<Y> getRelationshipsType() {
-		return relationshipsType;
-	}
-
-	public boolean isRelationshipEntity (){
-		return Relationship.class.isAssignableFrom(entityType);
 	}
 
 	@SuppressWarnings("RedundantIfStatement")
@@ -42,7 +30,6 @@ public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>, Y e
 
 		if (!builderType.equals(that.builderType)) return false;
 		if (!entityType.equals(that.entityType)) return false;
-		if (!relationshipsType.equals(that.relationshipsType)) return false;
 
 		return true;
 	}
@@ -51,7 +38,6 @@ public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>, Y e
 	public int hashCode() {
 		int result = entityType.hashCode();
 		result = 31 * result + builderType.hashCode();
-		result = 31 * result + relationshipsType.hashCode();
 		return result;
 	}
 
@@ -61,7 +47,6 @@ public class EntityDescriptor <T extends Entity, Z extends EntityBuilder<T>, Y e
 		final StringBuffer sb = new StringBuffer("EntityDescriptor{");
 		sb.append("entityType=").append(entityType);
 		sb.append(", builderType=").append(builderType);
-		sb.append(", relationshipsType=").append(relationshipsType);
 		sb.append('}');
 		return sb.toString();
 	}

@@ -1,45 +1,35 @@
 package com.mgs.mes.features
-
 import com.mgs.config.MesConfigFactory
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
 import com.mgs.mes.simpleModel.entityA.EntityA
 import com.mgs.mes.simpleModel.entityA.EntityABuilder
-import com.mgs.mes.simpleModel.entityA.EntityARelationships
 import com.mgs.mes.simpleModel.entityB.EntityB
 import com.mgs.mes.simpleModel.entityB.EntityBBuilder
-import com.mgs.mes.simpleModel.entityB.EntityBRelationships
 import com.mgs.mes.simpleModel.entityC.EntityC
 import com.mgs.mes.simpleModel.entityC.EntityCBuilder
-import com.mgs.mes.simpleModel.entityC.EntityCRelationships
-import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityC
-import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCBuilder
-import com.mgs.mes.simpleModel.relationships.entityA_EntityC.EntityA_EntityCRelationships
 import spock.lang.Specification
 
 class MongoBasicFeatures extends Specification{
     EntityA fromDb
-    MongoManager<EntityA, EntityABuilder, EntityARelationships> As;
-    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs;
-    MongoManager<EntityC, EntityCBuilder, EntityCRelationships> Cs;
-    MongoManager<EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships> A_Cs;
+    MongoManager<EntityA, EntityABuilder> As;
+    MongoManager<EntityB, EntityBBuilder> Bs;
+    MongoManager<EntityC, EntityCBuilder> Cs;
 
     def "setup" () {
         MongoContext context =
                 new MesConfigFactory().
                 simple("localhost", 27017, "bddDb").
                 mongoContext([
-                    new EntityDescriptor<>(EntityA, EntityABuilder, EntityARelationships),
-                    new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
-                    new EntityDescriptor<>(EntityC, EntityCBuilder, EntityCRelationships),
-                    new EntityDescriptor<>(EntityA_EntityC, EntityA_EntityCBuilder, EntityA_EntityCRelationships),
+                    new EntityDescriptor<>(EntityA, EntityABuilder),
+                    new EntityDescriptor<>(EntityB, EntityBBuilder),
+                    new EntityDescriptor<>(EntityC, EntityCBuilder),
                 ]);
         Bs = context.manager(EntityB)
         As = context.manager(EntityA);
         Bs = context.manager(EntityB);
         Cs = context.manager(EntityC);
-        A_Cs = context.manager(EntityA_EntityC);
     }
 
     def "should perform simple CRUD operations" () {

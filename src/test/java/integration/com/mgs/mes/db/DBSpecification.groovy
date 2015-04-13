@@ -5,18 +5,17 @@ import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
 import com.mgs.mes.simpleModel.entityB.EntityB
 import com.mgs.mes.simpleModel.entityB.EntityBBuilder
-import com.mgs.mes.simpleModel.entityB.EntityBRelationships
 import spock.lang.Specification
 
 class DBSpecification extends Specification {
-    MongoManager<EntityB, EntityBBuilder, EntityBRelationships> Bs
+    MongoManager<EntityB, EntityBBuilder> Bs
 
     def "setup" (){
         MongoContext context =
                 new MesConfigFactory().
                         simple("localhost", 27017, "testDb").
                         mongoContext([
-                                new EntityDescriptor<>(EntityB, EntityBBuilder, EntityBRelationships),
+                                new EntityDescriptor<>(EntityB, EntityBBuilder),
                         ]);
         Bs = context.manager(EntityB)
     }

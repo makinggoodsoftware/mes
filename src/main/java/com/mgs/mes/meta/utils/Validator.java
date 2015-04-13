@@ -4,7 +4,6 @@ import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 import com.mgs.mes.model.EntityReference;
-import com.mgs.mes.model.Relationships;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;
@@ -33,7 +32,7 @@ public class Validator {
 		this.fieldAccessorParser = fieldAccessorParser;
 	}
 
-	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>> void validate(EntityDescriptor<T, Z, Y> descriptor) {
+	public <T extends Entity, Z extends EntityBuilder<T>> void validate(EntityDescriptor<T, Z> descriptor) {
 		try {
 			tryToValidate(descriptor.getEntityType(), descriptor.getBuilderType());
 		} catch (Exception e) {

@@ -1,6 +1,5 @@
 package com.mgs.config.mes.build;
 
-import com.mgs.config.mes.meta.MetaConfig;
 import com.mgs.config.reflection.ReflectionConfig;
 
 public class BuildConfig {
@@ -16,6 +15,6 @@ public class BuildConfig {
 	}
 
 	public EntityFactoryConfig factories(){
-		return new EntityFactoryConfig(entityData(), reflectionConfig, commonConfig, new MetaConfig(reflectionConfig));
+		return new EntityFactoryConfig(entityData(), reflectionConfig, commonConfig);
 	}
 }

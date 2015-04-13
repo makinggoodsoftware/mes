@@ -7,7 +7,6 @@ import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.model.Relationships;
 import com.mongodb.DBObject;
 
 public class UnlinkedEntityFactory {
@@ -28,8 +27,8 @@ public class UnlinkedEntityFactory {
 
 
 
-	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
-	UnlinkedEntity<T, Z, Y> create(EntityDescriptor<T, Z, Y> entityDescriptor) {
+	public <T extends Entity, Z extends EntityBuilder<T>>
+	UnlinkedEntity<T, Z> create(EntityDescriptor<T, Z> entityDescriptor) {
 		EntityRetriever<T> retriever = retriever(entityDescriptor.getEntityType());
 		return new UnlinkedEntity<>(retriever, entityDescriptor);
 	}

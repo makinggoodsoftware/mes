@@ -2,7 +2,6 @@ package com.mgs.mes.context;
 
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.model.Relationships;
 
 import java.util.Map;
 
@@ -15,14 +14,14 @@ public class MongoContext {
 		this.managersByEntity = managersByEntity;
 	}
 
-	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
-	MongoManager<T, Z, Y> manager (EntityDescriptor<T, Z, Y> entityDescriptor) {
+	public <T extends Entity, Z extends EntityBuilder<T>>
+	MongoManager<T, Z> manager (EntityDescriptor<T, Z> entityDescriptor) {
 		//noinspection unchecked
 		return managersByEntity.get(entityDescriptor);
 	}
 
-	public <T extends Entity, Z extends EntityBuilder<T>, Y extends Relationships<T>>
-	MongoManager<T, Z, Y> manager (Class<T> entityType) {
+	public <T extends Entity, Z extends EntityBuilder<T>>
+	MongoManager<T, Z> manager (Class<T> entityType) {
 		//noinspection unchecked
 		return managersByEntity.entrySet().stream().
 				filter((entry)->entry.getKey().getEntityType() == entityType).
