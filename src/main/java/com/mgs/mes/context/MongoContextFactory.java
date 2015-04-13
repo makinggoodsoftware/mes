@@ -39,13 +39,26 @@ public class MongoContextFactory {
 		this.reflections = reflections;
 	}
 
-	public MongoContextReference create(UnlinkedMongoContext unlinkedEntities) {
-		MongoContextReference mongoContextReference = new MongoContextReference();
+	public MongoContext create(UnlinkedMongoContext unlinkedEntities) {
 		EntityReferenceFactory entityReferenceFactory = new EntityReferenceFactory(entityDataBuilderFactory, entities, unlinkedEntities.getRetrieverMap());
 		Map<EntityDescriptor, MongoManager> managersByEntity = buildManagersMap(entityReferenceFactory, unlinkedEntities);
-		MongoContext mongoContext = new MongoContext(managersByEntity);
-		mongoContextReference.set(mongoContext);
-		return mongoContextReference;
+		return new MongoContext(managersByEntity);
+	}
+
+	private Map<EntityDescriptor, MongoManager> buildManagersMap(
+			EntityReferenceFactory entityReferenceFactory,
+			UnlinkedMongoContext unlinkedMongoContext
+	) {
+		//noinspection unchecked
+		return unlinkedMongoContext.getUnlinkedEntities().entrySet().stream()
+				.collect(toMap(
+						Map.Entry::getKey,
+						(entrySet) ->
+								createMongoManager(
+										entityReferenceFactory,
+										entrySet.getValue()
+								)
+				));
 	}
 
 	private <T extends Entity, Z extends EntityBuilder<T>>
@@ -74,22 +87,6 @@ public class MongoContextFactory {
 					typeOfBuilder,
 					reflections,
 					entityReferenceFactory);
-	}
-
-	private Map<EntityDescriptor, MongoManager> buildManagersMap(
-			EntityReferenceFactory entityReferenceFactory,
-			UnlinkedMongoContext unlinkedMongoContext
-	) {
-		//noinspection unchecked
-		return unlinkedMongoContext.getUnlinkedEntities().entrySet().stream()
-				.collect(toMap(
-						Map.Entry::getKey,
-						(entrySet) ->
-								createMongoManager(
-										entityReferenceFactory,
-										entrySet.getValue()
-								)
-				));
 	}
 
 	private <T extends Entity, Z extends EntityBuilder<T>>

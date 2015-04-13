@@ -19,6 +19,6 @@ public class MesConfig {
 	public MongoContext mongoContext(List<EntityDescriptor> entityDescriptors){
 		return contextConfig.contextFactory(mongoDao).create(
 				contextConfig.unlinkedMongoContextFactory(mongoDao).createUnlinkedContext(entityDescriptors)
-		).get();
+		);
 	}
 }
