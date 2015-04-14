@@ -45,9 +45,6 @@ class UnlinkedMongoContextFactorySpecification extends Specification {
                 (EntityA): entityARetrieverMock,
                 (EntityB): entityBRetrieverMock,
         ]
-        unlinkedMongoContext.unlinkedEntities == [
-                (entityADescriptor): new UnlinkedEntity<EntityA, EntityABuilder>(entityADescriptor),
-                (entityBDescriptor): new UnlinkedEntity<EntityB, EntityBBuilder>(entityBDescriptor),
-        ]
+        unlinkedMongoContext.descriptors == [entityBDescriptor, entityADescriptor] as Set
     }
 }

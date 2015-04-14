@@ -6,9 +6,7 @@ import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.meta.utils.Validator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UnlinkedMongoContextFactory {
 	private final MongoDao mongoDao;
@@ -21,28 +19,24 @@ public class UnlinkedMongoContextFactory {
 		this.entityRetrieverFactory = entityRetrieverFactory;
 	}
 
-	public UnlinkedMongoContext createUnlinkedContext(List<EntityDescriptor> descriptors) {
-		Map<EntityDescriptor, UnlinkedEntity> descriptorsByEntity = new HashMap<>();
+	public UnlinkedMongoContext createUnlinkedContext(List<EntityDescriptor> descriptorsToInsert) {
+		Set<EntityDescriptor> insertedDescriptors = new HashSet<>();
 		Map<Class, EntityRetriever> retrieverMap = new HashMap<>();
 
-		descriptors.stream().forEach((descriptor) -> {
-			assertDescriptorCanBeAdded(descriptorsByEntity, descriptor);
+		descriptorsToInsert.stream().forEach((descriptorToInsert) -> {
+			assertDescriptorCanBeAdded(insertedDescriptors, descriptorToInsert);
 
-
-			EntityRetriever retriever = entityRetrieverFactory.createRetriever(mongoDao, descriptor);
-			//noinspection unchecked
-			UnlinkedEntity unlinkedEntity = new UnlinkedEntity(descriptor);
-
-			descriptorsByEntity.put(descriptor, unlinkedEntity);
-			retrieverMap.put(descriptor.getEntityType(), retriever);
+			EntityRetriever retriever = entityRetrieverFactory.createRetriever(mongoDao, descriptorToInsert);
+			retrieverMap.put(descriptorToInsert.getEntityType(), retriever);
+			insertedDescriptors.add(descriptorToInsert);
 		});
 
 
-		return new UnlinkedMongoContext(mongoDao, descriptorsByEntity, retrieverMap);
+		return new UnlinkedMongoContext(mongoDao, insertedDescriptors, retrieverMap);
 	}
 
-	private void assertDescriptorCanBeAdded(Map<EntityDescriptor, UnlinkedEntity> descriptorsByEntity, EntityDescriptor descriptor) {
-		if (descriptorsByEntity.get(descriptor) != null) throw new IllegalStateException(String.format(
+	private void assertDescriptorCanBeAdded(Set<EntityDescriptor> descriptorsByEntity, EntityDescriptor descriptor) {
+		if (descriptorsByEntity.contains(descriptor)) throw new IllegalStateException(String.format(
 				"Trying to register an entity that has been already registered. Type : [%s]",
 				descriptor.getEntityType()
 		));

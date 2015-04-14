@@ -5,7 +5,6 @@ import com.mgs.mes.build.data.EntityDataBuilderFactory;
 import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
 import com.mgs.mes.build.factory.entity.EntityFactory;
 import com.mgs.mes.build.factory.reference.EntityReferenceFactory;
-import com.mgs.mes.context.unlinkedContext.UnlinkedEntity;
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
@@ -18,6 +17,7 @@ import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.Reflections;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -48,17 +48,15 @@ public class MongoContextFactory {
 			EntityReferenceFactory entityReferenceFactory,
 			UnlinkedMongoContext unlinkedMongoContext
 	) {
-		MongoDao mongoDao = unlinkedMongoContext.getMongoDao();
-		//noinspection unchecked
-		return unlinkedMongoContext.getUnlinkedEntities().entrySet().stream()
+		return unlinkedMongoContext.getDescriptors().stream()
 				.collect(toMap(
-						Map.Entry::getKey,
-						(entrySet) ->
+						(Function<EntityDescriptor, EntityDescriptor>) (descriptor) -> descriptor,
+						(descriptor) ->
 								createMongoManager(
-										mongoDao,
+										unlinkedMongoContext.getMongoDao(),
 										entityReferenceFactory,
-										unlinkedMongoContext.getRetrieverMap().get(entrySet.getKey().getEntityType()),
-										entrySet.getValue()
+										unlinkedMongoContext.getRetrieverMap().get(descriptor.getEntityType()),
+										descriptor
 								)
 				));
 	}
@@ -96,10 +94,10 @@ public class MongoContextFactory {
 			MongoDao mongoDao,
 			EntityReferenceFactory entityReferenceFactory,
 			EntityRetriever<T> entityRetriever,
-			UnlinkedEntity<T, Z> unlinkedEntity
+			EntityDescriptor<T, Z> descriptor
 	) {
-		MongoPersister<T, Z> persister = persister(mongoDao, entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
-		EntityBuilderFactory<T, Z> builder = builder(entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
+		MongoPersister<T, Z> persister = persister(mongoDao, entityReferenceFactory, descriptor.getEntityType(), descriptor.getBuilderType());
+		EntityBuilderFactory<T, Z> builder = builder(entityReferenceFactory, descriptor.getEntityType(), descriptor.getBuilderType());
 		return new MongoManager<>(
 				entityRetriever,
 				persister,

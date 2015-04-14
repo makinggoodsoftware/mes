@@ -5,20 +5,21 @@ import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 
 import java.util.Map;
+import java.util.Set;
 
 public class UnlinkedMongoContext {
 	private final MongoDao mongoDao;
-	private final Map<EntityDescriptor, UnlinkedEntity> unlinkedEntities;
+	private final Set<EntityDescriptor> descriptors;
 	private final Map<Class, EntityRetriever> retrieverMap;
 
-	public UnlinkedMongoContext(MongoDao mongoDao, Map<EntityDescriptor, UnlinkedEntity> unlinkedEntities, Map<Class, EntityRetriever> retrieverMap) {
+	public UnlinkedMongoContext(MongoDao mongoDao, Set<EntityDescriptor> descriptors, Map<Class, EntityRetriever> retrieverMap) {
 		this.mongoDao = mongoDao;
-		this.unlinkedEntities = unlinkedEntities;
+		this.descriptors = descriptors;
 		this.retrieverMap = retrieverMap;
 	}
 
-	public Map<EntityDescriptor, UnlinkedEntity> getUnlinkedEntities() {
-		return unlinkedEntities;
+	public Set<EntityDescriptor> getDescriptors() {
+		return descriptors;
 	}
 
 	public Map<Class, EntityRetriever> getRetrieverMap() {
