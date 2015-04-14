@@ -34,10 +34,10 @@ class MongoBasicFeatures extends Specification{
 
     def "should perform simple CRUD operations" () {
         when: "build new entity"
-        EntityA original = As.builder.newEntityBuilder().
+        EntityA original = As.builder.create().
                             withEntityAfield1("value1").
                             withEntityAfield2( "value2").
-                            withEmbedded(Bs.builder.newEntityBuilder().
+                            withEmbedded(Bs.builder.create().
                                     withEntityBfield1("entityAfield1").
                                     withEntityBfield2("entityAfield2").
                                     create()
