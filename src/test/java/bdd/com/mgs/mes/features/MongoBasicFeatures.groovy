@@ -80,8 +80,4 @@ class MongoBasicFeatures extends Specification{
         this.fromDb != original
         this.fromDb == updated
     }
-
-    def "WIP Relationships" (){
-        expect:
-        false
-    }}
+}

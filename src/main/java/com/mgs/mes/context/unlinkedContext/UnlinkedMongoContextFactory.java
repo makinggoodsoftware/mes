@@ -5,13 +5,10 @@ import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.meta.utils.Validator;
-import com.mgs.mes.model.Entity;
-import com.mgs.mes.model.EntityBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.stream.Collectors.toMap;
 
 public class UnlinkedMongoContextFactory {
 	private final MongoDao mongoDao;
@@ -24,33 +21,34 @@ public class UnlinkedMongoContextFactory {
 		this.entityRetrieverFactory = entityRetrieverFactory;
 	}
 
-	public UnlinkedMongoContext createUnlinkedContext(List<EntityDescriptor> descriptors){
-		UnlinkedEntitiesSet descriptorsByEntity = new UnlinkedEntitiesSet();
+	public UnlinkedMongoContext createUnlinkedContext(List<EntityDescriptor> descriptors) {
+		Map<EntityDescriptor, UnlinkedEntity> descriptorsByEntity = new HashMap<>();
+		Map<Class, EntityRetriever> retrieverMap = new HashMap<>();
 
-		descriptors.stream().forEach((descriptor)->{
-				validator.validate(descriptor);
+		descriptors.stream().forEach((descriptor) -> {
+			assertDescriptorCanBeAdded(descriptorsByEntity, descriptor);
 
-				UnlinkedEntity unlinkedEntity = create(descriptor);
-				descriptorsByEntity.put(unlinkedEntity);
+
+			EntityRetriever retriever = entityRetrieverFactory.createRetriever(mongoDao, descriptor);
+			//noinspection unchecked
+			UnlinkedEntity unlinkedEntity = new UnlinkedEntity(descriptor);
+
+			descriptorsByEntity.put(descriptor, unlinkedEntity);
+			retrieverMap.put(descriptor.getEntityType(), retriever);
 		});
 
 
-		return from(descriptorsByEntity);
+		return new UnlinkedMongoContext(mongoDao, descriptorsByEntity, retrieverMap);
 	}
 
-	private UnlinkedMongoContext from(UnlinkedEntitiesSet descriptorsByEntity) {
-		Map<EntityDescriptor, UnlinkedEntity>  unlinkedEntities = descriptorsByEntity.asMap();
-		Map<Class,EntityRetriever> retrieverMap = unlinkedEntities.entrySet().stream().collect(toMap(
-				(entry) -> entry.getKey().getEntityType(),
-				(entry) -> entry.getValue().getRetriever()
+	private void assertDescriptorCanBeAdded(Map<EntityDescriptor, UnlinkedEntity> descriptorsByEntity, EntityDescriptor descriptor) {
+		if (descriptorsByEntity.get(descriptor) != null) throw new IllegalStateException(String.format(
+				"Trying to register an entity that has been already registered. Type : [%s]",
+				descriptor.getEntityType()
 		));
-		return new UnlinkedMongoContext(mongoDao, unlinkedEntities, retrieverMap);
+
+		validator.validate(descriptor);
 	}
 
 
-	private <T extends Entity, Z extends EntityBuilder<T>>
-	UnlinkedEntity<T, Z> create(EntityDescriptor<T, Z> entityDescriptor) {
-		EntityRetriever<T> retriever = entityRetrieverFactory.createRetriever(mongoDao, entityDescriptor);
-		return new UnlinkedEntity<>(retriever, entityDescriptor);
-	}
 }

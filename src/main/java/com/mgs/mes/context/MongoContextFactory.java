@@ -7,6 +7,7 @@ import com.mgs.mes.build.factory.entity.EntityFactory;
 import com.mgs.mes.build.factory.reference.EntityReferenceFactory;
 import com.mgs.mes.context.unlinkedContext.UnlinkedEntity;
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContext;
+import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.meta.utils.Entities;
@@ -56,6 +57,7 @@ public class MongoContextFactory {
 								createMongoManager(
 										mongoDao,
 										entityReferenceFactory,
+										unlinkedMongoContext.getRetrieverMap().get(entrySet.getKey().getEntityType()),
 										entrySet.getValue()
 								)
 				));
@@ -93,12 +95,13 @@ public class MongoContextFactory {
 	MongoManager<T,Z> createMongoManager(
 			MongoDao mongoDao,
 			EntityReferenceFactory entityReferenceFactory,
+			EntityRetriever<T> entityRetriever,
 			UnlinkedEntity<T, Z> unlinkedEntity
-			) {
+	) {
 		MongoPersister<T, Z> persister = persister(mongoDao, entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
 		EntityBuilderFactory<T, Z> builder = builder(entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
 		return new MongoManager<>(
-				unlinkedEntity.getRetriever(),
+				entityRetriever,
 				persister,
 				builder
 		);

@@ -1,23 +1,15 @@
 package com.mgs.mes.context.unlinkedContext;
 
 import com.mgs.mes.context.EntityDescriptor;
-import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
 
 public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>> {
-	private final EntityRetriever<T> retriever;
 	private final EntityDescriptor<T, Z> entityDescriptor;
 
 	public UnlinkedEntity(
-			EntityRetriever<T> retriever,
 			EntityDescriptor<T, Z> entityDescriptor) {
-		this.retriever = retriever;
 		this.entityDescriptor = entityDescriptor;
-	}
-
-	public EntityRetriever<T> getRetriever() {
-		return retriever;
 	}
 
 	public EntityDescriptor<T, Z> getEntityDescriptor() {
@@ -31,22 +23,21 @@ public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>> {
 
 		UnlinkedEntity that = (UnlinkedEntity) o;
 
-		if (!entityDescriptor.equals(that.entityDescriptor)) return false;
 		//noinspection RedundantIfStatement
-		if (!retriever.equals(that.retriever)) return false;
+		if (!entityDescriptor.equals(that.entityDescriptor)) return false;
 
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = retriever.hashCode();
-		result = 31 * result + entityDescriptor.hashCode();
+		//noinspection UnnecessaryLocalVariable
+		int result = entityDescriptor.hashCode();
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "UnlinkedEntity{" + "retriever=" + retriever + ", entityDescriptor=" + entityDescriptor + '}';
+		return "UnlinkedEntity{entityDescriptor=" + entityDescriptor + '}';
 	}
 }
