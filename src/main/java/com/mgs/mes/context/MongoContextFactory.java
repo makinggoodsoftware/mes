@@ -26,16 +26,14 @@ public class MongoContextFactory {
 	private final FieldAccessorParser fieldAccessorParser;
 	private final EntityDataBuilderFactory entityDataBuilderFactory;
 	private final BeanNamingExpert beanNamingExpert;
-	private final MongoDao mongoDao;
 	private final Reflections reflections;
 
-	public MongoContextFactory(Entities entities, EntityFactory<EntityData> modelDataEntityFactory, FieldAccessorParser fieldAccessorParser, EntityDataBuilderFactory entityDataBuilderFactory, BeanNamingExpert beanNamingExpert, MongoDao mongoDao, Reflections reflections) {
+	public MongoContextFactory(Entities entities, EntityFactory<EntityData> modelDataEntityFactory, FieldAccessorParser fieldAccessorParser, EntityDataBuilderFactory entityDataBuilderFactory, BeanNamingExpert beanNamingExpert, Reflections reflections) {
 		this.entities = entities;
 		this.modelDataEntityFactory = modelDataEntityFactory;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.entityDataBuilderFactory = entityDataBuilderFactory;
 		this.beanNamingExpert = beanNamingExpert;
-		this.mongoDao = mongoDao;
 		this.reflections = reflections;
 	}
 
@@ -49,12 +47,14 @@ public class MongoContextFactory {
 			EntityReferenceFactory entityReferenceFactory,
 			UnlinkedMongoContext unlinkedMongoContext
 	) {
+		MongoDao mongoDao = unlinkedMongoContext.getMongoDao();
 		//noinspection unchecked
 		return unlinkedMongoContext.getUnlinkedEntities().entrySet().stream()
 				.collect(toMap(
 						Map.Entry::getKey,
 						(entrySet) ->
 								createMongoManager(
+										mongoDao,
 										entityReferenceFactory,
 										entrySet.getValue()
 								)
@@ -62,7 +62,7 @@ public class MongoContextFactory {
 	}
 
 	private <T extends Entity, Z extends EntityBuilder<T>>
-	MongoPersister<T, Z> persister(EntityReferenceFactory entityReferenceFactory, Class<T> persistType, Class<Z> updaterType) {
+	MongoPersister<T, Z> persister(MongoDao mongoDao, EntityReferenceFactory entityReferenceFactory, Class<T> persistType, Class<Z> updaterType) {
 		EntityBuilderFactory<T, Z> tzEntityBuilderFactory = new EntityBuilderFactory<>(
 				entityDataBuilderFactory,
 				fieldAccessorParser,
@@ -91,10 +91,11 @@ public class MongoContextFactory {
 
 	private <T extends Entity, Z extends EntityBuilder<T>>
 	MongoManager<T,Z> createMongoManager(
+			MongoDao mongoDao,
 			EntityReferenceFactory entityReferenceFactory,
 			UnlinkedEntity<T, Z> unlinkedEntity
 			) {
-		MongoPersister<T, Z> persister = persister(entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
+		MongoPersister<T, Z> persister = persister(mongoDao, entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
 		EntityBuilderFactory<T, Z> builder = builder(entityReferenceFactory, unlinkedEntity.getEntityDescriptor().getEntityType(), unlinkedEntity.getEntityDescriptor().getBuilderType());
 		return new MongoManager<>(
 				unlinkedEntity.getRetriever(),

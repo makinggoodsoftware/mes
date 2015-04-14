@@ -1,5 +1,6 @@
 package com.mgs.mes.build.factory.builder
 import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.mes.meta.MetaConfig
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.build.factory.reference.EntityReferenceFactory
 import com.mgs.mes.model.Entity
@@ -20,7 +21,8 @@ class EntityBuilderFactorySpecification extends Specification {
     EntityBuilderFactory<EntityB, EntityBBuilder> entityBBuilder
     EntityBuilderFactory<EntityA, EntityABuilder> entityABuilder
     EntityBuilderFactory<ReferenceEntity, ReferenceEntityBuilder> referenceEntityBuilder
-    BuildConfig buildConfig = new BuildConfig(new ReflectionConfig())
+    ReflectionConfig reflectionConfig = new ReflectionConfig()
+    BuildConfig buildConfig = new BuildConfig(reflectionConfig, new MetaConfig(reflectionConfig))
     EntityReferenceFactory entityReferenceFactoryMock = Mock (EntityReferenceFactory)
     ObjectId objectIdMock = Mock (ObjectId)
 

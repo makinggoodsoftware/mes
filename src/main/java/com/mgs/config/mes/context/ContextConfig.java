@@ -5,7 +5,6 @@ import com.mgs.config.mes.build.BuildConfig;
 import com.mgs.config.mes.meta.MetaConfig;
 import com.mgs.config.reflection.ReflectionConfig;
 import com.mgs.mes.context.MongoContextFactory;
-import com.mgs.mes.context.unlinkedContext.UnlinkedEntityFactory;
 import com.mgs.mes.context.unlinkedContext.UnlinkedMongoContextFactory;
 import com.mgs.mes.db.MongoDao;
 
@@ -20,26 +19,21 @@ public class ContextConfig {
 		this.reflectionsConfig = reflectionsConfig;
 	}
 
-	public MongoContextFactory contextFactory (MongoDao dao){
+	public MongoContextFactory contextFactory(){
 		return new MongoContextFactory(
 				metaConfig.entities(),
 				buildConfig.factories().entityDataEntity(),
 				reflectionsConfig.fieldAccessorParser(),
 				buildConfig.entityData().builderFactory(),
 				reflectionsConfig.beanNamingExpert(),
-				dao,
 				reflectionsConfig.reflections());
 	}
 
 	public UnlinkedMongoContextFactory unlinkedMongoContextFactory(MongoDao dao) {
-		return new UnlinkedMongoContextFactory (unlinkedEntityFactory (dao), metaConfig.validator());
-	}
-
-	private UnlinkedEntityFactory unlinkedEntityFactory(MongoDao dao) {
-		return new UnlinkedEntityFactory(
+		return new UnlinkedMongoContextFactory (
 				dao,
-				buildConfig.factories().dbObjectEntity(),
-				metaConfig.entities()
+				metaConfig.validator(),
+				buildConfig.factories().entityRetriever()
 		);
 	}
 }

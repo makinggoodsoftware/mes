@@ -23,4 +23,30 @@ public class UnlinkedEntity<T extends Entity, Z extends EntityBuilder<T>> {
 	public EntityDescriptor<T, Z> getEntityDescriptor() {
 		return entityDescriptor;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof UnlinkedEntity)) return false;
+
+		UnlinkedEntity that = (UnlinkedEntity) o;
+
+		if (!entityDescriptor.equals(that.entityDescriptor)) return false;
+		//noinspection RedundantIfStatement
+		if (!retriever.equals(that.retriever)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = retriever.hashCode();
+		result = 31 * result + entityDescriptor.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "UnlinkedEntity{" + "retriever=" + retriever + ", entityDescriptor=" + entityDescriptor + '}';
+	}
 }

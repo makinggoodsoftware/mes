@@ -8,6 +8,8 @@ import com.mgs.config.reflection.ReflectionConfig;
 import com.mgs.mes.db.MongoDao;
 
 public class MesConfigFactory {
+	private final MetaConfig metaConfig = new MetaConfig(new ReflectionConfig());
+
 	public MesConfig simple (String hostName, int port, String dbName){
 		DatabaseConfig databaseConfig = new DatabaseConfig();
 		MongoDao dao = databaseConfig.dao(hostName, port, dbName);
@@ -15,7 +17,7 @@ public class MesConfigFactory {
 		return new MesConfig(
 				new ContextConfig(
 						new MetaConfig(reflectionConfig),
-						new BuildConfig(reflectionConfig),
+						new BuildConfig(reflectionConfig, metaConfig),
 						reflectionConfig
 				),
 				dao

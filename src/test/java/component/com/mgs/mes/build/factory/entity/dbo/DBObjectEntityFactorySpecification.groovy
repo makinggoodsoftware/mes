@@ -1,6 +1,7 @@
 package com.mgs.mes.build.factory.entity.dbo
 
 import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.mes.meta.MetaConfig
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.build.factory.entity.EntityFactory
 import com.mgs.mes.model.Entity
@@ -12,7 +13,8 @@ import static java.util.Optional.empty
 
 class DBObjectEntityFactorySpecification extends Specification {
     EntityFactory<DBObject> testObj
-    BuildConfig buildConfig = new BuildConfig(new ReflectionConfig())
+    ReflectionConfig reflectionConfig = new ReflectionConfig()
+    BuildConfig buildConfig = new BuildConfig(reflectionConfig, new MetaConfig(reflectionConfig))
 
     def "setup" (){
         testObj = buildConfig.factories().dbObjectEntity()

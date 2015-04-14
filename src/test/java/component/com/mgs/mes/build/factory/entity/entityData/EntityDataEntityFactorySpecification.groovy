@@ -1,6 +1,7 @@
 package com.mgs.mes.build.factory.entity.entityData
 
 import com.mgs.config.mes.build.BuildConfig
+import com.mgs.config.mes.meta.MetaConfig
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.build.data.EntityData
 import com.mgs.mes.build.factory.entity.EntityFactory
@@ -14,7 +15,8 @@ import static java.util.Optional.of
 
 class EntityDataEntityFactorySpecification extends Specification {
     EntityFactory<EntityData> testObj
-    BuildConfig buildConfig = new BuildConfig(new ReflectionConfig())
+    ReflectionConfig reflectionConfig = new ReflectionConfig()
+    BuildConfig buildConfig = new BuildConfig(reflectionConfig, new MetaConfig(reflectionConfig))
 
     EntityData simpleEntityData = Mock(EntityData)
     DBObject simpleDboMock = Mock(DBObject)

@@ -1,8 +1,12 @@
 package com.mgs.mes.context.unlinkedContext;
 
+import com.mgs.mes.build.factory.core.EntityRetrieverFactory;
 import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.db.EntityRetriever;
+import com.mgs.mes.db.MongoDao;
 import com.mgs.mes.meta.utils.Validator;
+import com.mgs.mes.model.Entity;
+import com.mgs.mes.model.EntityBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -10,12 +14,14 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 public class UnlinkedMongoContextFactory {
-	private final UnlinkedEntityFactory unlinkedEntityFactory;
+	private final MongoDao mongoDao;
 	private final Validator validator;
+	private final EntityRetrieverFactory entityRetrieverFactory;
 
-	public UnlinkedMongoContextFactory(UnlinkedEntityFactory unlinkedEntityFactory, Validator validator) {
-		this.unlinkedEntityFactory = unlinkedEntityFactory;
+	public UnlinkedMongoContextFactory(MongoDao mongoDao, Validator validator, EntityRetrieverFactory entityRetrieverFactory) {
+		this.mongoDao = mongoDao;
 		this.validator = validator;
+		this.entityRetrieverFactory = entityRetrieverFactory;
 	}
 
 	public UnlinkedMongoContext createUnlinkedContext(List<EntityDescriptor> descriptors){
@@ -24,7 +30,7 @@ public class UnlinkedMongoContextFactory {
 		descriptors.stream().forEach((descriptor)->{
 				validator.validate(descriptor);
 
-				UnlinkedEntity unlinkedEntity = unlinkedEntityFactory.create(descriptor);
+				UnlinkedEntity unlinkedEntity = create(descriptor);
 				descriptorsByEntity.put(unlinkedEntity);
 		});
 
@@ -38,6 +44,13 @@ public class UnlinkedMongoContextFactory {
 				(entry) -> entry.getKey().getEntityType(),
 				(entry) -> entry.getValue().getRetriever()
 		));
-		return new UnlinkedMongoContext(unlinkedEntities, retrieverMap);
+		return new UnlinkedMongoContext(mongoDao, unlinkedEntities, retrieverMap);
+	}
+
+
+	private <T extends Entity, Z extends EntityBuilder<T>>
+	UnlinkedEntity<T, Z> create(EntityDescriptor<T, Z> entityDescriptor) {
+		EntityRetriever<T> retriever = entityRetrieverFactory.createRetriever(mongoDao, entityDescriptor);
+		return new UnlinkedEntity<>(retriever, entityDescriptor);
 	}
 }
