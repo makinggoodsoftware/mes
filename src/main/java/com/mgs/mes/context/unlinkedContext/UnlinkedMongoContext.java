@@ -1,8 +1,8 @@
 package com.mgs.mes.context.unlinkedContext;
 
 import com.mgs.mes.context.EntityDescriptor;
-import com.mgs.mes.db.EntityRetriever;
 import com.mgs.mes.db.MongoDao;
+import com.mgs.mes.services.core.EntityRetriever;
 
 import java.util.Map;
 import java.util.Set;

@@ -1,22 +1,22 @@
 package com.mgs.mes.context;
 
-import com.mgs.mes.build.factory.builder.EntityBuilderFactory;
-import com.mgs.mes.db.EntityRetriever;
-import com.mgs.mes.db.MongoPersister;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
+import com.mgs.mes.services.core.EntityPersister;
+import com.mgs.mes.services.core.EntityRetriever;
+import com.mgs.mes.services.core.builder.EntityBuilderProvider;
 
 import java.util.function.Function;
 
 public class MongoManager <T extends Entity, Z extends EntityBuilder<T>> {
 	private final EntityRetriever<T> retriever;
-	private final MongoPersister<T, Z> persister;
-	private final EntityBuilderFactory<T, Z> builder;
+	private final EntityPersister<T, Z> persister;
+	private final EntityBuilderProvider<T, Z> builder;
 
 	public MongoManager(
 			EntityRetriever<T> retriever,
-			MongoPersister<T, Z> persister,
-			EntityBuilderFactory<T, Z> builder
+			EntityPersister<T, Z> persister,
+			EntityBuilderProvider<T, Z> builder
 	) {
 		this.retriever = retriever;
 		this.persister = persister;
@@ -27,11 +27,11 @@ public class MongoManager <T extends Entity, Z extends EntityBuilder<T>> {
 		return retriever;
 	}
 
-	public MongoPersister<T, Z> getPersister() {
+	public EntityPersister<T, Z> getPersister() {
 		return persister;
 	}
 
-	public EntityBuilderFactory<T, Z> getBuilder() {
+	public EntityBuilderProvider<T, Z> getBuilder() {
 		return builder;
 	}
 

@@ -1,9 +1,10 @@
 package com.mgs.mes.context.unlinkedContext
-import com.mgs.mes.build.factory.core.EntityRetrieverFactory
+
 import com.mgs.mes.context.EntityDescriptor
-import com.mgs.mes.db.EntityRetriever
 import com.mgs.mes.db.MongoDao
 import com.mgs.mes.meta.utils.Validator
+import com.mgs.mes.services.core.EntityRetriever
+import com.mgs.mes.services.factory.EntityRetrieverFactory
 import com.mgs.mes.simpleModel.entityA.EntityA
 import com.mgs.mes.simpleModel.entityA.EntityABuilder
 import com.mgs.mes.simpleModel.entityB.EntityB
