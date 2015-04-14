@@ -13,7 +13,7 @@ import spock.lang.Specification
 
 import java.util.function.Function
 
-public class RelationshipFeatures extends Specification {
+public class ReferenceBasicFeatures extends Specification {
     MongoContext context
     EntityDescriptor<Person, PersonBuilder> personDescriptor = new EntityDescriptor<>(Person, PersonBuilder)
     EntityDescriptor<Item, ItemBuilder> itemDescriptor = new EntityDescriptor<>(Item, ItemBuilder)
@@ -52,17 +52,24 @@ public class RelationshipFeatures extends Specification {
 
         Date acquiredDate = new Date()
 
-        when:
-        Acquisition acquisition = acquires.newEntity()
-            .withAcquiredDate(acquiredDate)
-            .withAcquirer(alberto)
-            .withItem(macBookPro)
-            .create()
+        when: "saving the acquisition"
+        //noinspection GroovyAssignabilityCheck
+        Acquisition acquisition = acquires.createAndPersist(functionClosure {AcquisitionBuilder acquisition -> acquisition.
+            withAcquiredDate(acquiredDate).
+            withAcquirer(alberto).
+            withItem(macBookPro)
+        })
 
         then:
         acquisition.acquirer.retrieve() == alberto
         acquisition.item.retrieve() == macBookPro
         acquisition.acquiredDate == acquiredDate
+
+        when: "retrieving the previously saved acquisition"
+        Acquisition acquisitionFromDb = acquires.retriever.byId(acquisition.getId().get()).get()
+
+        then:
+        acquisitionFromDb == acquisition
     }
 
     def functionClosure (groovyClosure){
