@@ -7,7 +7,9 @@ import com.mgs.mes.model.EntityReference
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
+import com.mgs.reflection.Reflections
 import com.mongodb.BasicDBObject
+import com.mongodb.DBObject
 import org.bson.types.ObjectId
 import spock.lang.Specification
 
@@ -23,6 +25,7 @@ class DboTransformerSpecification extends Specification {
     SimpleEntity entityMock = Mock (SimpleEntity)
     ObjectId objectIdMock = Mock (ObjectId)
     EntityReference<SimpleEntity> referenceMock = Mock(EntityReference)
+    Reflections reflectionsMock = Mock (Reflections)
 
     def "setup" (){
         FieldAccessor field1Accessor = new FieldAccessor(String, "getField1", "field1", "get", GET)
@@ -47,7 +50,9 @@ class DboTransformerSpecification extends Specification {
         beanNamingExpertMock.getGetterName("refName") >> "getRefName"
         beanNamingExpertMock.getGetterName("refId") >> "getRefId"
 
-        testObj = new DboTransformer(entityFactoryMock, beanNamingExpertMock, fieldAccessorParserMock)
+        testObj = new DboTransformer(entityFactoryMock, beanNamingExpertMock, fieldAccessorParserMock, reflectionsMock)
+        reflectionsMock.isAssignableTo(BasicDBObject, List) >> false
+        reflectionsMock.isAssignableTo(BasicDBObject, DBObject) >> true
     }
 
     def "should ignore field is there is not matching getter" (){

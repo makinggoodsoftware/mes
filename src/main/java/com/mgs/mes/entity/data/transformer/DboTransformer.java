@@ -6,8 +6,10 @@ import com.mgs.mes.model.Entity;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
+import com.mgs.reflection.Reflections;
 import com.mongodb.DBObject;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,11 +21,13 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 	private final BeanNamingExpert beanNamingExpert;
 	private final FieldAccessorParser fieldAccessorParser;
 	private final EntityFactory<EntityData> entityFactory;
+	private final Reflections reflections;
 
-	public DboTransformer(EntityFactory<EntityData> entityFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser) {
+	public DboTransformer(EntityFactory<EntityData> entityFactory, BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser, Reflections reflections) {
 		this.beanNamingExpert = beanNamingExpert;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.entityFactory = entityFactory;
+		this.reflections = reflections;
 	}
 
 	@SuppressWarnings("Convert2MethodRef")
@@ -32,8 +36,10 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 	}
 
 	private EntityData doTransform(Class<? extends Entity> type, DBObject dbObject, boolean isOuter) {
-		assertNoIdField(dbObject);
-		assertInnerObjectHasNo_Id(dbObject, isOuter);
+		if (isNestedDboObject(dbObject)){
+			assertNoIdField(dbObject);
+			assertInnerObjectHasNo_Id(dbObject, isOuter);
+		}
 
 		Map<String, Object> fieldValuesByGetterName = asStream(dbObject).collect(Collectors.toMap(
 				fieldByGetterMethod -> buildKey(fieldByGetterMethod.getKey()),
@@ -63,10 +69,14 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 		if (!isOuter && isId) return empty();
 		if (isId) return of(rawValue);
 
-		boolean isNestedEntity = DBObject.class.isAssignableFrom(rawValue.getClass());
-		return !isNestedEntity ?
-				rawValue :
-				extractNestedValue(type, fieldName, (DBObject) rawValue);
+		return isNestedDboObject(rawValue) ?
+				extractNestedValue(type, fieldName, (DBObject) rawValue) :
+				rawValue;
+	}
+
+	private boolean isNestedDboObject(Object rawValue) {
+		return reflections.isAssignableTo(rawValue.getClass(), DBObject.class) &&
+		! (reflections.isAssignableTo(rawValue.getClass(), List.class));
 	}
 
 	private <T extends Entity> Object extractNestedValue(Class<T> type, String fieldName, DBObject nestedValue) {

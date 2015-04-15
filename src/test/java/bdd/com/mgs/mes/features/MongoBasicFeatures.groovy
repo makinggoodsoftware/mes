@@ -18,26 +18,24 @@ class MongoBasicFeatures extends Specification{
     MongoManager<EntityC, EntityCBuilder> Cs;
 
     def "setup" () {
-        MongoContext context =
-                new MesConfigFactory().
+        MongoContext context = new MesConfigFactory().
                 simple("localhost", 27017, "bddDb").
                 mongoContext([
                     new EntityDescriptor<>(EntityA, EntityABuilder),
                     new EntityDescriptor<>(EntityB, EntityBBuilder),
                     new EntityDescriptor<>(EntityC, EntityCBuilder),
                 ]);
-        Bs = context.manager(EntityB)
         As = context.manager(EntityA);
-        Bs = context.manager(EntityB);
+        Bs = context.manager(EntityB)
         Cs = context.manager(EntityC);
     }
 
     def "should perform simple CRUD operations" () {
         when: "build new entity"
-        EntityA original = As.builder.create().
+        EntityA original = As.builder.newEntity().
                             withEntityAfield1("value1").
                             withEntityAfield2( "value2").
-                            withEmbedded(Bs.builder.create().
+                            withEmbedded(Bs.builder.newEntity().
                                     withEntityBfield1("entityAfield1").
                                     withEntityBfield2("entityAfield2").
                                     create()
@@ -79,5 +77,50 @@ class MongoBasicFeatures extends Specification{
         then:
         this.fromDb != original
         this.fromDb == updated
+    }
+
+    def "should perform CRUD in an embedded list" (){
+        when:
+        EntityC c = Cs.builder.newEntity().
+                withList(['item1', 'item2']).
+                withString('string').
+                create()
+
+        then:
+        c.list == ['item1', 'item2']
+        c.string == 'string'
+
+        when:
+        EntityC afterSaving = Cs.persister.touch(c)
+
+        then:
+        afterSaving.dataEquals (c)
+
+        when:
+        EntityC afterRetrieving = Cs.retriever.byId(afterSaving.getId().get()).get()
+
+        then:
+        afterRetrieving.dataEquals (afterSaving)
+
+        when:
+        EntityC updated = Cs.builder.update(afterSaving).
+            withList(['item3']).
+            create()
+
+        then:
+        !updated.dataEquals(c)
+        updated.list == ['item3']
+
+        when:
+        EntityC afterSaving2 = Cs.persister.touch(updated)
+
+        then:
+        afterSaving2.dataEquals (updated)
+
+        when:
+        EntityC afterRetrieving2 = Cs.retriever.byId(afterSaving2.getId().get()).get()
+
+        then:
+        afterRetrieving2.dataEquals (afterSaving2)
     }
 }

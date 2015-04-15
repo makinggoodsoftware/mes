@@ -10,6 +10,7 @@ import com.mgs.reflection.FieldAccessorType;
 import com.mgs.reflection.Reflections;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,8 +43,8 @@ public class Validator {
 	}
 
 	private <T extends Entity, Z extends EntityBuilder<T>> void tryToValidate(Class<T> entityType, Class<Z> builderType) {
-		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(entityType, GET, asList("asDbo","getLeft","getRight"));
-		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId","withLeft","withRight","getEntityType","asDbo"));
+		Stream<FieldAccessor> modelFieldAccessors = assertMethodsValidity(entityType, GET, asList("asDbo","dataEquals"));
+		Stream<FieldAccessor> updaterFieldAccessors = assertMethodsValidity(builderType, BUILDER, asList("create", "withId","getEntityType","asDbo"));
 
 		if (!accessorsMatch (modelFieldAccessors, updaterFieldAccessors)){
 			String errorMsg = format("Can't match the updaters from %s into the getters from %s", builderType, entityType);
@@ -109,7 +110,8 @@ public class Validator {
 	private boolean isCorrectDataType(FieldAccessor fieldAccessor) {
 		return
 				fieldAccessor.getFieldName().equals("id") ||
-				reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), Entity.class);
+				reflections.isSimpleOrAssignableTo(fieldAccessor.getDeclaredType(), Entity.class) ||
+				reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class);
 	}
 
 	@SuppressWarnings("CodeBlock2Expr")

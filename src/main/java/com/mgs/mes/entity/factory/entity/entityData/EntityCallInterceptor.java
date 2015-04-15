@@ -8,7 +8,10 @@ import org.bson.types.ObjectId;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EntityCallInterceptor implements InvocationHandler, Entity {
 	protected final EntityData entityData;
@@ -26,6 +29,8 @@ public class EntityCallInterceptor implements InvocationHandler, Entity {
 			return equals(equalsRight);
 		} else if (method.getName().equals("toString")) {
 			return toString();
+		} else if (method.getName().equals("dataEquals")) {
+			return dataEquals((Entity) args[0]);
 		} else {
 			return entityData.get(method.getName());
 		}
@@ -40,6 +45,26 @@ public class EntityCallInterceptor implements InvocationHandler, Entity {
 	public Optional<ObjectId> getId() {
 		//noinspection unchecked
 		return (Optional<ObjectId>) entityData.get("getId");
+	}
+
+	@Override
+	public boolean dataEquals(Entity entity) {
+		Map<String, Object> thisValues = extractDataValues(this.asDbo());
+		Map<String, Object> otherValues = extractDataValues(entity.asDbo());
+		return thisValues.equals(otherValues);
+	}
+
+	private Map<String, Object> extractDataValues(DBObject thisDbo) {
+		//noinspection unchecked
+		Stream<Map.Entry<String, Object>> stream = thisDbo.toMap().entrySet().stream();
+		return stream.
+				filter(
+						(dboEntry) -> !dboEntry.getKey().equals("_id")
+				).
+				collect(Collectors.toMap(
+						Map.Entry::getKey,
+						Map.Entry::getValue
+				));
 	}
 
 	@Override

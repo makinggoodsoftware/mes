@@ -36,7 +36,7 @@ public class MongoManager <T extends Entity, Z extends EntityBuilder<T>> {
 	}
 
 	public Z newEntity() {
-		return getBuilder().create();
+		return getBuilder().newEntity();
 	}
 
 	public T createAndPersist(Function<Z, Z> fieldEnricher) {

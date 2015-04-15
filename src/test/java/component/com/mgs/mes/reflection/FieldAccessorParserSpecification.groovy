@@ -1,5 +1,6 @@
 package com.mgs.mes.reflection
 import com.mgs.config.reflection.ReflectionConfig
+import com.mgs.mes.model.Entity
 import com.mgs.mes.simpleModel.entityA.EntityA
 import com.mgs.mes.simpleModel.entityA.EntityABuilder
 import com.mgs.reflection.FieldAccessor
@@ -60,38 +61,39 @@ class FieldAccessorParserSpecification extends Specification {
 
     def "should parse entire mongo entity child class" (){
         when:
-        def result = testObj.parse(Entity).collect(toList())
+        def result = testObj.parse(SimpleEntity).collect(toList())
 
         then:
         result.size() == 2
-        result.get(0).fieldName == "id"
-        result.get(1).fieldName == "field1"
+        result.get(0).fieldName == "field1"
+        result.get(1).fieldName == "id"
     }
 
     def "should parse all correctly" (){
         when:
-        def result = testObj.parseAll(Entity)
+        def result = testObj.parseAll(SimpleEntity)
 
         then:
-        result.entrySet().size() == 3
-        result.get(Entity.getMethod("getField1")).get() == new FieldAccessor(
+        result.entrySet().size() == 4
+        result.get(SimpleEntity.getMethod("getField1")).get() == new FieldAccessor(
                 String,
                 "getField1",
                 "field1",
                 "get",
                 GET
         )
-        result.get(Entity.getMethod("getId")).get() == new FieldAccessor(
+        result.get(SimpleEntity.getMethod("getId")).get() == new FieldAccessor(
                 Optional,
                 "getId",
                 "id",
                 "get",
                 GET
         )
-        ! result.get(Entity.getMethod("asDbo")).isPresent()
+        ! result.get(SimpleEntity.getMethod("asDbo")).isPresent()
+        ! result.get(SimpleEntity.getMethod("dataEquals", Entity)).isPresent()
     }
 
-    static interface Entity extends com.mgs.mes.model.Entity{
+    static interface SimpleEntity extends Entity{
         public String getField1();
     }
 

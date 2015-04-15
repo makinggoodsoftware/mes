@@ -34,7 +34,7 @@ class EntityBuilderFactorySpecification extends Specification {
 
     def "should create a simple model with partial values"(){
         when:
-        def result = entityBBuilder.create().withEntityBfield1("value1").create()
+        def result = entityBBuilder.newEntity().withEntityBfield1("value1").create()
 
         then:
         result.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", null).append("_id", null)
@@ -45,7 +45,7 @@ class EntityBuilderFactorySpecification extends Specification {
 
     def "should create and update a simple model object"(){
         when:
-        def result = entityBBuilder.create().withEntityBfield1("value1").withEntityBfield2("value2").create()
+        def result = entityBBuilder.newEntity().withEntityBfield1("value1").withEntityBfield2("value2").create()
 
         then:
         result.asDbo() == new BasicDBObject("entityBfield1", "value1").append("entityBfield2", "value2").append("_id", null)
@@ -64,11 +64,11 @@ class EntityBuilderFactorySpecification extends Specification {
 
     def "should create a complex model object"(){
         when:
-        EntityB embedded = entityBBuilder.create().
+        EntityB embedded = entityBBuilder.newEntity().
             withEntityBfield1("value2.1").
             withEntityBfield2("value2.2").
             create()
-        def result = entityABuilder.create().
+        def result = entityABuilder.newEntity().
                     withEntityAfield1("value1.1").
                     withEntityAfield2("value1.2").
                     withEmbedded(embedded).
@@ -107,7 +107,7 @@ class EntityBuilderFactorySpecification extends Specification {
         entityReferenceFactoryMock.newReference(entityAMock) >> entityAReferenceMock
 
         when:
-        ReferenceEntity result = referenceEntityBuilder.create()
+        ReferenceEntity result = referenceEntityBuilder.newEntity()
             .withRelationship(entityAMock)
             .create()
 

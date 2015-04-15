@@ -34,7 +34,7 @@ public class EntityBuilderProvider<T extends Entity, Z extends EntityBuilder<T>>
 		this.entityReferenceProvider = entityReferenceProvider;
 	}
 
-	public Z create() {
+	public Z newEntity() {
 		return newProxyInstance(entityDataBuilderFactory.empty(modelType));
 	}
 

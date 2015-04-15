@@ -33,6 +33,6 @@ public class EntityDataConfig {
 	}
 
 	private EntityDataTransformer<DBObject> dboEntityDataTransformer() {
-		return new DboTransformer(commonEntityConfig.entityDataEntityFactory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser());
+		return new DboTransformer(commonEntityConfig.entityDataEntityFactory(), reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(), reflectionConfig.reflections());
 	}
 }

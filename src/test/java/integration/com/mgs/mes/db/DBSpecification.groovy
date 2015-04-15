@@ -22,7 +22,7 @@ class DBSpecification extends Specification {
 
     def "should save simple object into collection" (){
         given:
-        EntityB b = Bs.builder.create().
+        EntityB b = Bs.builder.newEntity().
                 withEntityBfield1("value1").
                 withEntityBfield2("value2").
                 create()

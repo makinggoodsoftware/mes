@@ -2,8 +2,10 @@ package com.mgs.mes.simpleModel.entityC;
 
 import com.mgs.mes.model.Entity;
 
-@SuppressWarnings("ALL")
+import java.util.List;
+
+@SuppressWarnings("UnusedDeclaration")
 public interface EntityC extends Entity {
-	public String getEntityCfield1();
-	public String getEntityCfield2();
+	public List<String> getList();
+	public String getString();
 }
