@@ -9,8 +9,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/bdd" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/component" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/integration" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java/component" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/model" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java/unit" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />

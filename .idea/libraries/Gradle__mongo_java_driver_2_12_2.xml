@@ -5,7 +5,7 @@
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="file:///var/folders/xq/qqr7gsw56v18ypd6n1x046340000gn/T/intellijad" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mongodb/mongo-java-driver/2.12.2/21ed10c6d8460b8cc51198777ad7ca8229c23ded/mongo-java-driver-2.12.2-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

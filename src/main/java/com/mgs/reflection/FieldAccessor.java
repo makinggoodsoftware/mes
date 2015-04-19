@@ -1,18 +1,22 @@
 package com.mgs.reflection;
 
+import java.util.List;
+
 public class FieldAccessor {
 	private final FieldAccessorType type;
 	private final String methodName;
 	private final String prefix;
 	private final String fieldName;
 	private final Class<?> declaredType;
+	private final List<ParametrizedType> parametrizedTypes;
 
-	public FieldAccessor(Class<?> declaredType, String methodName, String fieldName, String prefix, FieldAccessorType type) {
+	public FieldAccessor(Class<?> declaredType, String methodName, String fieldName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes) {
 		this.declaredType = declaredType;
 		this.methodName = methodName;
 		this.type = type;
 		this.prefix = prefix;
 		this.fieldName = fieldName;
+		this.parametrizedTypes = parametrizedTypes;
 	}
 
 	public FieldAccessorType getType() {
@@ -35,6 +39,10 @@ public class FieldAccessor {
 		return methodName;
 	}
 
+	public List<ParametrizedType> getParametrizedTypes() {
+		return parametrizedTypes;
+	}
+
 	@SuppressWarnings("RedundantIfStatement")
 	@Override
 	public boolean equals(Object o) {
@@ -48,6 +56,7 @@ public class FieldAccessor {
 		if (!methodName.equals(that.methodName)) return false;
 		if (!prefix.equals(that.prefix)) return false;
 		if (type != that.type) return false;
+		if (!parametrizedTypes.equals(that.parametrizedTypes)) return false;
 
 		return true;
 	}
@@ -59,6 +68,7 @@ public class FieldAccessor {
 		result = 31 * result + prefix.hashCode();
 		result = 31 * result + fieldName.hashCode();
 		result = 31 * result + declaredType.hashCode();
+		result = 31 * result + parametrizedTypes.hashCode();
 		return result;
 	}
 
@@ -71,6 +81,7 @@ public class FieldAccessor {
 		sb.append(", prefix='").append(prefix).append('\'');
 		sb.append(", fieldName='").append(fieldName).append('\'');
 		sb.append(", declaredType=").append(declaredType);
+		sb.append(", parametrizedTypes=").append(parametrizedTypes);
 		sb.append('}');
 		return sb.toString();
 	}

@@ -4,7 +4,7 @@ import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.entity.data.EntityDataBuilderFactory;
 import com.mgs.mes.meta.utils.Entities;
 import com.mgs.mes.model.Entity;
-import com.mgs.mes.model.EntityReference;
+import com.mgs.mes.model.OneToOne;
 import com.mgs.mes.services.core.EntityRetriever;
 
 import java.util.Map;
@@ -22,10 +22,10 @@ public class EntityReferenceProvider {
 		this.retrieverMap = retrieverMap;
 	}
 
-	public <T extends Entity> EntityReference<T> newReference(T from) {
+	public <T extends Entity> OneToOne<T> newReference(T from) {
 		if (!from.getId().isPresent()) throw new IllegalStateException("Can't create a reference to an object that has not yet been persisted " + from);
 
-		EntityData data = entityDataBuilderFactory.empty(EntityReference.class).
+		EntityData data = entityDataBuilderFactory.empty(OneToOne.class).
 				with("refName", entities.collectionName(from.getClass())).
 				with("refId", from.getId().get()).
 				build();
@@ -36,10 +36,10 @@ public class EntityReferenceProvider {
 
 
 		//noinspection unchecked
-		return (EntityReference<T>) newProxyInstance(
+		return (OneToOne<T>) newProxyInstance(
 				EntityReferenceProvider.class.getClassLoader(),
-				new Class[]{EntityReference.class},
-				new EntityReferenceCallInterceptor(data, retriever)
+				new Class[]{OneToOne.class},
+				new OneToOneCallInterceptor(data, retriever)
 		);
 
 	}

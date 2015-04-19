@@ -29,7 +29,7 @@ public class EntityDataConfig {
 	}
 
 	private EntityDataTransformer<Map<FieldAccessor, Object>> mapEntityDataTransformer() {
-		return new FieldAccessorMapTransformer();
+		return new FieldAccessorMapTransformer(reflectionConfig.reflections());
 	}
 
 	private EntityDataTransformer<DBObject> dboEntityDataTransformer() {

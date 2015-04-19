@@ -3,15 +3,23 @@ package com.mgs.mes.entity.data.transformer;
 import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.model.Entity;
 import com.mgs.reflection.FieldAccessor;
+import com.mgs.reflection.ParametrizedType;
+import com.mgs.reflection.Reflections;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+
 public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<FieldAccessor, Object>> {
+	private final Reflections reflections;
+
+	public FieldAccessorMapTransformer(Reflections reflections) {
+		this.reflections = reflections;
+	}
+
 	@Override
 	public EntityData transform(Class<? extends Entity> type, Map<FieldAccessor, Object> fieldValuesByAccessor) {
 		return new EntityData(buildDbo(fieldValuesByAccessor), buildMethodMap(fieldValuesByAccessor));
@@ -32,19 +40,38 @@ public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<Fi
 		Stream<Map.Entry<FieldAccessor, Object>> stream = fieldsByGetterMethodName.entrySet().stream();
 		Map<String, Object> dboMap = new HashMap<>();
 		stream.forEach(fieldValueByAccessorEntry -> {
-			String fieldName = fieldValueByAccessorEntry.getKey().getFieldName();
+			FieldAccessor fieldAccessor = fieldValueByAccessorEntry.getKey();
+			String fieldName = fieldAccessor.getFieldName();
 			Object value = fieldValueByAccessorEntry.getValue();
-			if (value != null && Entity.class.isAssignableFrom(value.getClass())){
-				Entity entity = (Entity) value;
-				dboMap.put(fieldName, entity.asDbo());
+			if (isWrappedListOfValues(fieldAccessor)){
+				//noinspection unchecked
+				List<? extends Entity> casted = (List<? extends Entity>) value;
+				dboMap.put(fieldName, casted.stream().map(Entity::asDbo).collect(toList()));
+			}else if(isWrappedValue(value)){
+				Entity casted = (Entity) value;
+				dboMap.put(fieldName, casted.asDbo());
 			} else if (fieldName.equals("id")) {
 				Optional<?> optionalValue = (Optional<?>) value;
-				if (optionalValue == null) throw new IllegalStateException("The id can never be null");
 				dboMap.put("_id", optionalValue.isPresent() ? optionalValue.get() : null);
 			} else {
 				dboMap.put(fieldName, value);
 			}
 		});
 		return new BasicDBObject(dboMap);
+	}
+
+	private boolean isWrappedListOfValues(FieldAccessor fieldAccessor) {
+		if (!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class)) return false;
+		//noinspection SimplifiableIfStatement
+		if (fieldAccessor.getParametrizedTypes().size() == 0) return false;
+		ParametrizedType parametrizedType = fieldAccessor.getParametrizedTypes().get(0);
+		if (! parametrizedType.getSpecificClass().isPresent()) throw new IllegalArgumentException("Can't workout the nature of the Generics in: " + fieldAccessor);
+		return reflections.isAssignableTo(parametrizedType.getSpecificClass().get(), Entity.class);
+	}
+
+	private boolean isWrappedValue(Object value) {
+		//noinspection SimplifiableIfStatement
+		if (value == null) return false;
+		return reflections.isAssignableTo(value.getClass(), Entity.class);
 	}
 }

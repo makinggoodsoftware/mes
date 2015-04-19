@@ -3,7 +3,8 @@ package com.mgs.mes.meta.utils;
 import com.mgs.mes.context.EntityDescriptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.model.EntityReference;
+import com.mgs.mes.model.OneToMany;
+import com.mgs.mes.model.OneToOne;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.FieldAccessorType;
@@ -147,14 +148,21 @@ public class Validator {
 	}
 
 	private boolean isValidGetterAndSetter(Class<?> getterType, Class<?> updaterType) {
-		return isSameType(getterType, updaterType) || isReferenceBuilder(getterType, updaterType);
+		return
+				isValidSimpleType(getterType, updaterType) ||
+				isValidOneToOne(getterType, updaterType) ||
+				isValidOneToMany(getterType, updaterType);
 	}
 
-	private boolean isReferenceBuilder(Class<?> getterType, Class<?> updaterType) {
-		return reflections.isAssignableTo(getterType, EntityReference.class) && reflections.isAssignableTo(updaterType, Entity.class);
+	private boolean isValidOneToMany(Class<?> getterType, Class<?> updaterType) {
+		return reflections.isAssignableTo(getterType, OneToMany.class) && reflections.isAssignableTo(updaterType, List.class);
 	}
 
-	private boolean isSameType(Class<?> getterType, Class<?> updaterType) {
+	private boolean isValidOneToOne(Class<?> getterType, Class<?> updaterType) {
+		return reflections.isAssignableTo(getterType, OneToOne.class) && reflections.isAssignableTo(updaterType, Entity.class);
+	}
+
+	private boolean isValidSimpleType(Class<?> getterType, Class<?> updaterType) {
 		return getterType.equals(updaterType);
 	}
 }

@@ -3,10 +3,12 @@ import com.mgs.config.MesConfigFactory
 import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.context.MongoContext
 import com.mgs.mes.context.MongoManager
-import com.mgs.mes.social.acquisition.Acquisition
-import com.mgs.mes.social.acquisition.AcquisitionBuilder
-import com.mgs.mes.social.item.Item
-import com.mgs.mes.social.item.ItemBuilder
+import com.mgs.mes.social.acquisition.Purchase
+import com.mgs.mes.social.acquisition.PurchaseBuilder
+import com.mgs.mes.social.color.Color
+import com.mgs.mes.social.color.ColorBuilder
+import com.mgs.mes.social.item.Product
+import com.mgs.mes.social.item.ProductBuilder
 import com.mgs.mes.social.person.Person
 import com.mgs.mes.social.person.PersonBuilder
 import spock.lang.Specification
@@ -16,12 +18,14 @@ import java.util.function.Function
 public class ReferenceBasicFeatures extends Specification {
     MongoContext context
     EntityDescriptor<Person, PersonBuilder> personDescriptor = new EntityDescriptor<>(Person, PersonBuilder)
-    EntityDescriptor<Item, ItemBuilder> itemDescriptor = new EntityDescriptor<>(Item, ItemBuilder)
-    EntityDescriptor<Acquisition, AcquisitionBuilder> acquireDescriptor = new EntityDescriptor<>(Acquisition, AcquisitionBuilder)
+    EntityDescriptor<Product, ProductBuilder> itemDescriptor = new EntityDescriptor<>(Product, ProductBuilder)
+    EntityDescriptor<Purchase, PurchaseBuilder> purchaseDescriptor = new EntityDescriptor<>(Purchase, PurchaseBuilder)
+    EntityDescriptor<Color, ColorBuilder> colorDescriptor = new EntityDescriptor<>(Color, ColorBuilder)
 
     MongoManager<Person, PersonBuilder> persons
-    MongoManager<Item, ItemBuilder> items
-    MongoManager<Acquisition, AcquisitionBuilder> acquires
+    MongoManager<Product, ProductBuilder> products
+    MongoManager<Purchase, PurchaseBuilder> purchases
+    MongoManager<Color, ColorBuilder> colors
 
 
     def "setup"() {
@@ -30,43 +34,66 @@ public class ReferenceBasicFeatures extends Specification {
                 mongoContext([
                         personDescriptor,
                         itemDescriptor,
-                        acquireDescriptor
+                        purchaseDescriptor,
+                        colorDescriptor
                 ]);
 
         persons = context.manager(personDescriptor)
-        items = context.manager(itemDescriptor)
-        acquires = context.manager(acquireDescriptor)
+        products = context.manager(itemDescriptor)
+        purchases = context.manager(purchaseDescriptor)
+        colors = context.manager(colorDescriptor)
     }
 
     def "should create references as relationships"() {
-        given:
+        when: "Creating the person, colors and product"
         //noinspection GroovyAssignabilityCheck
         Person alberto = persons.createAndPersist(functionClosure {PersonBuilder person ->
             person.withName("alberto")
         })
 
+
         //noinspection GroovyAssignabilityCheck
-        Item macBookPro = items.createAndPersist(functionClosure {ItemBuilder item ->
-            item.withDescription("MacBook Pro 13''")
+        Color yellow = colors.createAndPersist(functionClosure {ColorBuilder color ->
+            color.withName("Yellow")
         })
 
-        Date acquiredDate = new Date()
-
-        when: "saving the acquisition"
         //noinspection GroovyAssignabilityCheck
-        Acquisition acquisition = acquires.createAndPersist(functionClosure {AcquisitionBuilder acquisition -> acquisition.
-            withAcquiredDate(acquiredDate).
-            withAcquirer(alberto).
-            withItem(macBookPro)
+        Color red = colors.createAndPersist(functionClosure {ColorBuilder color ->
+            color.withName("Red")
+        })
+
+        //noinspection GroovyAssignabilityCheck
+        colors.createAndPersist(functionClosure {ColorBuilder color ->
+            color.withName("Black")
+        })
+
+        //noinspection GroovyAssignabilityCheck
+        Product macBookPro = products.createAndPersist(functionClosure {ProductBuilder item ->
+            item.
+                withDescription("MacBook Pro 13''").
+                withColors([yellow, red])
         })
 
         then:
-        acquisition.acquirer.retrieve() == alberto
-        acquisition.item.retrieve() == macBookPro
+        macBookPro.colors.asList () == [yellow, red]
+
+        when: "saving the acquisition"
+        Date acquiredDate = new Date()
+
+        //noinspection GroovyAssignabilityCheck
+        Purchase acquisition = purchases.createAndPersist(functionClosure {PurchaseBuilder acquisition -> acquisition.
+            withAcquiredDate(acquiredDate).
+            withBuyer(alberto).
+            withProduct(macBookPro)
+        })
+
+        then:
+        acquisition.buyer.retrieve() == alberto
+        acquisition.product.retrieve() == macBookPro
         acquisition.acquiredDate == acquiredDate
 
         when: "retrieving the previously saved acquisition"
-        Acquisition acquisitionFromDb = acquires.retriever.byId(acquisition.getId().get()).get()
+        Purchase acquisitionFromDb = purchases.retriever.byId(acquisition.getId().get()).get()
 
         then:
         acquisitionFromDb == acquisition

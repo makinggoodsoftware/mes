@@ -6,7 +6,8 @@ import com.mgs.mes.context.EntityDescriptor
 import com.mgs.mes.meta.utils.Validator
 import com.mgs.mes.model.Entity
 import com.mgs.mes.model.EntityBuilder
-import com.mgs.mes.model.EntityReference
+import com.mgs.mes.model.OneToMany
+import com.mgs.mes.model.OneToOne
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -27,9 +28,17 @@ class ValidatorSpecification extends Specification {
         notThrown Exception
     }
 
-    def "should validate reference interfaces" (){
+    def "should validate one to one interfaces" (){
         when:
-        testObj.validate(new EntityDescriptor<>(ReferenceGetter, ReferenceGetterBuilder))
+        testObj.validate(new EntityDescriptor<>(OneToOneGetter, OneToOneGetterBuilder))
+
+        then:
+        notThrown Exception
+    }
+
+    def "should validate one to many interfaces" (){
+        when:
+        testObj.validate(new EntityDescriptor<>(OneToManyGetter, OneToOneManyBuilder))
 
         then:
         notThrown Exception
@@ -83,12 +92,20 @@ class ValidatorSpecification extends Specification {
     }
 
 
-    public static interface ReferenceGetter extends Entity{
-        EntityReference<Getter1> getReference ()
+    public static interface OneToOneGetter extends Entity{
+        OneToOne<Getter1> getReference ()
     }
 
-    public static interface ReferenceGetterBuilder extends EntityBuilder<ReferenceGetter> {
-        ReferenceGetterBuilder withReference (Getter1 getter1)
+    public static interface OneToOneGetterBuilder extends EntityBuilder<OneToOneGetter> {
+        OneToOneGetterBuilder withReference (Getter1 getter1)
+    }
+
+    public static interface OneToManyGetter extends Entity{
+        OneToMany<Getter1> getReferences ()
+    }
+
+    public static interface OneToOneManyBuilder extends EntityBuilder<OneToOneGetter> {
+        OneToOneManyBuilder withReferences (List<Getter1> getter1)
     }
 
 }

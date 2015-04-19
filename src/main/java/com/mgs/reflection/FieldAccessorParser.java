@@ -1,14 +1,20 @@
 package com.mgs.reflection;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER;
 import static com.mgs.reflection.FieldAccessorType.GET;
+import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 
 public class FieldAccessorParser {
@@ -21,7 +27,7 @@ public class FieldAccessorParser {
 	}
 
 	public Map<Method, Optional<FieldAccessor>> parseAll (Class type){
-		return Arrays.asList(type.getMethods()).stream().
+		return asList(type.getMethods()).stream().
 				collect(toMap(
 						(method) -> method,
 						this::parse
@@ -44,14 +50,41 @@ public class FieldAccessorParser {
 
 	public Optional<FieldAccessor> parse(Method method) {
 		if (isGetter(method)) {
-			return parse(method.getReturnType(), method.getName(), GET_PREFIX, GET);
+			List<ParametrizedType> parametrizedType = extractGenericClasses(method.getGenericReturnType());
+			return parse(method.getReturnType(), method.getName(), GET_PREFIX, GET, parametrizedType);
 		}
 
 		if (isBuilder(method)) {
-			return parse(method.getParameters()[0].getType(), method.getName(), BUILDER_PREFIX, BUILDER);
+			List<ParametrizedType> parametrizedType  = extractGenericClasses(method.getGenericParameterTypes()[0]);
+			return parse(method.getParameters()[0].getType(), method.getName(), BUILDER_PREFIX, BUILDER, parametrizedType);
 		}
 
 		return empty();
+	}
+
+	private List<ParametrizedType> extractGenericClasses(Type genericReturnType) {
+		List<ParametrizedType> empty = new ArrayList<>();
+		if (genericReturnType == null) return empty;
+		if (! (genericReturnType instanceof ParameterizedType)) return empty;
+
+		ParameterizedType parameterizedType = (ParameterizedType) genericReturnType;
+		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+
+		if (actualTypeArguments == null || actualTypeArguments.length == 0) return empty;
+
+		return Stream.of(actualTypeArguments).
+				map(this::extractClass).
+				collect(Collectors.toList());
+	}
+
+	private ParametrizedType extractClass(Type actualTypeArgument) {
+		String typeName = actualTypeArgument.getTypeName();
+		try {
+			Class<?> specificName = this.getClass().getClassLoader().loadClass(typeName);
+			return new ParametrizedType(typeName, of(specificName));
+		} catch (ClassNotFoundException e) {
+			return new ParametrizedType(typeName, empty());
+		}
 	}
 
 	private boolean isGetter(Method method) {
@@ -68,8 +101,8 @@ public class FieldAccessorParser {
 				method.getDeclaringClass().equals(method.getReturnType());
 	}
 
-	private Optional<FieldAccessor> parse(Class<?> declaredType, String methodName, String prefix, FieldAccessorType type) {
+	private Optional<FieldAccessor> parse(Class<?> declaredType, String methodName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes) {
 		String fieldName = beanNamingExpert.getFieldName(methodName, prefix);
-		return Optional.of(new FieldAccessor(declaredType, methodName, fieldName, prefix, type));
+		return of(new FieldAccessor(declaredType, methodName, fieldName, prefix, type, parametrizedTypes));
 	}
 }

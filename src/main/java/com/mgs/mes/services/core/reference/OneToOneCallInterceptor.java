@@ -3,7 +3,7 @@ package com.mgs.mes.services.core.reference;
 import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.entity.factory.entity.entityData.EntityCallInterceptor;
 import com.mgs.mes.model.Entity;
-import com.mgs.mes.model.EntityReference;
+import com.mgs.mes.model.OneToOne;
 import com.mgs.mes.services.core.EntityRetriever;
 import org.bson.types.ObjectId;
 
@@ -12,10 +12,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Optional;
 
-public class EntityReferenceCallInterceptor<T extends Entity> extends EntityCallInterceptor implements InvocationHandler, EntityReference<T> {
+public class OneToOneCallInterceptor<T extends Entity> extends EntityCallInterceptor implements InvocationHandler, OneToOne<T> {
 	private final EntityRetriever<T> retriever;
 
-	public EntityReferenceCallInterceptor(EntityData entityData, EntityRetriever<T> retriever) {
+	public OneToOneCallInterceptor(EntityData entityData, EntityRetriever<T> retriever) {
 		super(entityData);
 		this.retriever = retriever;
 	}
@@ -39,12 +39,12 @@ public class EntityReferenceCallInterceptor<T extends Entity> extends EntityCall
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		EntityReferenceCallInterceptor that = null;
-		if (EntityReferenceCallInterceptor.class.isAssignableFrom(o.getClass())){
-			that = (EntityReferenceCallInterceptor) o;
-		}else if (EntityReference.class.isAssignableFrom(o.getClass())) {
+		OneToOneCallInterceptor that = null;
+		if (OneToOneCallInterceptor.class.isAssignableFrom(o.getClass())){
+			that = (OneToOneCallInterceptor) o;
+		}else if (OneToOne.class.isAssignableFrom(o.getClass())) {
 			if (o instanceof Proxy){
-				that = (EntityReferenceCallInterceptor) Proxy.getInvocationHandler(o);
+				that = (OneToOneCallInterceptor) Proxy.getInvocationHandler(o);
 			}
 		}
 

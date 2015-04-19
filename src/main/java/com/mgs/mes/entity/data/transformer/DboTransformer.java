@@ -41,7 +41,18 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 			assertInnerObjectHasNo_Id(dbObject, isOuter);
 		}
 
-		Map<String, Object> fieldValuesByGetterName = asStream(dbObject).collect(Collectors.toMap(
+		Map<String, Object> fieldValuesByGetterName = asStream(dbObject).
+		filter((dbObjectFieldNameAndValueEntry) -> {
+			String dboFieldName = dbObjectFieldNameAndValueEntry.getKey();
+			//noinspection SimplifiableIfStatement
+			if (dboFieldName.equals("_id")) return true;
+			return fieldAccessorParser.
+					parse(type).
+					filter((srcFieldAccessor) -> srcFieldAccessor.getFieldName().equals(dboFieldName)).
+					collect(Collectors.toList())
+					.size() > 0;
+		}).
+		collect(Collectors.toMap(
 				fieldByGetterMethod -> buildKey(fieldByGetterMethod.getKey()),
 				fieldByGetterMethod -> buildValue(type, fieldByGetterMethod, isOuter)
 		));

@@ -4,7 +4,7 @@ import com.mgs.config.mes.entity.EntityConfig
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.model.Entity
 import com.mgs.mes.model.EntityBuilder
-import com.mgs.mes.model.EntityReference
+import com.mgs.mes.model.OneToOne
 import com.mgs.mes.services.core.reference.EntityReferenceProvider
 import com.mgs.mes.simpleModel.entityA.EntityA
 import com.mgs.mes.simpleModel.entityA.EntityABuilder
@@ -95,7 +95,7 @@ class EntityBuilderFactorySpecification extends Specification {
 
     def "should create an entity that refers another entity" (){
         given:
-        EntityReference<EntityA> entityAReferenceMock = Mock (EntityReference)
+        OneToOne<EntityA> entityAReferenceMock = Mock (OneToOne)
         entityAReferenceMock.refId >> objectIdMock
         entityAReferenceMock.refName >> "EntityA"
         entityAReferenceMock.asDbo() >> new BasicDBObject().
@@ -125,7 +125,7 @@ class EntityBuilderFactorySpecification extends Specification {
     }
 
     public static interface ReferenceEntity extends Entity{
-        public EntityReference<EntityA> getRelationship ()
+        public OneToOne<EntityA> getRelationship ()
     }
 
     public static interface ReferenceEntityBuilder extends EntityBuilder<ReferenceEntity>{
