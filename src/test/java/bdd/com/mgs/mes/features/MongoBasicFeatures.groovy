@@ -13,6 +13,8 @@ import com.mgs.mes.simpleModel.entityD.EntityD
 import com.mgs.mes.simpleModel.entityD.EntityDBuilder
 import com.mgs.mes.simpleModel.entityE.EntityE
 import com.mgs.mes.simpleModel.entityE.EntityEBuilder
+import com.mgs.mes.simpleModel.entityF.EntityF
+import com.mgs.mes.simpleModel.entityF.EntityFBuilder
 import spock.lang.Specification
 
 class MongoBasicFeatures extends Specification{
@@ -22,6 +24,7 @@ class MongoBasicFeatures extends Specification{
     MongoManager<EntityC, EntityCBuilder> Cs;
     MongoManager<EntityD, EntityDBuilder> Ds;
     MongoManager<EntityE, EntityEBuilder> Es;
+    MongoManager<EntityF, EntityFBuilder> Fs;
 
     def "setup" () {
         MongoContext context = new MesConfigFactory().
@@ -32,12 +35,14 @@ class MongoBasicFeatures extends Specification{
                     new EntityDescriptor<>(EntityC, EntityCBuilder),
                     new EntityDescriptor<>(EntityD, EntityDBuilder),
                     new EntityDescriptor<>(EntityE, EntityEBuilder),
+                    new EntityDescriptor<>(EntityF, EntityFBuilder),
                 ]);
         As = context.manager(EntityA);
         Bs = context.manager(EntityB)
         Cs = context.manager(EntityC);
         Ds = context.manager(EntityD);
         Es = context.manager(EntityE);
+        Fs = context.manager(EntityF);
     }
 
     def "should perform simple CRUD operations" () {
@@ -193,5 +198,19 @@ class MongoBasicFeatures extends Specification{
         e2.oneToOne.refId == b2FromDb.getId().get()
         e2.oneToOne.refName == "EntityB"
         e2.oneToOne.retrieve() == b2FromDb
+    }
+
+    def "should perform CRUD with OneToMany relationships" (){
+        given:
+        EntityB b1 = Bs.builder.newEntity().withEntityBfield1("value1.1").withEntityBfield2("value2.1").create()
+        EntityB b1FromDb = Bs.persister.touch(b1)
+        EntityB b2 = Bs.builder.newEntity().withEntityBfield1("value1.2").withEntityBfield2("value2.2").create()
+        EntityB b2FromDb = Bs.persister.touch(b2)
+
+        when:
+        EntityF f = Fs.builder.newEntity().withOneToMany([b1FromDb, b2FromDb]).create()
+
+        then:
+        f.oneToMany.asList() == [b1FromDb, b2FromDb]
     }
 }
