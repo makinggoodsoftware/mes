@@ -2,6 +2,7 @@ package com.mgs.mes.entity.data.transformer;
 
 import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.model.Entity;
+import com.mgs.mes.model.OneToMany;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.ParametrizedType;
 import com.mgs.reflection.Reflections;
@@ -44,9 +45,15 @@ public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<Fi
 			String fieldName = fieldAccessor.getFieldName();
 			Object value = fieldValueByAccessorEntry.getValue();
 			if (isWrappedListOfValues(fieldAccessor)){
-				//noinspection unchecked
-				List<? extends Entity> casted = (List<? extends Entity>) value;
-				dboMap.put(fieldName, casted.stream().map(Entity::asDbo).collect(toList()));
+				List<? extends Entity> child;
+				if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)){
+					//noinspection unchecked
+					child = ((OneToMany) value).getList();
+				} else {
+					//noinspection unchecked
+					child = (List<? extends Entity>) value;
+				}
+				dboMap.put(fieldName, child.stream().map(Entity::asDbo).collect(toList()));
 			}else if(isWrappedValue(value)){
 				Entity casted = (Entity) value;
 				dboMap.put(fieldName, casted.asDbo());
@@ -61,12 +68,15 @@ public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<Fi
 	}
 
 	private boolean isWrappedListOfValues(FieldAccessor fieldAccessor) {
-		if (!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class)) return false;
+		if (
+				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
+				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)
+		) return false;
 		//noinspection SimplifiableIfStatement
 		if (fieldAccessor.getParametrizedTypes().size() == 0) return false;
 		ParametrizedType parametrizedType = fieldAccessor.getParametrizedTypes().get(0);
-		if (! parametrizedType.getSpecificClass().isPresent()) throw new IllegalArgumentException("Can't workout the nature of the Generics in: " + fieldAccessor);
-		return reflections.isAssignableTo(parametrizedType.getSpecificClass().get(), Entity.class);
+		return !parametrizedType.getSpecificClass().isPresent() ||
+				reflections.isAssignableTo(parametrizedType.getSpecificClass().get(), Entity.class);
 	}
 
 	private boolean isWrappedValue(Object value) {

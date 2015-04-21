@@ -3,6 +3,7 @@ package com.mgs.mes.entity.data.transformer
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.entity.data.EntityData
 import com.mgs.mes.model.Entity
+import com.mgs.mes.model.OneToMany
 import com.mgs.mes.model.OneToOne
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
@@ -25,6 +26,9 @@ class FieldAccessorMapTransformerSpecification extends Specification {
     OneToOne oneToOneEntityMock = Mock(OneToOne)
     DBObject oneToOneDbObjectMock = Mock (DBObject)
 
+    OneToMany oneToManyEntityMock = Mock(OneToMany)
+    DBObject oneToManyDbObjectMock = Mock (DBObject)
+
     ObjectId objectIdMock = Mock (ObjectId)
 
     def "setup"() {
@@ -32,6 +36,7 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         valuesByAccessor = new HashMap<FieldAccessor, Object>()
         simpleEntityMock.asDbo() >> simpleEntityDbObjectMock
         oneToOneEntityMock.asDbo() >> oneToOneDbObjectMock
+        oneToManyEntityMock.asDbo() >> oneToManyDbObjectMock
     }
 
     def "should transform simple entities"() {
@@ -120,6 +125,23 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getEntities") == [simpleEntityMock]
     }
 
+    def "should transform OneToMany entities" (){
+        given:
+        valuesByAccessor.put(
+                fieldAccessorParser.parse(OneToManyEntity, "getRelationship").get(),
+                [oneToManyEntityMock]
+        )
+
+        when:
+        EntityData result = testObj.transform(OneToManyEntity, valuesByAccessor)
+
+        then:
+        result.dbo == new BasicDBObject().
+                append("relationship", [oneToManyDbObjectMock])
+        result.get("getRelationship") == [oneToManyEntityMock]
+
+    }
+
     def "should transform the Id" (){
         given:
         valuesByAccessor.put(
@@ -172,6 +194,11 @@ class FieldAccessorMapTransformerSpecification extends Specification {
     @SuppressWarnings("GroovyUnusedDeclaration")
     static interface RelationshipEntity extends Entity {
         public OneToOne<SimpleEntity> getRelationship();
+    }
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    static interface OneToManyEntity extends Entity {
+        public OneToMany<SimpleEntity> getRelationship();
     }
 
 }

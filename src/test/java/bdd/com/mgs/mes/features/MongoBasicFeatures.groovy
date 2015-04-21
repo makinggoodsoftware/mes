@@ -211,6 +211,18 @@ class MongoBasicFeatures extends Specification{
         EntityF f = Fs.builder.newEntity().withOneToMany([b1FromDb, b2FromDb]).create()
 
         then:
-        f.oneToMany.asList() == [b1FromDb, b2FromDb]
+        f.oneToMany.retrieveAll() == [b1FromDb, b2FromDb]
+
+        when:
+        EntityF fromDb = Fs.persister.touch(f)
+
+        then:
+        fromDb.dataEquals(f)
+
+        when:
+        EntityF retrieved = Fs.retriever.byId(fromDb.getId().get()).get()
+
+        then:
+        retrieved == fromDb
     }
 }

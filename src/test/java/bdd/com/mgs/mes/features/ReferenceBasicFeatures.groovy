@@ -75,7 +75,7 @@ public class ReferenceBasicFeatures extends Specification {
         })
 
         then:
-        macBookPro.colors.asList () == [yellow, red]
+        macBookPro.colors.getList () == [yellow, red]
 
         when: "saving the acquisition"
         Date acquiredDate = new Date()

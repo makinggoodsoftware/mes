@@ -17,7 +17,6 @@ import org.bson.types.ObjectId;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER;
@@ -98,13 +97,8 @@ class EntityBuilderCallInterceptor<T extends Entity> implements InvocationHandle
 			Entity casted = (Entity) value;
 			entityDataBuilder.with(fieldAccessor, entityReferenceProvider.newReference(casted));
 		} else if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)){
-			//noinspection unchecked
-			List<? extends Entity> castedValue = (List<? extends Entity>) value;
-			List<OneToOne<? extends Entity>> references = new ArrayList<>();
-			for (Entity entity : castedValue) {
-				references.add(entityReferenceProvider.newReference(entity));
-			}
-			entityDataBuilder.with(fieldAccessor, references);
+			@SuppressWarnings("unchecked") List<? extends Entity> casted = (List<? extends Entity>) value;
+			entityDataBuilder.with(fieldAccessor, entityReferenceProvider.newReferences(casted));
 		}else {
 			entityDataBuilder.with(fieldAccessor, value);
 		}

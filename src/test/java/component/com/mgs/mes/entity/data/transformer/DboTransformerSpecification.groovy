@@ -2,6 +2,7 @@ package com.mgs.mes.entity.data.transformer
 
 import com.mgs.mes.entity.factory.entity.entityData.EntityDataEntityFactory
 import com.mgs.mes.model.Entity
+import com.mgs.mes.model.OneToMany
 import com.mgs.mes.model.OneToOne
 import com.mgs.reflection.BeanNamingExpert
 import com.mgs.reflection.FieldAccessorParser
@@ -106,7 +107,11 @@ class DboTransformerSpecification extends Specification {
         result.get("getId") == of(objectIdMock)
     }
 
-    def "should transfrom a relationship dbo" (){
+    def "should transfrom a complex list of entities" (){
+
+    }
+
+    def "should transform a one to one relationship dbo" (){
         given:
         def referencedDbo = new BasicDBObject().
                 append("refName", "SimpleEntity").
@@ -122,6 +127,25 @@ class DboTransformerSpecification extends Specification {
         result.dbo.is(relationshipDbo)
         result.get("getRelationship").getRefName() == 'SimpleEntity'
         result.get("getRelationship").getRefId() == objectIdMock
+    }
+
+    def "should transform a one to many relationship dbo" (){
+        given:
+        def referencedDbo = new BasicDBObject().
+                append("refName", "SimpleEntity").
+                append("refId", objectIdMock).
+                append("_id", null)
+        def relationshipDbo = new BasicDBObject().
+                append("relationship", [referencedDbo])
+
+        when:
+        def result = testObj.transform(OneToManyEntity, relationshipDbo)
+
+        then:
+        result.dbo.is(relationshipDbo)
+        result.get("getRelationship").getList().size() == 1
+        result.get("getRelationship").getList().get(0).getRefName() == 'SimpleEntity'
+        result.get("getRelationship").getList().get(0).getRefId() == objectIdMock
     }
 
     def "should throw an exception if inner object has an ID" (){
@@ -167,6 +191,11 @@ class DboTransformerSpecification extends Specification {
     @SuppressWarnings("GroovyUnusedDeclaration")
     static interface RelationshipEntity extends Entity {
         public OneToOne<SimpleEntity> getRelationship ();
+    }
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    static interface OneToManyEntity extends Entity {
+        public OneToMany<SimpleEntity> getRelationship ();
     }
 
 }
