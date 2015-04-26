@@ -68,7 +68,7 @@ class DBObjectEntityFactorySpecification extends Specification {
     }
 
     def "should be equals" (){
-        given: "Two different simple dbos with the same entityData"
+        given: "Two different dbo dbos with the same entityData"
         BasicDBObject left = new BasicDBObject().
                 append("field1", "hello world").
                 append("field2", 2).

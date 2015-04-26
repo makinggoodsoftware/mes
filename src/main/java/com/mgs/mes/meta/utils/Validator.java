@@ -69,7 +69,7 @@ public class Validator {
 	private Predicate<FieldAccessor> assertFieldAccessorTypeIsValid(Class<?> sourceType) {
 		return (fieldAccessor) -> {
 			if (!isCorrectDataType(fieldAccessor))
-				throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " in " + sourceType + " return type is not simple or a mongo entity");
+				throw new IllegalArgumentException("The field accessor for " + fieldAccessor.getMethodName() + " in " + sourceType + " return type is not dbo or a mongo entity");
 			return true;
 		};
 	}

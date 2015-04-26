@@ -11,6 +11,7 @@ import com.mongodb.DBObject;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,22 +37,10 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 	}
 
 	private EntityData doTransform(Class<? extends Entity> type, DBObject dbObject, boolean isOuter) {
-		if (isNestedDboObject(dbObject)){
-			assertNoIdField(dbObject);
-			assertInnerObjectHasNo_Id(dbObject, isOuter);
-		}
+		assertReadyForTransformation(dbObject, isOuter);
 
 		Map<String, Object> fieldValuesByGetterName = asStream(dbObject).
-		filter((dbObjectFieldNameAndValueEntry) -> {
-			String dboFieldName = dbObjectFieldNameAndValueEntry.getKey();
-			//noinspection SimplifiableIfStatement
-			if (dboFieldName.equals("_id")) return true;
-			return fieldAccessorParser.
-					parse(type).
-					filter((srcFieldAccessor) -> srcFieldAccessor.getFieldName().equals(dboFieldName)).
-					collect(Collectors.toList())
-					.size() > 0;
-		}).
+		filter(applicableGetters(type)).
 		collect(Collectors.toMap(
 				fieldByGetterMethod -> buildKey(fieldByGetterMethod.getKey()),
 				fieldByGetterMethod -> buildValue(type, fieldByGetterMethod, isOuter)
@@ -60,6 +49,26 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 			fieldValuesByGetterName.put("getId", empty());
 		}
 		return new EntityData(dbObject, fieldValuesByGetterName);
+	}
+
+	private Predicate<Map.Entry<String, Object>> applicableGetters(Class<? extends Entity> type) {
+		return (dbObjectFieldNameAndValueEntry) -> {
+			String dboFieldName = dbObjectFieldNameAndValueEntry.getKey();
+			//noinspection SimplifiableIfStatement
+			if (dboFieldName.equals("_id")) return true;
+			return fieldAccessorParser.
+					parse(type).
+					filter((srcFieldAccessor) -> srcFieldAccessor.getFieldName().equals(dboFieldName)).
+					collect(Collectors.toList())
+					.size() > 0;
+		};
+	}
+
+	private void assertReadyForTransformation(DBObject dbObject, boolean isOuter) {
+		if (isNestedDboObject(dbObject)){
+			assertNoIdField(dbObject);
+			assertInnerObjectHasNo_Id(dbObject, isOuter);
+		}
 	}
 
 	private void assertInnerObjectHasNo_Id(DBObject dbObject, boolean isOuter) {

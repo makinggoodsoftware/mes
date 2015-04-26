@@ -11,6 +11,7 @@ import com.mgs.reflection.Reflections
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
 import org.bson.types.ObjectId
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class FieldAccessorMapTransformerSpecification extends Specification {
@@ -93,6 +94,7 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getRelationship") == oneToOneEntityMock
     }
 
+    @Ignore
     def "should transform simple list entities" (){
         given:
         valuesByAccessor.put(
@@ -109,6 +111,7 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getStrings") == ['1','2','3']
     }
 
+    @Ignore
     def "should transform complex list entities" (){
         given:
         valuesByAccessor.put(
@@ -125,6 +128,7 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getEntities") == [simpleEntityMock]
     }
 
+    @Ignore
     def "should transform OneToMany entities" (){
         given:
         valuesByAccessor.put(
@@ -141,6 +145,7 @@ class FieldAccessorMapTransformerSpecification extends Specification {
         result.get("getRelationship") == [oneToManyEntityMock]
 
     }
+
 
     def "should transform the Id" (){
         given:
