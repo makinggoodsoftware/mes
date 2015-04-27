@@ -1,18 +1,21 @@
 package com.mgs.mes.v2.polymorphism;
 
-import com.mgs.mes.model.Entity;
-
 import java.util.List;
 
 public class PolymorphismDescriptor {
-	private Class<? extends Entity> type;
-	private List<Class<? extends Entity>> polymorphicTypes;
+	private final Class type;
+	private final List<Class> polymorphicTypes;
 
-	public Class<? extends Entity> getType() {
+	public PolymorphismDescriptor(Class type, List<Class> polymorphicTypes) {
+		this.type = type;
+		this.polymorphicTypes = polymorphicTypes;
+	}
+
+	public Class getType() {
 		return type;
 	}
 
-	public List<Class<? extends Entity>> getPolymorphicTypes() {
+	public List<Class> getPolymorphicTypes() {
 		return polymorphicTypes;
 	}
 }

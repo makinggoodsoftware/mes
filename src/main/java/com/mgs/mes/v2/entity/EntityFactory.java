@@ -82,8 +82,8 @@ public class EntityFactory {
 				return value;
 			case SIMPLE_ENTITY:
 				DBObject asDbo = (DBObject) value;
-				Class<? extends Entity> childType;
-				List<Class<? extends Entity>> polymorphicTypes = domainDataManager.getPolymorphicTypes();
+				Class childType;
+				List<Class> polymorphicTypes = domainDataManager.getPolymorphicTypes();
 				if (polymorphicTypes.size() > 1) {
 					childType = polymorphismManager.resolve (polymorphicTypes, value);
 				} else {
