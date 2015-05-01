@@ -18,7 +18,7 @@ class MapEntityAdvancedFeatures extends Specification {
         thrown(Exception)
     }
 
-    def "should parse optional values when is present" (){
+    def "should parse optional values" (){
         expect:
         context.transform([string:"value"], OptionalEntity).getString() == Optional.of("value")
 

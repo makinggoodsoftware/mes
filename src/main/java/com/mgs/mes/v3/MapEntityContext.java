@@ -22,16 +22,35 @@ public class MapEntityContext {
 	}
 
 	public <T extends MapEntity> T transform(Map<String, Object> data, Class<T> type){
+		Map<String, Object> domainMap = transformMap(data, (entry) -> mapEntry(type, entry));
+		fieldAccessorParser.parse(type).
+				filter(this::isAGetter).
+				filter((getter) -> assertMandatoryGettersAreMapped(domainMap, getter, getter.getDeclaredType())).
+				filter(this::isOptional).
+				forEach((optionalGetter) -> {
+					String methodName = optionalGetter.getMethodName();
+					Object optionalGetterValue = domainMap.get(methodName);
+					if (optionalGetterValue == null) domainMap.put(methodName, Optional.empty());
+				});
+
 		//noinspection unchecked
 		return (T) newProxyInstance(
 				MapEntityContext.class.getClassLoader(),
 				new Class[]{type},
 				new EntityMapCallInterceptor<>(
 						type,
-						transformMap(data, (entry) -> mapEntry(type, entry)),
+						domainMap,
 						managerLocator.byType(type)
 				)
 		);
+	}
+
+	private boolean isOptional(FieldAccessor getter) {
+		return getter.getDeclaredType().equals(Optional.class);
+	}
+
+	private boolean isAGetter(FieldAccessor accessor) {
+		return accessor.getType() == FieldAccessorType.GET;
 	}
 
 	private Map<String, Object> transformMap(
@@ -71,5 +90,14 @@ public class MapEntityContext {
 			return Optional.of(mapValue(typeOfOptional, null, value));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + value);
+	}
+
+	private boolean assertMandatoryGettersAreMapped(Map<String, Object> domainValues, FieldAccessor getter, Class type) {
+		if (type.equals(Optional.class)) return true;
+
+		String methodName = getter.getMethodName();
+		Object domainValue = domainValues.get(methodName);
+		if (domainValue == null) throw new IllegalStateException("Can't map the getter: " + methodName + " in: "+ domainValues);
+		return true;
 	}
 }
