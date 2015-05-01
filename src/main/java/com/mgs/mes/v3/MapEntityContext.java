@@ -66,6 +66,10 @@ public class MapEntityContext {
 			//noinspection unchecked
 			return castedValue.stream().map((old)->mapValue(typeOfCollection, new ArrayList<>(), old)).collect(toList());
 		}
+		if (reflections.isAssignableTo(declaredType, Optional.class)) {
+			Class typeOfOptional = parametrizedTypes.get(0).getSpecificClass().get();
+			return Optional.of(mapValue(typeOfOptional, null, value));
+		}
 		throw new IllegalStateException("Invalid data in the map: " + value);
 	}
 }
