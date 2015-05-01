@@ -5,15 +5,20 @@ import com.mgs.mes.entity.factory.entity.entityData.EntityCallInterceptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.OneToMany;
 import com.mgs.mes.model.OneToOne;
+import com.mgs.mes.v2.entity.method.EntityMethodInterceptor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OneToManyCallInterceptor<T extends Entity> extends EntityCallInterceptor implements InvocationHandler, OneToMany<T> {
-	public OneToManyCallInterceptor(EntityData entityData) {
-		super(entityData);
+	private final EntityData entityData;
+
+	public OneToManyCallInterceptor(EntityData entityData, Map<String, EntityMethodInterceptor> methodInterceptors) {
+		super(null, null, entityData, methodInterceptors);
+		this.entityData = entityData;
 	}
 
 	@Override

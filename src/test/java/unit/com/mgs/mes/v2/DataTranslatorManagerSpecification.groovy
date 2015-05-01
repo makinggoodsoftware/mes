@@ -1,5 +1,5 @@
 package com.mgs.mes.v2
-import com.mgs.mes.v2.property.descriptor.DomainPropertyDescriptorRetriever
+import com.mgs.mes.v2.entity.property.descriptor.DomainPropertyDescriptorRetriever
 import spock.lang.Specification
 
 class DataTranslatorManagerSpecification extends Specification {

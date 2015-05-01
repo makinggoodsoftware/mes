@@ -5,19 +5,25 @@ import com.mgs.mes.entity.factory.entity.entityData.EntityCallInterceptor;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.OneToOne;
 import com.mgs.mes.services.core.EntityRetriever;
+import com.mgs.mes.v2.entity.method.EntityMethodInterceptor;
 import org.bson.types.ObjectId;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
 import java.util.Optional;
 
 public class OneToOneCallInterceptor<T extends Entity> extends EntityCallInterceptor implements InvocationHandler, OneToOne<T> {
-	private final EntityRetriever<T> retriever;
+	protected final EntityData entityData;
+	protected final EntityRetriever<T> retriever;
+	private final Map<String, EntityMethodInterceptor> methodInterceptors;
 
-	public OneToOneCallInterceptor(EntityData entityData, EntityRetriever<T> retriever) {
-		super(entityData);
+	public OneToOneCallInterceptor(EntityData entityData, EntityRetriever<T> retriever, Map<String, EntityMethodInterceptor> methodInterceptors) {
+		super(null, null, entityData, methodInterceptors);
 		this.retriever = retriever;
+		this.methodInterceptors = methodInterceptors;
+		this.entityData = entityData;
 	}
 
 	@Override
@@ -32,6 +38,11 @@ public class OneToOneCallInterceptor<T extends Entity> extends EntityCallInterce
 		} else if (method.getName().equals("getRefId")) {
 			return getRefId();
 		} else {
+			if (args.length > 0) throw new IllegalArgumentException();
+			EntityMethodInterceptor entityMethodInterceptor = methodInterceptors.get(method.getName());
+			if (entityMethodInterceptor != null){
+				return entityMethodInterceptor.apply (this, null);
+			}
 			return super.invoke(proxy, method, args);
 		}
 	}

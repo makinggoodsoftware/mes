@@ -10,7 +10,7 @@ public class ReflectionConfig {
 	}
 
 	public FieldAccessorParser fieldAccessorParser() {
-		return new FieldAccessorParser(beanNamingExpert());
+		return new FieldAccessorParser(beanNamingExpert(), reflections());
 	}
 
 	public Reflections reflections() {

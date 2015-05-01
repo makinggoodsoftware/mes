@@ -1,23 +1,22 @@
 package com.mgs.mes.v2.config;
 
 import com.mgs.config.reflection.ReflectionConfig;
-import com.mgs.mes.model.Entity;
-import com.mgs.mes.model.OneToMany;
-import com.mgs.mes.model.OneToOne;
+import com.mgs.mes.v2.entity.property.descriptor.DomainPropertyDescriptorRetriever;
+import com.mgs.mes.v2.entity.property.manager.BasePropertyManager;
+import com.mgs.mes.v2.entity.property.manager.DomainPropertyManager;
+import com.mgs.mes.v2.entity.property.type.domain.DomainPropertyType;
 import com.mgs.mes.v2.polymorphism.PolymorphismManager;
-import com.mgs.mes.v2.property.descriptor.DomainPropertyDescriptorRetriever;
-import com.mgs.mes.v2.property.manager.DomainPropertyManager;
-import com.mgs.mes.v2.property.manager.impl.BasePropertyManager;
-import com.mgs.mes.v2.property.type.domain.DomainPropertyType;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class DescriptorConfig {
+	private final ManagerConfig managerConfig;
 	private final ReflectionConfig reflectionConfig;
 
-	public DescriptorConfig(ReflectionConfig reflectionConfig) {
+	public DescriptorConfig(ManagerConfig managerConfig, ReflectionConfig reflectionConfig) {
+		this.managerConfig = managerConfig;
 		this.reflectionConfig = reflectionConfig;
 	}
 
@@ -25,49 +24,38 @@ public class DescriptorConfig {
 		Map<DomainPropertyType, DomainPropertyManager> configuration = new HashMap<>();
 		configuration.put(
 				DomainPropertyType.VALUE,
-				new BasePropertyManager(reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(),
-						fieldAccessor -> reflectionConfig.reflections().isSimple(fieldAccessor.getDeclaredType())
+				new BasePropertyManager(
+						reflectionConfig.beanNamingExpert(),
+						reflectionConfig.fieldAccessorParser(),
+						managerConfig.entityManager()::isSimpleValue,
+						Optional.empty()
 				)
 		);
 		configuration.put(
 				DomainPropertyType.LIST_OF_VALUES,
-				new BasePropertyManager(reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(),
-						fieldAccessor ->
-								reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
-								fieldAccessor.getParametrizedTypes().size() == 1 &&
-								reflectionConfig.reflections().isSimple(fieldAccessor.getParametrizedTypes().get(0).getSpecificClass().get())
+				new BasePropertyManager(
+						reflectionConfig.beanNamingExpert(),
+						reflectionConfig.fieldAccessorParser(),
+						managerConfig.entityManager()::isListOfValues,
+						Optional.empty()
 				)
 		);
 		configuration.put(
 				DomainPropertyType.ENTITY,
-				new BasePropertyManager(reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(),
-						fieldAccessor ->
-								reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), Entity.class) &&
-								! reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), OneToOne.class) &&
-								! reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)
+				new BasePropertyManager(
+						reflectionConfig.beanNamingExpert(),
+						reflectionConfig.fieldAccessorParser(),
+						managerConfig.entityManager()::isSimpleEntity,
+						Optional.empty()
 				)
 		);
 		configuration.put(
 				DomainPropertyType.LIST_OF_ENTITIES,
-				new BasePropertyManager(reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(),
-						fieldAccessor ->
-								reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
-								fieldAccessor.getParametrizedTypes().size() == 1 &&
-								reflectionConfig.reflections().isAssignableTo(fieldAccessor.getParametrizedTypes().get(0).getSpecificClass().get(), Entity.class)
-				)
-		);
-		configuration.put(
-				DomainPropertyType.ONE_TO_ONE_TYPE,
-				new BasePropertyManager(reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(),
-						fieldAccessor ->
-								reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), OneToOne.class)
-				)
-		);
-		configuration.put(
-				DomainPropertyType.ONE_TO_MANY_TYPE,
-				new BasePropertyManager(reflectionConfig.beanNamingExpert(), reflectionConfig.fieldAccessorParser(),
-						fieldAccessor ->
-								reflectionConfig.reflections().isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)
+				new BasePropertyManager(
+						reflectionConfig.beanNamingExpert(),
+						reflectionConfig.fieldAccessorParser(),
+						managerConfig.entityManager()::isListOfEntities,
+						Optional.empty()
 				)
 		);
 		return new DomainPropertyDescriptorRetriever(
@@ -75,6 +63,8 @@ public class DescriptorConfig {
 				polymorphismManager()
 		);
 	}
+
+
 
 	private PolymorphismManager polymorphismManager() {
 		return new PolymorphismManager(

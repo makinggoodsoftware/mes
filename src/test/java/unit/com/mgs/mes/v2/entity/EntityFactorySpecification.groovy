@@ -1,13 +1,14 @@
 package com.mgs.mes.v2.entity
+
 import com.mgs.mes.model.Entity
 import com.mgs.mes.model.OneToMany
 import com.mgs.mes.model.OneToOne
+import com.mgs.mes.v2.entity.property.descriptor.DomainPropertyDescriptor
+import com.mgs.mes.v2.entity.property.descriptor.DomainPropertyDescriptorRetriever
+import com.mgs.mes.v2.entity.property.manager.DomainPropertyManager
+import com.mgs.mes.v2.entity.property.type.dbo.DboPropertyType
+import com.mgs.mes.v2.entity.property.type.domain.DomainPropertyType
 import com.mgs.mes.v2.polymorphism.PolymorphismManager
-import com.mgs.mes.v2.property.descriptor.DomainPropertyDescriptor
-import com.mgs.mes.v2.property.descriptor.DomainPropertyDescriptorRetriever
-import com.mgs.mes.v2.property.manager.DomainPropertyManager
-import com.mgs.mes.v2.property.type.dbo.DboPropertyType
-import com.mgs.mes.v2.property.type.domain.DomainPropertyType
 import com.mgs.reflection.BeanNamingExpert
 import com.mongodb.BasicDBObject
 import com.mongodb.DBObject
@@ -29,7 +30,7 @@ class EntityFactorySpecification extends Specification {
                 entityProxyFactoryMock,
                 domainPropertyDescriptorRetrieverMock,
                 polymorphismManagerMock,
-                beanNamingExpertMock
+                beanNamingExpertMock, reflections
         )
 
         setExpectations(ValueEntity, "value", "getValue", Integer, DomainPropertyType.VALUE)
@@ -48,7 +49,7 @@ class EntityFactorySpecification extends Specification {
 
         then:
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (ValueEntity, valueDbo, [getValue:1]) >> valueEntityMock
+        1 * entityProxyFactoryMock.from(ValueEntity, valueDbo, [getValue: 1], methodInterceptors) >> valueEntityMock
         result.is(valueEntityMock)
     }
 
@@ -62,7 +63,7 @@ class EntityFactorySpecification extends Specification {
 
         then:
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (ListOfValuesEntity, valuesDbo, [getValues:['one','two']]) >> valueEntityMock
+        1 * entityProxyFactoryMock.from(ListOfValuesEntity, valuesDbo, [getValues: ['one', 'two']], methodInterceptors) >> valueEntityMock
         result.is(valueEntityMock)
     }
 
@@ -79,9 +80,9 @@ class EntityFactorySpecification extends Specification {
 
         then:
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (ValueEntity, childDbo, [getValue:2]) >> childEntityMock
+        1 * entityProxyFactoryMock.from(ValueEntity, childDbo, [getValue: 2], methodInterceptors) >> childEntityMock
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (NestedEntity, nestedDbo, [getChild : childEntityMock]) >> nestedEntityMock
+        1 * entityProxyFactoryMock.from(NestedEntity, nestedDbo, [getChild: childEntityMock], methodInterceptors) >> nestedEntityMock
         result.is(nestedEntityMock)
     }
 
@@ -100,11 +101,11 @@ class EntityFactorySpecification extends Specification {
 
         then:
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (ValueEntity, child1Dbo, [getValue:1]) >> childEntity1Mock
+        1 * entityProxyFactoryMock.from(ValueEntity, child1Dbo, [getValue: 1], methodInterceptors) >> childEntity1Mock
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (ValueEntity, child2Dbo, [getValue:2]) >> childEntity2Mock
+        1 * entityProxyFactoryMock.from(ValueEntity, child2Dbo, [getValue: 2], methodInterceptors) >> childEntity2Mock
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (NestedEntities, nestedEntitiesDbo, [getChildren : [childEntity1Mock, childEntity2Mock]]) >> nestedEntitiesMock
+        1 * entityProxyFactoryMock.from(NestedEntities, nestedEntitiesDbo, [getChildren: [childEntity1Mock, childEntity2Mock]], methodInterceptors) >> nestedEntitiesMock
         result.is(nestedEntitiesMock)
     }
 
@@ -128,7 +129,7 @@ class EntityFactorySpecification extends Specification {
 
         then:
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (OneToOneEntity, oneToOneDbo, [getRelationship : oneToOneMock]) >> oneToOneEntityMock
+        1 * entityProxyFactoryMock.from(OneToOneEntity, oneToOneDbo, [getRelationship: oneToOneMock], methodInterceptors) >> oneToOneEntityMock
         result.is(oneToOneEntityMock)
     }
 
@@ -161,7 +162,7 @@ class EntityFactorySpecification extends Specification {
 
         then:
         //noinspection GroovyAssignabilityCheck
-        1 * entityProxyFactoryMock.from (OneToManyEntity, oneToManyDbo, [getRelationships : oneToManyMock]) >> oneToManyEntityMock
+        1 * entityProxyFactoryMock.from(OneToManyEntity, oneToManyDbo, [getRelationships: oneToManyMock], methodInterceptors) >> oneToManyEntityMock
         result.is(oneToManyEntityMock)
     }
 

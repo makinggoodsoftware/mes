@@ -1,10 +1,10 @@
-package com.mgs.mes.v2.property.descriptor;
+package com.mgs.mes.v2.entity.property.descriptor;
 
 import com.mgs.mes.model.Entity;
+import com.mgs.mes.v2.entity.property.manager.DomainPropertyManager;
+import com.mgs.mes.v2.entity.property.type.domain.DomainPropertyType;
 import com.mgs.mes.v2.polymorphism.PolymorphismDescriptor;
 import com.mgs.mes.v2.polymorphism.PolymorphismManager;
-import com.mgs.mes.v2.property.manager.DomainPropertyManager;
-import com.mgs.mes.v2.property.type.domain.DomainPropertyType;
 
 import java.util.List;
 import java.util.Map;

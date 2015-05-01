@@ -12,7 +12,7 @@ class EntityCallInterceptorSpecification extends Specification {
     Entity otherEntityMock = Mock (Entity)
 
     def "setup" (){
-        testObj = new EntityCallInterceptor(thisEntityMock)
+        testObj = new EntityCallInterceptor(thisEntityType, wrappedEntityType, thisEntityMock, methodInterceptors)
     }
 
     def "should return true when comparing two equivalent entities" (){

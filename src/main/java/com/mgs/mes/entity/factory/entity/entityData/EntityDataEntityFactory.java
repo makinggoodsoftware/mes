@@ -17,7 +17,7 @@ public class EntityDataEntityFactory implements EntityFactory<EntityData> {
 		return (T) newProxyInstance(
 				EntityDataEntityFactory.class.getClassLoader(),
 				new Class[]{modelType},
-				new EntityCallInterceptor(entityData)
+				new EntityCallInterceptor(modelType, null, entityData, null)
 		);
 	}
 }

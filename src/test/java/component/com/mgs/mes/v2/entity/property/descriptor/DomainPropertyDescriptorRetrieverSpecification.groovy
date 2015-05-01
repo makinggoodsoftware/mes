@@ -1,4 +1,4 @@
-package com.mgs.mes.v2.property.descriptor
+package com.mgs.mes.v2.entity.property.descriptor
 
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.model.Entity
@@ -7,14 +7,14 @@ import com.mgs.mes.model.OneToOne
 import com.mgs.mes.v2.config.DescriptorConfig
 import spock.lang.Specification
 
-import static com.mgs.mes.v2.property.type.domain.DomainPropertyType.*
+import static com.mgs.mes.v2.entity.property.type.domain.DomainPropertyType.*
 
 class DomainPropertyDescriptorRetrieverSpecification extends Specification {
     DescriptorConfig descriptorConfig
     DomainPropertyDescriptorRetriever testObj
 
     def "setup" (){
-        descriptorConfig = new DescriptorConfig(new ReflectionConfig())
+        descriptorConfig = new DescriptorConfig(managerConfig, new ReflectionConfig())
         testObj = descriptorConfig.domainPropertyDescriptorRetriever()
     }
 

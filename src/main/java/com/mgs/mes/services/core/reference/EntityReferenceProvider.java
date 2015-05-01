@@ -37,7 +37,7 @@ public class EntityReferenceProvider {
 		return (OneToOne<T>) newProxyInstance(
 				EntityReferenceProvider.class.getClassLoader(),
 				new Class[]{OneToOne.class},
-				new OneToOneCallInterceptor(oneToOneEntityData(from), retriever)
+				new OneToOneCallInterceptor(oneToOneEntityData(from), retriever, null)
 		);
 
 	}
@@ -61,7 +61,7 @@ public class EntityReferenceProvider {
 		return (OneToMany<T>) newProxyInstance(
 				EntityReferenceProvider.class.getClassLoader(),
 				new Class[]{OneToMany.class},
-				new OneToManyCallInterceptor(oneToManyEntityData(oneToOnes))
+				new OneToManyCallInterceptor(oneToManyEntityData(oneToOnes), null)
 		);
 	}
 }

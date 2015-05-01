@@ -1,37 +1,58 @@
 package com.mgs.mes.v2.entity;
 
 import com.mgs.mes.model.Entity;
+import com.mgs.mes.v2.entity.property.descriptor.DomainPropertyDescriptor;
+import com.mgs.mes.v2.entity.property.descriptor.DomainPropertyDescriptorRetriever;
+import com.mgs.mes.v2.entity.property.type.dbo.DboPropertyType;
+import com.mgs.mes.v2.entity.property.type.domain.DomainPropertyType;
 import com.mgs.mes.v2.polymorphism.PolymorphismManager;
-import com.mgs.mes.v2.property.descriptor.DomainPropertyDescriptor;
-import com.mgs.mes.v2.property.descriptor.DomainPropertyDescriptorRetriever;
-import com.mgs.mes.v2.property.type.dbo.ComplexityType;
-import com.mgs.mes.v2.property.type.dbo.DboPropertyType;
-import com.mgs.mes.v2.property.type.domain.DomainPropertyType;
 import com.mgs.reflection.BeanNamingExpert;
+import com.mgs.reflection.ParametrizedType;
+import com.mgs.reflection.Reflections;
 import com.mongodb.DBObject;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * This class loops through all the properties of a DBO against a class that represents
+ * the DBO and which must implement the interface Entity
+ * For each property, finds the associated getter in the class and using the information
+ * of the getter marshalls the data.
+ */
 public class EntityFactory {
 	private final EntityProxyFactory entityProxyFactory;
 	private final DomainPropertyDescriptorRetriever domainPropertyDescriptorRetriever;
 	private final PolymorphismManager polymorphismManager;
 	private final BeanNamingExpert beanNamingExpert;
+	private final Reflections reflections;
 
-	public EntityFactory(EntityProxyFactory entityProxyFactory, DomainPropertyDescriptorRetriever domainPropertyDescriptorRetriever, PolymorphismManager polymorphismManager, BeanNamingExpert beanNamingExpert) {
+	public EntityFactory(EntityProxyFactory entityProxyFactory, DomainPropertyDescriptorRetriever domainPropertyDescriptorRetriever, PolymorphismManager polymorphismManager, BeanNamingExpert beanNamingExpert, Reflections reflections) {
 		this.entityProxyFactory = entityProxyFactory;
 		this.domainPropertyDescriptorRetriever = domainPropertyDescriptorRetriever;
 		this.polymorphismManager = polymorphismManager;
 		this.beanNamingExpert = beanNamingExpert;
+		this.reflections = reflections;
 	}
 
-	public <T extends Entity> T fromDbo (Class<T> type, DBObject dbObject){
+	public <T extends Entity> T fromDbo (Class<T> type, DBObject dbObject
+	){
+		List<ParametrizedType> parametrizedTypes = reflections.extractGenericClasses(type);
+		if (parametrizedTypes.size() > 1) throw new IllegalStateException();
+
+		//noinspection unchecked
+		Optional<Class<? extends Entity>> wrappedType = (parametrizedTypes.size() == 0) ?
+				Optional.empty() :
+				Optional.of(parametrizedTypes.get(0).getSpecificClass().get());
+
+
 		return entityProxyFactory.from(
 				type,
+				wrappedType,
 				dbObject,
 				domainValues (type, dbObject)
 		);
@@ -58,7 +79,7 @@ public class EntityFactory {
 				//noinspection unchecked
 				List<Object> values = (List<Object>) value;
 				List<Object> childValues = values.stream().map((it) -> calculateDboValue(domainPropertyDescriptor, domainPropertyType.getValueDescriptor(), parentType, key, it)).collect(toList());
-				return calculateDboValue(domainPropertyDescriptor, domainPropertyType.getGroupDescriptor().get(), parentType, key, childValues);
+				return calculateDboValue(domainPropertyDescriptor, domainPropertyType.getValueDescriptor(), parentType, key, childValues);
 			case  SINGLE:
 				return calculateDboValue(domainPropertyDescriptor, domainPropertyType.getValueDescriptor(), parentType, key, value);
 		}
@@ -67,17 +88,7 @@ public class EntityFactory {
 	}
 
 	private <T extends Entity> Object calculateDboValue(DomainPropertyDescriptor domainDataManager, DboPropertyType dboPropertyType, Class<T> parentType, String key, Object value) {
-		switch (dboPropertyType.getRequiresManipulation()){
-			case NO_MANIPULATION:
-				return calculateSimpleDboValue(domainDataManager, dboPropertyType.getComplexityType().get(), parentType, key, value);
-			case REQUIRES_MANIPULATION:
-				return domainDataManager.getDomainPropertyManager().enrich(dboPropertyType, value);
-		}
-		throw new IllegalStateException();
-	}
-
-	private <T extends Entity> Object calculateSimpleDboValue(DomainPropertyDescriptor domainDataManager, ComplexityType complexityType, Class<T> parentType, String key, Object value) {
-		switch (complexityType){
+		switch (dboPropertyType.getComplexityType().get()){
 			case VALUE:
 				return value;
 			case SIMPLE_ENTITY:
@@ -93,4 +104,5 @@ public class EntityFactory {
 		}
 		throw new IllegalStateException();
 	}
+
 }

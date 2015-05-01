@@ -1,24 +1,25 @@
-package com.mgs.mes.v2.property.manager.impl;
+package com.mgs.mes.v2.entity.property.manager;
 
 import com.mgs.mes.model.Entity;
-import com.mgs.mes.v2.property.manager.DomainPropertyManager;
-import com.mgs.mes.v2.property.type.dbo.DboPropertyType;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 public class BasePropertyManager implements DomainPropertyManager {
 	private final BeanNamingExpert beanNamingExpert;
 	private final FieldAccessorParser fieldAccessorParser;
 	private final Function<FieldAccessor, Boolean> function;
+	private final Optional<PropertyEnricher> enricher;
 
-	public BasePropertyManager(BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser, Function<FieldAccessor, Boolean> function) {
+	public BasePropertyManager(BeanNamingExpert beanNamingExpert, FieldAccessorParser fieldAccessorParser, Function<FieldAccessor, Boolean> function, Optional<PropertyEnricher> enricher) {
 		this.beanNamingExpert = beanNamingExpert;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.function = function;
+		this.enricher = enricher;
 	}
 
 	@Override
@@ -29,8 +30,9 @@ public class BasePropertyManager implements DomainPropertyManager {
 	}
 
 	@Override
-	public Object enrich(DboPropertyType dboPropertyType, Object toEnrich) {
-		throw new NotImplementedException();
+	public Object enrich(Class type, Object toEnrich) {
+		if (!enricher.isPresent()) throw new NotImplementedException();
+		return enricher.get().enrich (type, toEnrich);
 	}
 
 }

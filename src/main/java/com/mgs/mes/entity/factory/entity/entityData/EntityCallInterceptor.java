@@ -2,6 +2,7 @@ package com.mgs.mes.entity.factory.entity.entityData;
 
 import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.model.Entity;
+import com.mgs.mes.v2.entity.method.EntityMethodInterceptor;
 import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 
@@ -13,26 +14,41 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class EntityCallInterceptor implements InvocationHandler, Entity {
-	protected final EntityData entityData;
+public class EntityCallInterceptor<T extends Entity> implements InvocationHandler, Entity {
+	@SuppressWarnings({"unused", "FieldCanBeLocal"})
+	private final Class<T> thisEntityType;
+	private final Optional<Class<? extends Entity>> wrappedEntityType;
+	private final EntityData entityData;
+	private final Map<String, EntityMethodInterceptor> methodInterceptors;
 
-	public EntityCallInterceptor(EntityData entityData) {
+	public EntityCallInterceptor(Class<T> thisEntityType, Optional<Class<? extends Entity>> wrappedEntityType, EntityData entityData, Map<String, EntityMethodInterceptor> methodInterceptors) {
+		this.thisEntityType = thisEntityType;
+		this.wrappedEntityType = wrappedEntityType;
 		this.entityData = entityData;
+		this.methodInterceptors = methodInterceptors;
 	}
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (method.getName().equals("asDbo")) {
-			return asDbo();
-		} else if (method.getName().equals("equals")) {
-			Entity equalsRight = (Entity) args[0];
-			return equals(equalsRight);
-		} else if (method.getName().equals("toString")) {
-			return toString();
-		} else if (method.getName().equals("dataEquals")) {
-			return dataEquals((Entity) args[0]);
-		} else {
-			return entityData.get(method.getName());
+		switch (method.getName()) {
+			case "asDbo":
+				return asDbo();
+			case "equals":
+				Entity equalsRight = (Entity) args[0];
+				return equals(equalsRight);
+			case "toString":
+				return toString();
+			case "dataEquals":
+				return dataEquals((Entity) args[0]);
+			default:
+				if (args.length > 0) throw new IllegalArgumentException();
+				//noinspection unchecked
+				EntityMethodInterceptor<T> entityMethodInterceptor = methodInterceptors.get(method.getName());
+				if (entityMethodInterceptor != null) {
+					//noinspection unchecked
+					return entityMethodInterceptor.apply((T) this, wrappedEntityType);
+				}
+				return entityData.get(method.getName());
 		}
 	}
 

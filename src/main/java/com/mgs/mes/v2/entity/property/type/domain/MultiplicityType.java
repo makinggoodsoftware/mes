@@ -1,4 +1,4 @@
-package com.mgs.mes.v2.property.type.domain;
+package com.mgs.mes.v2.entity.property.type.domain;
 
 public enum MultiplicityType {
 	SINGLE, COMPOSITE
