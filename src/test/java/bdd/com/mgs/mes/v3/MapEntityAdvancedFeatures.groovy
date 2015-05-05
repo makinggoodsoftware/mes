@@ -1,6 +1,9 @@
 package com.mgs.mes.v3
+import com.google.common.reflect.TypeToken
 import com.mgs.config.reflection.ReflectionConfig
 import spock.lang.Specification
+
+import java.lang.reflect.Type
 
 class MapEntityAdvancedFeatures extends Specification {
     MapEntityConfig mapEntityConfig = new MapEntityConfig(new ReflectionConfig())
@@ -42,6 +45,12 @@ class MapEntityAdvancedFeatures extends Specification {
 
     def "should parse parametrised entities" (){
         when:
+        EmbeddedParametrizedEntityTemplate embeddedValue = context.transform([embedded:["it":"silly"]], EmbeddedParametrizedEntityTemplate)
+
+        then:
+        embeddedValue.embedded.it == "silly"
+
+        when:
         StringParametrizedEntityTemplate result = context.transform(["it":"silly"], StringParametrizedEntityTemplate)
 
         then:
@@ -52,12 +61,22 @@ class MapEntityAdvancedFeatures extends Specification {
 
         then:
         thrown(Exception)
+    }
 
+    def "type token test"(){
 //        when:
-//        EmbeddedParametrizedEntityTemplate embeddedValue = context.transform([embedded:["it":"silly"]], EmbeddedParametrizedEntityTemplate)
+//        Type t = StringParametrizedEntityTemplate.class.getDeclaredMethod("getIt").getGenericReturnType();
+//        Class tiqui = TypeToken.of(t).resolveType(ParametrizedEntityTemplate.getTypeParameters()[0]).getRawType()
 //
 //        then:
-//        embeddedValue.embedded.it == "silly"
+//        tiqui == String
+
+        when:
+        Type t = EmbeddedParametrizedEntityTemplate.class.getDeclaredMethod("getEmbedded").getGenericReturnType();
+        Class tiqui = TypeToken.of(t).resolveType(ParametrizedEntityTemplate.getTypeParameters()[0]).getRawType()
+
+        then:
+        tiqui == String
     }
 
     private static interface ParametrizedEntityTemplate<T> extends MapEntity{
@@ -66,7 +85,7 @@ class MapEntityAdvancedFeatures extends Specification {
 
     private static interface StringParametrizedEntityTemplate extends ParametrizedEntityTemplate<String>{
         @Override
-        @Polymorphic(types = String)
+        @OverrideMapping
         String getIt();
     }
 

@@ -8,6 +8,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@interface Polymorphic {
-	Class[] types ();
+@interface OverrideMapping {
 }

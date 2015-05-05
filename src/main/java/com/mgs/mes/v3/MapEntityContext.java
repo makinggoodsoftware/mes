@@ -37,7 +37,7 @@ public class MapEntityContext {
 			} else if (bridgeMethods.size() == 2) {
 				accessor = bridgeMethods.stream().
 						filter((fieldAccessor) ->
-								reflections.annotation(fieldAccessor.getAnnotations(), Polymorphic.class).isPresent()).
+								reflections.annotation(fieldAccessor.getAnnotations(), OverrideMapping.class).isPresent()).
 						findFirst().get();
 			} else {
 				throw new IllegalStateException();
@@ -71,10 +71,10 @@ public class MapEntityContext {
 
 		Class<?> declaredType = accessor.getDeclaredType();
 		List<ParametrizedType> parametrizedTypes = accessor.getParametrizedTypes();
-		Optional<Polymorphic> isPolymorphic = reflections.annotation(accessor.getAnnotations(), Polymorphic.class);
-		if (isPolymorphic.isPresent()) {
-			return mapValue(isPolymorphic.get().types()[0], null, rawValue);
-		}
+//		Optional<Polymorphic> isPolymorphic = reflections.annotation(accessor.getAnnotations(), Polymorphic.class);
+//		if (isPolymorphic.isPresent()) {
+//			return mapValue(isPolymorphic.get().types()[0], null, rawValue);
+//		}
 		if (reflections.isSimple(declaredType)) return rawValue;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked
