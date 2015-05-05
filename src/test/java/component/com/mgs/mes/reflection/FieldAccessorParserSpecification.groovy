@@ -116,10 +116,10 @@ class FieldAccessorParserSpecification extends Specification {
 
         then:
         result.size() == 4
-        result.get(0).fieldName == "field1"
-        result.get(1).fieldName == "withGenerics"
-        result.get(2).fieldName == "id"
-        result.get(3).fieldName == "generics"
+        result.get(0).mapFieldName == "field1"
+        result.get(1).mapFieldName == "withGenerics"
+        result.get(2).mapFieldName == "id"
+        result.get(3).mapFieldName == "generics"
     }
 
     def "should parse all correctly" (){
@@ -134,7 +134,7 @@ class FieldAccessorParserSpecification extends Specification {
                 "field1",
                 "get",
                 GET,
-                []
+                [], annotations, bridge
         )
         result.get(SimpleEntity.getMethod("getWithGenerics")).get() == new FieldAccessor(
                 Map,
@@ -145,7 +145,7 @@ class FieldAccessorParserSpecification extends Specification {
                 [
                         new ParametrizedType(String.name, of(String)),
                         new ParametrizedType(SimpleEntity.name, of(SimpleEntity))
-                ]
+                ], annotations, bridge
         )
         result.get(SimpleEntity.getMethod("withGenerics", Map)).get() == new FieldAccessor(
                 Map,
@@ -156,7 +156,7 @@ class FieldAccessorParserSpecification extends Specification {
                 [
                         new ParametrizedType(String.name, of(String)),
                         new ParametrizedType(SimpleEntity.name, of(SimpleEntity))
-                ]
+                ], annotations, bridge
         )
         result.get(SimpleEntity.getMethod("getId")).get() == new FieldAccessor(
                 Optional,
@@ -164,7 +164,7 @@ class FieldAccessorParserSpecification extends Specification {
                 "id",
                 "get",
                 GET,
-                [new ParametrizedType(ObjectId.name, of(ObjectId))]
+                [new ParametrizedType(ObjectId.name, of(ObjectId))], annotations, bridge
         )
         ! result.get(SimpleEntity.getMethod("asDbo")).isPresent()
         ! result.get(SimpleEntity.getMethod("dataEquals", Entity)).isPresent()

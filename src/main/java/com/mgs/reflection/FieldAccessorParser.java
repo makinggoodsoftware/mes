@@ -1,5 +1,6 @@
 package com.mgs.reflection;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +50,12 @@ public class FieldAccessorParser {
 	public Optional<FieldAccessor> parse(Method method) {
 		if (isGetter(method)) {
 			List<ParametrizedType> parametrizedType = reflections.extractGenericClasses(method.getGenericReturnType());
-			return parse(method.getReturnType(), method.getName(), GET_PREFIX, GET, parametrizedType);
+			return parse(method.getReturnType(), method.getName(), GET_PREFIX, GET, parametrizedType, method.getAnnotations(), method.isBridge());
 		}
 
 		if (isBuilder(method)) {
 			List<ParametrizedType> parametrizedType  = reflections.extractGenericClasses(method.getGenericParameterTypes()[0]);
-			return parse(method.getParameters()[0].getType(), method.getName(), BUILDER_PREFIX, BUILDER, parametrizedType);
+			return parse(method.getParameters()[0].getType(), method.getName(), BUILDER_PREFIX, BUILDER, parametrizedType, method.getAnnotations(), method.isBridge());
 		}
 
 		return empty();
@@ -74,8 +75,8 @@ public class FieldAccessorParser {
 				method.getDeclaringClass().equals(method.getReturnType());
 	}
 
-	private Optional<FieldAccessor> parse(Class<?> declaredType, String methodName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes) {
+	private Optional<FieldAccessor> parse(Class<?> declaredType, String methodName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes, Annotation[] annotations, Boolean isBridge) {
 		String fieldName = beanNamingExpert.getFieldName(methodName, prefix);
-		return of(new FieldAccessor(declaredType, methodName, fieldName, prefix, type, parametrizedTypes));
+		return of(new FieldAccessor(declaredType, methodName, fieldName, prefix, type, parametrizedTypes, annotations, isBridge));
 	}
 }

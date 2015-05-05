@@ -3,6 +3,7 @@ package com.mgs.mes.v3;
 import com.mgs.reflection.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.stream.Collectors.toList;
@@ -22,13 +23,30 @@ public class MapEntityContext {
 
 	public <T extends MapEntity> T transform(Map<String, Object> data, Class<T> type) {
 		Map<String, Object> domainMap = new HashMap<>();
-		fieldAccessorParser.parse(type).
+		Map<String, List<FieldAccessor>> bridgeMethodsByMethodName = fieldAccessorParser.parse(type).
 				filter(this::isAGetter).
-				forEach((accessor) -> {
-					String fieldName = beanNamingExpert.getFieldName(accessor.getMethodName(), "get");
-					Object value = domainValue(accessor, data.get(fieldName));
-					domainMap.put(accessor.getMethodName(), value);
-				});
+				collect(Collectors.groupingBy(FieldAccessor::getMethodName));
+
+		bridgeMethodsByMethodName.entrySet().stream().forEach((bridgeMethodsEntry) -> {
+			Collection<FieldAccessor> bridgeMethods = bridgeMethodsEntry.getValue();
+
+			FieldAccessor accessor;
+
+			if (bridgeMethods.size() == 1) {
+				accessor = bridgeMethods.iterator().next();
+			} else if (bridgeMethods.size() == 2) {
+				accessor = bridgeMethods.stream().
+						filter((fieldAccessor) ->
+								reflections.annotation(fieldAccessor.getAnnotations(), Polymorphic.class).isPresent()).
+						findFirst().get();
+			} else {
+				throw new IllegalStateException();
+			}
+
+			String fieldName = extractFieldName(accessor);
+			Object value = domainValue(accessor, data.get(fieldName));
+			domainMap.put(accessor.getMethodName(), value);
+		});
 
 		//noinspection unchecked
 		return (T) newProxyInstance(
@@ -42,11 +60,21 @@ public class MapEntityContext {
 		);
 	}
 
+	private String extractFieldName(FieldAccessor accessor) {
+		Optional<Mapping> fieldNameOptional = reflections.annotation(accessor.getAnnotations(), Mapping.class);
+		if (fieldNameOptional.isPresent()) return fieldNameOptional.get().mapFieldName();
+		return beanNamingExpert.getFieldName(accessor.getMethodName(), "get");
+	}
+
 	private Object domainValue(FieldAccessor accessor, Object rawValue) {
 		assertNoOptionalFieldIsSet(accessor, rawValue);
 
 		Class<?> declaredType = accessor.getDeclaredType();
 		List<ParametrizedType> parametrizedTypes = accessor.getParametrizedTypes();
+		Optional<Polymorphic> isPolymorphic = reflections.annotation(accessor.getAnnotations(), Polymorphic.class);
+		if (isPolymorphic.isPresent()) {
+			return mapValue(isPolymorphic.get().types()[0], null, rawValue);
+		}
 		if (reflections.isSimple(declaredType)) return rawValue;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked

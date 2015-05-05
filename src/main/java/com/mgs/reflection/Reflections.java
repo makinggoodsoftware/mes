@@ -1,5 +1,6 @@
 package com.mgs.reflection;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -47,6 +48,15 @@ public class Reflections {
 		return Stream.of(actualTypeArguments).
 				map(this::extractClass).
 				collect(Collectors.toList());
+	}
+
+	public <T extends Annotation> Optional<T> annotation (Annotation[] annotations, Class<T> annotationType){
+		for (Annotation annotation : annotations) {
+			if (isAssignableTo(annotation.getClass(), annotationType))
+				//noinspection unchecked
+				return Optional.of((T) annotation);
+		}
+		return Optional.empty();
 	}
 
 	private ParametrizedType extractClass(Type actualTypeArgument) {

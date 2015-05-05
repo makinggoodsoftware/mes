@@ -1,5 +1,7 @@
 package com.mgs.reflection;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.List;
 
 public class FieldAccessor {
@@ -9,14 +11,18 @@ public class FieldAccessor {
 	private final String fieldName;
 	private final Class<?> declaredType;
 	private final List<ParametrizedType> parametrizedTypes;
+	private final Annotation[] annotations;
+	private final Boolean bridge;
 
-	public FieldAccessor(Class<?> declaredType, String methodName, String fieldName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes) {
+	public FieldAccessor(Class<?> declaredType, String methodName, String fieldName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes, Annotation[] annotations, Boolean bridge) {
 		this.declaredType = declaredType;
 		this.methodName = methodName;
 		this.type = type;
 		this.prefix = prefix;
 		this.fieldName = fieldName;
 		this.parametrizedTypes = parametrizedTypes;
+		this.annotations = annotations;
+		this.bridge = bridge;
 	}
 
 	public FieldAccessorType getType() {
@@ -43,6 +49,14 @@ public class FieldAccessor {
 		return parametrizedTypes;
 	}
 
+	public Annotation[] getAnnotations() {
+		return annotations;
+	}
+
+	public Boolean isBridge() {
+		return bridge;
+	}
+
 	@SuppressWarnings("RedundantIfStatement")
 	@Override
 	public boolean equals(Object o) {
@@ -57,6 +71,8 @@ public class FieldAccessor {
 		if (!prefix.equals(that.prefix)) return false;
 		if (type != that.type) return false;
 		if (!parametrizedTypes.equals(that.parametrizedTypes)) return false;
+		if (!Arrays.equals(annotations, that.annotations)) return false;
+		if (!bridge.equals(that.bridge)) return false;
 
 		return true;
 	}
@@ -69,6 +85,8 @@ public class FieldAccessor {
 		result = 31 * result + fieldName.hashCode();
 		result = 31 * result + declaredType.hashCode();
 		result = 31 * result + parametrizedTypes.hashCode();
+		result = 31 * result + Arrays.hashCode(annotations);
+		result = 31 * result + bridge.hashCode();
 		return result;
 	}
 
@@ -82,7 +100,10 @@ public class FieldAccessor {
 		sb.append(", fieldName='").append(fieldName).append('\'');
 		sb.append(", declaredType=").append(declaredType);
 		sb.append(", parametrizedTypes=").append(parametrizedTypes);
+		sb.append(", parametrizedTypes=").append(Arrays.toString(annotations));
+		sb.append(", bridge=").append(bridge);
 		sb.append('}');
 		return sb.toString();
 	}
+
 }
