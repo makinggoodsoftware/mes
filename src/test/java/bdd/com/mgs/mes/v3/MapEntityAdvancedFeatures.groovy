@@ -1,9 +1,7 @@
 package com.mgs.mes.v3
-import com.google.common.reflect.TypeToken
+
 import com.mgs.config.reflection.ReflectionConfig
 import spock.lang.Specification
-
-import java.lang.reflect.Type
 
 class MapEntityAdvancedFeatures extends Specification {
     MapEntityConfig mapEntityConfig = new MapEntityConfig(new ReflectionConfig())
@@ -63,29 +61,14 @@ class MapEntityAdvancedFeatures extends Specification {
         thrown(Exception)
     }
 
-    def "type token test"(){
-//        when:
-//        Type t = StringParametrizedEntityTemplate.class.getDeclaredMethod("getIt").getGenericReturnType();
-//        Class tiqui = TypeToken.of(t).resolveType(ParametrizedEntityTemplate.getTypeParameters()[0]).getRawType()
-//
-//        then:
-//        tiqui == String
-
-        when:
-        Type t = EmbeddedParametrizedEntityTemplate.class.getDeclaredMethod("getEmbedded").getGenericReturnType();
-        Class tiqui = TypeToken.of(t).resolveType(ParametrizedEntityTemplate.getTypeParameters()[0]).getRawType()
-
-        then:
-        tiqui == String
-    }
-
     private static interface ParametrizedEntityTemplate<T> extends MapEntity{
+        @Parametrizable
         T getIt ()
     }
 
     private static interface StringParametrizedEntityTemplate extends ParametrizedEntityTemplate<String>{
         @Override
-        @OverrideMapping
+        @Parametrized
         String getIt();
     }
 

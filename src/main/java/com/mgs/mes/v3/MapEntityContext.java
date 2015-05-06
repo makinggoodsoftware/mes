@@ -22,6 +22,10 @@ public class MapEntityContext {
 	}
 
 	public <T extends MapEntity> T transform(Map<String, Object> data, Class<T> type) {
+		return doTransform(data, type, null);
+	}
+
+	private <T extends MapEntity> T doTransform(Map<String, Object> data, Class<T> type, List<Class> parametrizedTypes) {
 		Map<String, Object> domainMap = new HashMap<>();
 		Map<String, List<FieldAccessor>> bridgeMethodsByMethodName = fieldAccessorParser.parse(type).
 				filter(this::isAGetter).
@@ -37,14 +41,14 @@ public class MapEntityContext {
 			} else if (bridgeMethods.size() == 2) {
 				accessor = bridgeMethods.stream().
 						filter((fieldAccessor) ->
-								reflections.annotation(fieldAccessor.getAnnotations(), OverrideMapping.class).isPresent()).
+								reflections.annotation(fieldAccessor.getAnnotations(), Parametrized.class).isPresent()).
 						findFirst().get();
 			} else {
 				throw new IllegalStateException();
 			}
 
 			String fieldName = extractFieldName(accessor);
-			Object value = domainValue(accessor, data.get(fieldName));
+			Object value = domainValue(accessor, data.get(fieldName), parametrizedTypes);
 			domainMap.put(accessor.getMethodName(), value);
 		});
 
@@ -66,22 +70,25 @@ public class MapEntityContext {
 		return beanNamingExpert.getFieldName(accessor.getMethodName(), "get");
 	}
 
-	private Object domainValue(FieldAccessor accessor, Object rawValue) {
+	private Object domainValue(FieldAccessor accessor, Object rawValue, List<Class> parentParametrizedTypes) {
 		assertNoOptionalFieldIsSet(accessor, rawValue);
 
-		Class<?> declaredType = accessor.getDeclaredType();
+		Class<?> declaredType = extractDeclaredType(accessor, parentParametrizedTypes);
 		List<ParametrizedType> parametrizedTypes = accessor.getParametrizedTypes();
-//		Optional<Polymorphic> isPolymorphic = reflections.annotation(accessor.getAnnotations(), Polymorphic.class);
-//		if (isPolymorphic.isPresent()) {
-//			return mapValue(isPolymorphic.get().types()[0], null, rawValue);
-//		}
 		if (reflections.isSimple(declaredType)) return rawValue;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked
 			Map<String, Object> castedValue = (Map<String, Object>) rawValue;
 			//noinspection unchecked
 			Class<? extends MapEntity> castedType = (Class<? extends MapEntity>) declaredType;
-			return transform(castedValue, castedType);
+			return doTransform(
+					castedValue,
+					castedType,
+					parametrizedTypes.stream().
+							filter((parametrizedType) -> parametrizedType.getSpecificClass().isPresent()).
+							map((parametrizedType) -> parametrizedType.getSpecificClass().get()).
+							collect(toList())
+			);
 		}
 		if (reflections.isCollection(declaredType)) {
 			List castedValue = (List) rawValue;
@@ -117,6 +124,16 @@ public class MapEntityContext {
 			return Optional.of(mapValue(typeOfOptional, null, value));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + value);
+	}
+
+	private Class<?> extractDeclaredType(FieldAccessor accessor, List<Class> parentParametrizedTypes) {
+		Optional<Parametrizable> parametrizable = reflections.annotation(accessor.getAnnotations(), Parametrizable.class);
+		if (parametrizable.isPresent()){
+			if (parentParametrizedTypes == null || parentParametrizedTypes.size() != 1) throw new IllegalStateException();
+			return parentParametrizedTypes.get(0);
+		}
+
+		return accessor.getDeclaredType();
 	}
 
 	private void assertNoOptionalFieldIsSet(FieldAccessor accessor, Object rawValue) {
