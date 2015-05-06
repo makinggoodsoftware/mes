@@ -77,6 +77,14 @@ class MapEntityAdvancedFeatures extends Specification {
         entityCollection.them.get(1).value == "silly"
     }
 
+    def "should parse complex embedded parametrised entities" (){
+        when:
+        ComplexEmbeddedParametrizedEntityTemplate complex = context.transform([complex:[it: ["value": "silly"]]], ComplexEmbeddedParametrizedEntityTemplate)
+
+        then:
+        complex.complex.it.value == "silly"
+    }
+
     private static interface CollectionParametrizedEntityTemplate<T> extends MapEntity{
         @Parametrizable
         List<T> getThem ()
@@ -105,9 +113,12 @@ class MapEntityAdvancedFeatures extends Specification {
         String getIt();
     }
 
-
     private static interface EmbeddedParametrizedEntityTemplate extends MapEntity{
         ParametrizedEntityTemplate<String> getEmbedded();
+    }
+
+    private static interface ComplexEmbeddedParametrizedEntityTemplate extends MapEntity{
+        ParametrizedEntityTemplate<SimpleEntity> getComplex();
     }
 
     private static interface NonOptionalEntity extends MapEntity{
