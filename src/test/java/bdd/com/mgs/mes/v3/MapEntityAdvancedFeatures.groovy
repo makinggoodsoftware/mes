@@ -41,7 +41,7 @@ class MapEntityAdvancedFeatures extends Specification {
         thrown(Exception)
     }
 
-    def "should parse parametrised entities" (){
+    def "should parse simple parametrised entities" (){
         when:
         EmbeddedParametrizedEntityTemplate embeddedValue = context.transform([embedded:["it":"silly"]], EmbeddedParametrizedEntityTemplate)
 
@@ -61,6 +61,39 @@ class MapEntityAdvancedFeatures extends Specification {
         thrown(Exception)
     }
 
+    def "should parse collection of parametrised entities" (){
+        when:
+        StringCollectionParametrizedEntityTemplate stringCollection = context.transform([them:["it", "silly"]], StringCollectionParametrizedEntityTemplate)
+
+        then:
+        stringCollection.them == ["it", "silly"]
+
+        when:
+        EntityCollectionParametrizedEntityTemplate entityCollection = context.transform([them:[[value:"it"], [value:"silly"]]], EntityCollectionParametrizedEntityTemplate)
+
+        then:
+        entityCollection.them.size() == 2
+        entityCollection.them.get(0).value == "it"
+        entityCollection.them.get(1).value == "silly"
+    }
+
+    private static interface CollectionParametrizedEntityTemplate<T> extends MapEntity{
+        @Parametrizable
+        List<T> getThem ()
+    }
+
+    private static interface StringCollectionParametrizedEntityTemplate extends CollectionParametrizedEntityTemplate<String>{
+        @Override
+        @Parametrized
+        List<String> getThem();
+    }
+
+    private static interface EntityCollectionParametrizedEntityTemplate extends CollectionParametrizedEntityTemplate<SimpleEntity>{
+        @Override
+        @Parametrized
+        List<SimpleEntity> getThem();
+    }
+
     private static interface ParametrizedEntityTemplate<T> extends MapEntity{
         @Parametrizable
         T getIt ()
@@ -71,6 +104,7 @@ class MapEntityAdvancedFeatures extends Specification {
         @Parametrized
         String getIt();
     }
+
 
     private static interface EmbeddedParametrizedEntityTemplate extends MapEntity{
         ParametrizedEntityTemplate<String> getEmbedded();
@@ -89,4 +123,7 @@ class MapEntityAdvancedFeatures extends Specification {
         String getId ()
     }
 
+    private static interface SimpleEntity extends MapEntity{
+        String getValue();
+    }
 }
