@@ -1,10 +1,13 @@
-package com.mgs.mes.v3;
+package com.mgs.mes.v3.mapper;
 
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.Reflections;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 public class MapEntityContextFactory {
 	private final Reflections reflections;
@@ -22,5 +25,13 @@ public class MapEntityContextFactory {
 	public MapEntityContext defaultContext(){
 		ManagerLocator managerLocator = new ManagerLocator(reflections, defaultManagers);
 		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections);
-	};
+	}
+
+	public MapEntityContext withManagers(MapEntityManager... managers){
+		List<MapEntityManager> allManagers = new ArrayList<>();
+		allManagers.addAll(defaultManagers);
+		allManagers.addAll(asList(managers));
+		ManagerLocator managerLocator = new ManagerLocator(reflections, allManagers);
+		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections);
+	}
 }

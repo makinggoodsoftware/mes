@@ -1,4 +1,4 @@
-package com.mgs.mes.v3;
+package com.mgs.mes.v3.mapper;
 
 import com.mgs.reflection.*;
 
@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 public class MapEntityContext {
@@ -74,7 +75,7 @@ public class MapEntityContext {
 		assertNoOptionalFieldIsSet(accessor, rawValue);
 
 		Class<?> declaredType = extractDeclaredType(accessor, parentParametrizedTypes);
-		List<ParametrizedType> parametrizedTypes = accessor.getParametrizedTypes();
+		List<Class> parametrizedTypes = extractParametrizedTypes(accessor, parentParametrizedTypes);
 		if (reflections.isSimple(declaredType)) return rawValue;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked
@@ -84,24 +85,36 @@ public class MapEntityContext {
 			return doTransform(
 					castedValue,
 					castedType,
-					parametrizedTypes.stream().
-							filter((parametrizedType) -> parametrizedType.getSpecificClass().isPresent()).
-							map((parametrizedType) -> parametrizedType.getSpecificClass().get()).
-							collect(toList())
+					parametrizedTypes
 			);
 		}
 		if (reflections.isCollection(declaredType)) {
 			List castedValue = (List) rawValue;
-			Class typeOfCollection = parametrizedTypes.get(0).getSpecificClass().get();
+			Class typeOfCollection = parametrizedTypes.get(0);
 			//noinspection unchecked
 			return castedValue.stream().map((old) -> mapValue(typeOfCollection, new ArrayList<>(), old)).collect(toList());
 		}
 		if (reflections.isAssignableTo(declaredType, Optional.class)) {
 			if (rawValue == null) return Optional.empty();
-			Class typeOfOptional = parametrizedTypes.get(0).getSpecificClass().get();
+			Class typeOfOptional = parametrizedTypes.get(0);
 			return Optional.of(mapValue(typeOfOptional, null, rawValue));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + rawValue);
+	}
+
+	private List<Class> extractParametrizedTypes(FieldAccessor accessor, List<Class> parentParametrizedTypes) {
+		List<ParametrizedType> parametrizedTypes = accessor.getParametrizedTypes();
+		if (parametrizedTypes.size()>1) throw new IllegalStateException();
+		if (parentParametrizedTypes == null || parentParametrizedTypes.size() == 0){
+			if (parametrizedTypes.size() == 0) return new ArrayList<>();
+			Optional<Class> specificClass = parametrizedTypes.get(0).getSpecificClass();
+			if (! specificClass.isPresent()) throw new IllegalStateException();
+			return singletonList(specificClass.get());
+		}
+
+		if (parentParametrizedTypes.size()>1) throw new IllegalStateException();
+		if (parametrizedTypes.size() == 0) return new ArrayList<>();
+		return parentParametrizedTypes;
 	}
 
 	private Object mapValue(Class<?> declaredType, List<ParametrizedType> parametrizedTypes, Object value) {
@@ -128,7 +141,7 @@ public class MapEntityContext {
 
 	private Class<?> extractDeclaredType(FieldAccessor accessor, List<Class> parentParametrizedTypes) {
 		Optional<Parametrizable> parametrizable = reflections.annotation(accessor.getAnnotations(), Parametrizable.class);
-		if (parametrizable.isPresent()){
+		if (parametrizable.isPresent() && !reflections.isAssignableTo(accessor.getDeclaredType(), Collection.class)){
 			if (parentParametrizedTypes == null || parentParametrizedTypes.size() != 1) throw new IllegalStateException();
 			return parentParametrizedTypes.get(0);
 		}

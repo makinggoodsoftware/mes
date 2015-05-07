@@ -1,6 +1,7 @@
-package com.mgs.mes.v3
+package com.mgs.mes.v3.mapping
 
 import com.mgs.config.reflection.ReflectionConfig
+import com.mgs.mes.v3.mapper.*
 import spock.lang.Specification
 
 class MapEntityAdvancedFeatures extends Specification {
@@ -86,6 +87,11 @@ class MapEntityAdvancedFeatures extends Specification {
     }
 
     private static interface CollectionParametrizedEntityTemplate<T> extends MapEntity{
+        @Parametrizable
+        List<T> getThem ()
+    }
+
+    private static interface CollectionComplexParametrizedEntityTemplate<T> extends MapEntity{
         @Parametrizable
         List<T> getThem ()
     }

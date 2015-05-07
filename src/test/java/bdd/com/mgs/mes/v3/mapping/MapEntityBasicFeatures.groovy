@@ -1,5 +1,8 @@
-package com.mgs.mes.v3
+package com.mgs.mes.v3.mapping
 import com.mgs.config.reflection.ReflectionConfig
+import com.mgs.mes.v3.mapper.MapEntity
+import com.mgs.mes.v3.mapper.MapEntityConfig
+import com.mgs.mes.v3.mapper.MapEntityContext
 import spock.lang.Specification
 
 class MapEntityBasicFeatures extends Specification {

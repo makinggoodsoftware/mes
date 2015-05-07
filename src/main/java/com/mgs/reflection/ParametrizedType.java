@@ -1,14 +1,17 @@
 package com.mgs.reflection;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ParametrizedType {
 	private final String name;
 	private final Optional<Class> specificClass;
+	private final Optional<List<ParametrizedType>> childrenParametrizedTypes;
 
-	public ParametrizedType(String name, Optional<Class> specificClass) {
+	public ParametrizedType(String name, Optional<Class> specificClass, Optional<List<ParametrizedType>> childrenParametrizedTypes) {
 		this.name = name;
 		this.specificClass = specificClass;
+		this.childrenParametrizedTypes = childrenParametrizedTypes;
 	}
 
 	@SuppressWarnings("UnusedDeclaration")
@@ -18,6 +21,10 @@ public class ParametrizedType {
 
 	public Optional<Class> getSpecificClass() {
 		return specificClass;
+	}
+
+	public Optional<List<ParametrizedType>> getChildrenParametrizedTypes() {
+		return childrenParametrizedTypes;
 	}
 
 	@Override
@@ -30,6 +37,7 @@ public class ParametrizedType {
 		if (!name.equals(that.name)) return false;
 		//noinspection RedundantIfStatement
 		if (!specificClass.equals(that.specificClass)) return false;
+		if (!childrenParametrizedTypes.equals(that.childrenParametrizedTypes)) return false;
 
 		return true;
 	}
@@ -38,6 +46,7 @@ public class ParametrizedType {
 	public int hashCode() {
 		int result = name.hashCode();
 		result = 31 * result + specificClass.hashCode();
+		result = 31 * result + childrenParametrizedTypes.hashCode();
 		return result;
 	}
 
@@ -47,6 +56,7 @@ public class ParametrizedType {
 		final StringBuffer sb = new StringBuffer("ParametrizedType{");
 		sb.append("name='").append(name).append('\'');
 		sb.append(", specificClass=").append(specificClass);
+		sb.append(", childrenParametrizedTypes=").append(childrenParametrizedTypes);
 		sb.append('}');
 		return sb.toString();
 	}

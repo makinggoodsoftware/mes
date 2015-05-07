@@ -1,4 +1,4 @@
-package com.mgs.mes.v3;
+package com.mgs.mes.v3.mapper;
 
 
 import java.lang.annotation.ElementType;
@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@interface Parametrized {
+public @interface Parametrizable {
 }

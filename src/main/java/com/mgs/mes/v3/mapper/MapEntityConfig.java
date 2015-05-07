@@ -1,4 +1,4 @@
-package com.mgs.mes.v3;
+package com.mgs.mes.v3.mapper;
 
 import com.mgs.config.reflection.ReflectionConfig;
 
@@ -18,7 +18,7 @@ public class MapEntityConfig {
 
 	private List<MapEntityManager> defaultManagers() {
 		List<MapEntityManager> defaultManagers = new ArrayList<>();
-		defaultManagers.add(new BasicEntityManager(reflectionConfig.reflections()));
+		defaultManagers.add(new MethodDelegator(reflectionConfig.reflections()));
 		return defaultManagers;
 	}
 }

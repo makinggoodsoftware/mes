@@ -56,16 +56,16 @@ public class Reflections {
 				//noinspection unchecked
 				return Optional.of((T) annotation);
 		}
-		return Optional.empty();
+		return empty();
 	}
 
 	private ParametrizedType extractClass(Type actualTypeArgument) {
 		String typeName = actualTypeArgument.getTypeName();
 		try {
 			Class<?> specificName = this.getClass().getClassLoader().loadClass(typeName);
-			return new ParametrizedType(typeName, of(specificName));
+			return new ParametrizedType(typeName, of(specificName), empty());
 		} catch (ClassNotFoundException e) {
-			return new ParametrizedType(typeName, empty());
+			return new ParametrizedType(typeName, empty(), empty());
 		}
 	}
 

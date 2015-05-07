@@ -45,8 +45,8 @@ class FieldAccessorParserSpecification extends Specification {
         result.prefix == "get"
         result.declaredType == Map
         result.parametrizedTypes == [
-                new ParametrizedType(String.name, of(String)),
-                new ParametrizedType(SimpleEntity.name, of(SimpleEntity))
+                new ParametrizedType(String.name, of(String), getChildrenParametrizedTypes),
+                new ParametrizedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
         ]
     }
 
@@ -72,8 +72,8 @@ class FieldAccessorParserSpecification extends Specification {
         result.prefix == "with"
         result.declaredType == Map
         result.parametrizedTypes == [
-                new ParametrizedType(String.name, of(String)),
-                new ParametrizedType(SimpleEntity.name, of(SimpleEntity))
+                new ParametrizedType(String.name, of(String), getChildrenParametrizedTypes),
+                new ParametrizedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
         ]
     }
 
@@ -87,8 +87,8 @@ class FieldAccessorParserSpecification extends Specification {
         result.prefix == "get"
         result.declaredType == Map
         result.parametrizedTypes == [
-                new ParametrizedType(String.name, of(String)),
-                new ParametrizedType('T', empty())
+                new ParametrizedType(String.name, of(String), getChildrenParametrizedTypes),
+                new ParametrizedType('T', empty(), getChildrenParametrizedTypes)
         ]
     }
 
@@ -143,8 +143,8 @@ class FieldAccessorParserSpecification extends Specification {
                 "get",
                 GET,
                 [
-                        new ParametrizedType(String.name, of(String)),
-                        new ParametrizedType(SimpleEntity.name, of(SimpleEntity))
+                        new ParametrizedType(String.name, of(String), getChildrenParametrizedTypes),
+                        new ParametrizedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
                 ], annotations, bridge
         )
         result.get(SimpleEntity.getMethod("withGenerics", Map)).get() == new FieldAccessor(
@@ -154,8 +154,8 @@ class FieldAccessorParserSpecification extends Specification {
                 "with",
                 BUILDER,
                 [
-                        new ParametrizedType(String.name, of(String)),
-                        new ParametrizedType(SimpleEntity.name, of(SimpleEntity))
+                        new ParametrizedType(String.name, of(String), getChildrenParametrizedTypes),
+                        new ParametrizedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
                 ], annotations, bridge
         )
         result.get(SimpleEntity.getMethod("getId")).get() == new FieldAccessor(
@@ -164,7 +164,7 @@ class FieldAccessorParserSpecification extends Specification {
                 "id",
                 "get",
                 GET,
-                [new ParametrizedType(ObjectId.name, of(ObjectId))], annotations, bridge
+                [new ParametrizedType(ObjectId.name, of(ObjectId), getChildrenParametrizedTypes)], annotations, bridge
         )
         ! result.get(SimpleEntity.getMethod("asDbo")).isPresent()
         ! result.get(SimpleEntity.getMethod("dataEquals", Entity)).isPresent()

@@ -1,4 +1,4 @@
-package com.mgs.mes.v3;
+package com.mgs.mes.v3.mapper;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

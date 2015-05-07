@@ -1,4 +1,4 @@
-package com.mgs.mes.v3;
+package com.mgs.mes.v3.mapper;
 
 
 import com.mgs.reflection.Reflections;
@@ -7,11 +7,12 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
-class BasicEntityManager implements MapEntityManager<MapEntity>{
+class MethodDelegator implements MapEntityManager<MapEntity>{
 	private final Reflections reflections;
 
-	BasicEntityManager(Reflections reflections) {
+	MethodDelegator(Reflections reflections) {
 		this.reflections = reflections;
 	}
 
@@ -22,38 +23,26 @@ class BasicEntityManager implements MapEntityManager<MapEntity>{
 
 	@Override
 	public Optional<EntityMethod<MapEntity>> applies(Method method) {
+		EntityMethod<MapEntity> mapEntityEntityMethod = rawApplies(method);
+		return mapEntityEntityMethod == null ? empty() : of(mapEntityEntityMethod);
+	}
+
+	private EntityMethod<MapEntity> rawApplies(Method method) {
 		switch (method.getName()) {
 			case "toString":
-				return Optional.of(onToString());
+				return (type, value, map, params) -> toString(value);
 			case "equals":
-				return Optional.of(onEquals());
+				return (type, value, map, params) -> equals(type, value, params[0]);
 			case "asMap":
-				return Optional.of(onAsMap());
+				return (type, value, map, params) -> map;
 			case "hashCode":
-				return Optional.of(onHashCode());
+				return (type, value, map, params) -> hashCode(value);
 		}
 
-		return empty();
+		return null;
 	}
 
-	private EntityMethod<MapEntity> onToString() {
-		return (type, value, map, params) -> toString(value);
-	}
-
-	private EntityMethod<MapEntity> onEquals() {
-		return (type, value, map, params) -> equals(type, value, params[0]);
-	}
-
-	private EntityMethod<MapEntity> onHashCode() {
-		return (type, value, map, params) -> hashCode(value);
-	}
-
-
-	private EntityMethod<MapEntity> onAsMap() {
-		return (type, value, map, params) -> map;
-	}
-
-	private Object toString(MapEntity value) {
+	public String toString(MapEntity value) {
 		return value.asMap().toString();
 	}
 
