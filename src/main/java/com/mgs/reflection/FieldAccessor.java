@@ -10,17 +10,17 @@ public class FieldAccessor {
 	private final String prefix;
 	private final String fieldName;
 	private final Class<?> declaredType;
-	private final List<ParametrizedType> parametrizedTypes;
+	private final List<ParsedType> parsedTypes;
 	private final Annotation[] annotations;
 	private final Boolean bridge;
 
-	public FieldAccessor(Class<?> declaredType, String methodName, String fieldName, String prefix, FieldAccessorType type, List<ParametrizedType> parametrizedTypes, Annotation[] annotations, Boolean bridge) {
+	public FieldAccessor(Class<?> declaredType, String methodName, String fieldName, String prefix, FieldAccessorType type, List<ParsedType> parsedTypes, Annotation[] annotations, Boolean bridge) {
 		this.declaredType = declaredType;
 		this.methodName = methodName;
 		this.type = type;
 		this.prefix = prefix;
 		this.fieldName = fieldName;
-		this.parametrizedTypes = parametrizedTypes;
+		this.parsedTypes = parsedTypes;
 		this.annotations = annotations;
 		this.bridge = bridge;
 	}
@@ -45,8 +45,8 @@ public class FieldAccessor {
 		return methodName;
 	}
 
-	public List<ParametrizedType> getParametrizedTypes() {
-		return parametrizedTypes;
+	public List<ParsedType> getParsedTypes() {
+		return parsedTypes;
 	}
 
 	public Annotation[] getAnnotations() {
@@ -70,7 +70,7 @@ public class FieldAccessor {
 		if (!methodName.equals(that.methodName)) return false;
 		if (!prefix.equals(that.prefix)) return false;
 		if (type != that.type) return false;
-		if (!parametrizedTypes.equals(that.parametrizedTypes)) return false;
+		if (!parsedTypes.equals(that.parsedTypes)) return false;
 		if (!Arrays.equals(annotations, that.annotations)) return false;
 		if (!bridge.equals(that.bridge)) return false;
 
@@ -84,7 +84,7 @@ public class FieldAccessor {
 		result = 31 * result + prefix.hashCode();
 		result = 31 * result + fieldName.hashCode();
 		result = 31 * result + declaredType.hashCode();
-		result = 31 * result + parametrizedTypes.hashCode();
+		result = 31 * result + parsedTypes.hashCode();
 		result = 31 * result + Arrays.hashCode(annotations);
 		result = 31 * result + bridge.hashCode();
 		return result;
@@ -99,7 +99,7 @@ public class FieldAccessor {
 		sb.append(", prefix='").append(prefix).append('\'');
 		sb.append(", fieldName='").append(fieldName).append('\'');
 		sb.append(", declaredType=").append(declaredType);
-		sb.append(", parametrizedTypes=").append(parametrizedTypes);
+		sb.append(", parametrizedTypes=").append(parsedTypes);
 		sb.append(", parametrizedTypes=").append(Arrays.toString(annotations));
 		sb.append(", bridge=").append(bridge);
 		sb.append('}');

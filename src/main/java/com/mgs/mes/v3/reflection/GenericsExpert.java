@@ -1,66 +1,67 @@
 package com.mgs.mes.v3.reflection;
 
-import com.mgs.reflection.ParametrizedType;
+import com.mgs.reflection.ParsedType;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.singletonList;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.stream.Collectors.toList;
 
 public class GenericsExpert {
-	public ParametrizedType parseMethodReturnType(Method toParse) {
-		Type genericReturnType = toParse.getGenericReturnType();
-		Optional<Class> specificClass = of(toParse.getReturnType());
-		String name = specificClass.get().getName();
-		Optional<List<ParametrizedType>> childrenParametrizedTyped = childrenParametrizedTypes(genericReturnType);
-		return new ParametrizedType(name, specificClass, childrenParametrizedTyped);
+	private final ParsedTypeFactory parsedTypeFactory;
+
+	public GenericsExpert(ParsedTypeFactory parsedTypeFactory) {
+		this.parsedTypeFactory = parsedTypeFactory;
+	}
+
+	public ParsedType parseMethodReturnType(Method toParse) {
+		return parseType(toParse.getGenericReturnType());
 
 	}
 
-	private Optional<List<ParametrizedType>> childrenParametrizedTypes(Type genericReturnType) {
-		if (genericReturnType == null) return empty();
-		if (!(genericReturnType instanceof ParameterizedType)) return empty();
+	private ParsedType parseType(Type type) {
+		ParameterizedType thisParameterizedType = toParametrizedType(type);
+		if (thisParameterizedType == null) {
+			if (Class.class.isAssignableFrom(type.getClass())){
+				return parsedTypeFactory.specificLeaf((Class) type, type);
+			}
+			return parsedTypeFactory.unresolvedLeaf(type);
+		}
 
-		ParameterizedType parameterizedType = (ParameterizedType) genericReturnType;
-		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+		String thisClassName = getThisClassName(thisParameterizedType.getTypeName());
+		Optional<Class> thisClass = loadClass (thisClassName);
+		Type[] actualTypeArguments = thisParameterizedType.getActualTypeArguments();
+		if (actualTypeArguments.length == 0) throw new IllegalStateException();
 
-		if (actualTypeArguments == null || actualTypeArguments.length == 0) return empty();
+		List<ParsedType> genericTypes = Stream.of(actualTypeArguments).
+				map(this::parseType).
+				collect(toList());
 
-		return of(Stream.of(actualTypeArguments).
-				map((actualTypeArgument) -> extractClass(actualTypeArgument.getTypeName())).
-				collect(Collectors.toList()));
+		return parsedTypeFactory.parametrizedContainer(thisClass.get(), type, genericTypes);
 	}
 
-	private ParametrizedType extractClass(String typeName) {
-		int genericsStartPosition = typeName.indexOf("<");
-		return genericsStartPosition < 0 ? createParametrizedType(typeName, empty()) : genericType(typeName, genericsStartPosition);
-	}
-
-	private ParametrizedType genericType(String typeName, int genericsStartPosition) {
+	private Optional<Class> loadClass(String thisClassName) {
 		try {
-			String thisTypeName = typeName.substring(0, genericsStartPosition);
-			String remainder = typeName.substring(genericsStartPosition + 1, typeName.length() - 1);
-			Class<?> specificClass = this.getClass().getClassLoader().loadClass(thisTypeName);
-			Optional<List<ParametrizedType>> childrenParametrizedTypes = of(singletonList(extractClass(remainder)));
-			return new ParametrizedType(typeName, of(specificClass), childrenParametrizedTypes);
+			return Optional.of(this.getClass().getClassLoader().loadClass(thisClassName));
 		} catch (ClassNotFoundException e) {
-			return new ParametrizedType(typeName, empty(), empty());
+			return Optional.empty();
 		}
 	}
 
-	private ParametrizedType createParametrizedType(String typeName, Optional<List<ParametrizedType>> childrenParametrizedTypes) {
-		try {
-			Class<?> specificClass = this.getClass().getClassLoader().loadClass(typeName);
-			return new ParametrizedType(typeName, of(specificClass), childrenParametrizedTypes);
-		} catch (ClassNotFoundException e) {
-			return new ParametrizedType(typeName, empty(), childrenParametrizedTypes);
-		}
+	private String getThisClassName(String parametrizedClassName) {
+		int firstParamPos = parametrizedClassName.indexOf("<");
+		if (firstParamPos < 0) return parametrizedClassName;
+
+		return parametrizedClassName.substring(0, firstParamPos);
+	}
+
+	private ParameterizedType toParametrizedType(Type type) {
+		if (type == null) return null;
+		if (!(type instanceof ParameterizedType)) return null;
+		return (ParameterizedType) type;
 	}
 }

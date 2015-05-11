@@ -7,7 +7,7 @@ import com.mgs.mes.v2.entity.property.type.dbo.DboPropertyType;
 import com.mgs.mes.v2.entity.property.type.domain.DomainPropertyType;
 import com.mgs.mes.v2.polymorphism.PolymorphismManager;
 import com.mgs.reflection.BeanNamingExpert;
-import com.mgs.reflection.ParametrizedType;
+import com.mgs.reflection.ParsedType;
 import com.mgs.reflection.Reflections;
 import com.mongodb.DBObject;
 
@@ -41,13 +41,13 @@ public class EntityFactory {
 
 	public <T extends Entity> T fromDbo (Class<T> type, DBObject dbObject
 	){
-		List<ParametrizedType> parametrizedTypes = reflections.extractGenericClasses(type);
-		if (parametrizedTypes.size() > 1) throw new IllegalStateException();
+		List<ParsedType> parsedTypes = reflections.extractGenericClasses(type);
+		if (parsedTypes.size() > 1) throw new IllegalStateException();
 
 		//noinspection unchecked
-		Optional<Class<? extends Entity>> wrappedType = (parametrizedTypes.size() == 0) ?
+		Optional<Class<? extends Entity>> wrappedType = (parsedTypes.size() == 0) ?
 				Optional.empty() :
-				Optional.of(parametrizedTypes.get(0).getSpecificClass().get());
+				null;
 
 
 		return entityProxyFactory.from(

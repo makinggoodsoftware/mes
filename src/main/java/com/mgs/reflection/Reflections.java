@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Optional.empty;
-import static java.util.Optional.of;
 
 public class Reflections {
 	private final static List<Class> PRIMITIVE_WRAPPERS = Arrays.asList(
@@ -35,8 +34,8 @@ public class Reflections {
 		return assignableTo.isAssignableFrom(type);
 	}
 
-	public List<ParametrizedType> extractGenericClasses(Type genericReturnType) {
-		List<ParametrizedType> empty = new ArrayList<>();
+	public List<ParsedType> extractGenericClasses(Type genericReturnType) {
+		List<ParsedType> empty = new ArrayList<>();
 		if (genericReturnType == null) return empty;
 		if (! (genericReturnType instanceof ParameterizedType)) return empty;
 
@@ -59,13 +58,15 @@ public class Reflections {
 		return empty();
 	}
 
-	private ParametrizedType extractClass(Type actualTypeArgument) {
+	private ParsedType extractClass(Type actualTypeArgument) {
 		String typeName = actualTypeArgument.getTypeName();
 		try {
 			Class<?> specificName = this.getClass().getClassLoader().loadClass(typeName);
-			return new ParametrizedType(typeName, of(specificName), empty());
+//			return new ParsedType(typeName, of(specificName), empty());
+			return null;
 		} catch (ClassNotFoundException e) {
-			return new ParametrizedType(typeName, empty(), empty());
+//			return new ParsedType(typeName, empty(), empty());
+			return null;
 		}
 	}
 

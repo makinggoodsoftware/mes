@@ -21,8 +21,7 @@ public class EntityManager {
 
 	public boolean isListOfEntities(FieldAccessor fieldAccessor) {
 		return reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
-				fieldAccessor.getParametrizedTypes().size() == 1 &&
-				reflections.isAssignableTo(fieldAccessor.getParametrizedTypes().get(0).getSpecificClass().get(), Entity.class);
+				fieldAccessor.getParsedTypes().size() == 1;
 	}
 
 	public boolean isSimpleEntity(FieldAccessor fieldAccessor) {
@@ -33,8 +32,7 @@ public class EntityManager {
 
 	public boolean isListOfValues(FieldAccessor fieldAccessor) {
 		return reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
-				fieldAccessor.getParametrizedTypes().size() == 1 &&
-				isSimpleValue(fieldAccessor.getParametrizedTypes().get(0).getSpecificClass().get());
+				fieldAccessor.getParsedTypes().size() == 1;
 	}
 
 	public boolean isOneToOne(FieldAccessor fieldAccessor) {

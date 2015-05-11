@@ -29,7 +29,8 @@ public class PolymorphismManager {
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(parentType, accesorName).get();
 		Class<?> declaredType = fieldAccessor.getDeclaredType();
 		if (isParametrized(declaredType)) {
-			declaredType = fieldAccessor.getParametrizedTypes().get(0).getSpecificClass().get();
+//			declaredType = fieldAccessor.getParsedTypes().get(0).getSpecificClass().get();
+			declaredType = null;
 		}
 		return new PolymorphismDescriptor(declaredType, singletonList(declaredType));
 	}

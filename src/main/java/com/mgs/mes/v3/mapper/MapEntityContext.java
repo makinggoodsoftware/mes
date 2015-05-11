@@ -103,21 +103,21 @@ public class MapEntityContext {
 	}
 
 	private List<Class> extractParametrizedTypes(FieldAccessor accessor, List<Class> parentParametrizedTypes) {
-		List<ParametrizedType> parametrizedTypes = accessor.getParametrizedTypes();
-		if (parametrizedTypes.size()>1) throw new IllegalStateException();
+		List<ParsedType> parsedTypes = accessor.getParsedTypes();
+		if (parsedTypes.size()>1) throw new IllegalStateException();
 		if (parentParametrizedTypes == null || parentParametrizedTypes.size() == 0){
-			if (parametrizedTypes.size() == 0) return new ArrayList<>();
-			Optional<Class> specificClass = parametrizedTypes.get(0).getSpecificClass();
+			if (parsedTypes.size() == 0) return new ArrayList<>();
+			Optional<Class> specificClass = null;
 			if (! specificClass.isPresent()) throw new IllegalStateException();
 			return singletonList(specificClass.get());
 		}
 
 		if (parentParametrizedTypes.size()>1) throw new IllegalStateException();
-		if (parametrizedTypes.size() == 0) return new ArrayList<>();
+		if (parsedTypes.size() == 0) return new ArrayList<>();
 		return parentParametrizedTypes;
 	}
 
-	private Object mapValue(Class<?> declaredType, List<ParametrizedType> parametrizedTypes, Object value) {
+	private Object mapValue(Class<?> declaredType, List<ParsedType> parsedTypes, Object value) {
 		if (reflections.isSimple(declaredType)) return value;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked
@@ -128,12 +128,12 @@ public class MapEntityContext {
 		}
 		if (reflections.isCollection(declaredType)) {
 			List castedValue = (List) value;
-			Class typeOfCollection = parametrizedTypes.get(0).getSpecificClass().get();
+			Class typeOfCollection = null;
 			//noinspection unchecked
 			return castedValue.stream().map((old) -> mapValue(typeOfCollection, new ArrayList<>(), old)).collect(toList());
 		}
 		if (reflections.isAssignableTo(declaredType, Optional.class)) {
-			Class typeOfOptional = parametrizedTypes.get(0).getSpecificClass().get();
+			Class typeOfOptional = null;
 			return Optional.of(mapValue(typeOfOptional, null, value));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + value);

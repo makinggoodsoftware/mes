@@ -4,7 +4,7 @@ import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.OneToMany;
 import com.mgs.reflection.FieldAccessor;
-import com.mgs.reflection.ParametrizedType;
+import com.mgs.reflection.ParsedType;
 import com.mgs.reflection.Reflections;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -73,10 +73,11 @@ public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<Fi
 				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)
 		) return false;
 		//noinspection SimplifiableIfStatement
-		if (fieldAccessor.getParametrizedTypes().size() == 0) return false;
-		ParametrizedType parametrizedType = fieldAccessor.getParametrizedTypes().get(0);
-		return !parametrizedType.getSpecificClass().isPresent() ||
-				reflections.isAssignableTo(parametrizedType.getSpecificClass().get(), Entity.class);
+		if (fieldAccessor.getParsedTypes().size() == 0) return false;
+		ParsedType parsedType = fieldAccessor.getParsedTypes().get(0);
+//		return !parsedType.getSpecificClass().isPresent() ||
+//				reflections.isAssignableTo(parsedType.getSpecificClass().get(), Entity.class);
+		return false;
 	}
 
 	private boolean isWrappedValue(Object value) {
