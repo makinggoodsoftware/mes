@@ -1,6 +1,6 @@
 package com.mgs.reflection;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ParsedType {
@@ -8,18 +8,18 @@ public class ParsedType {
 	private final String typeName;
 	private final boolean isResolved;
 	private final boolean isGenerics;
-	private final List<ParsedType> childTypes;
+	private final Map<String, ParsedType> parametirizedTypes;
 
-	public ParsedType(Optional<Class> actualType, String typeName, boolean isResolved, boolean isGenerics, List<ParsedType> childTypes) {
+	public ParsedType(Optional<Class> actualType, String typeName, boolean isResolved, boolean isGenerics, Map<String, ParsedType> parametirizedTypes) {
 		this.actualType = actualType;
 		this.typeName = typeName;
 		this.isResolved = isResolved;
 		this.isGenerics = isGenerics;
-		this.childTypes = childTypes;
+		this.parametirizedTypes = parametirizedTypes;
 	}
 
-	public List<ParsedType> getParameters() {
-		return childTypes;
+	public Map<String, ParsedType> getParameters() {
+		return parametirizedTypes;
 	}
 
 	public boolean isParametrized() {
