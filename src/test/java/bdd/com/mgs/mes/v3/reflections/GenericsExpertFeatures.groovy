@@ -1,6 +1,8 @@
 package com.mgs.mes.v3.reflections
 import com.mgs.mes.v3.reflection.GenericsExpert
 import com.mgs.mes.v3.reflection.ParsedTypeFactory
+import com.mgs.mes.v3.reflections.domain.ExtendedGenerics
+import com.mgs.mes.v3.reflections.domain.Generics
 import com.mgs.reflection.ParsedType
 import spock.lang.Specification
 
@@ -157,25 +159,34 @@ class GenericsExpertFeatures extends Specification{
         parsedType.parameters.entrySet().size() == 0
     }
 
-    private static interface Generics<T> {
-        List<String> getListOfStrings()
+    def "should parse map generics" (){
+        when:
+        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getMap"))
 
-        List<List<String>> getNestedStrings()
+        then:
+        parsedType.typeName == "java.util.Map<java.lang.String, com.mgs.mes.v3.reflections.domain.ExtendedGenerics<java.lang.Integer>>"
+        parsedType.isParametrized()
+        parsedType.isResolved()
+        parsedType.actualType.get() == Map
+        parsedType.parameters.entrySet().size() == 2
 
-        List<T> getUnespecified()
+        parsedType.parameters.get("K").typeName == "java.lang.String"
+        ! parsedType.parameters.get("K").isParametrized()
+        parsedType.parameters.get("K").isResolved()
+        parsedType.parameters.get("K").actualType.get() == String
+        parsedType.parameters.get("K").parameters.entrySet().size() == 0
 
-        List<List<T>> getNestedUnespecified()
+        parsedType.parameters.get("V").typeName == "com.mgs.mes.v3.reflections.domain.ExtendedGenerics<java.lang.Integer>"
+        parsedType.parameters.get("V").isParametrized()
+        parsedType.parameters.get("V").isResolved()
+        parsedType.parameters.get("V").actualType.get() == ExtendedGenerics
+        parsedType.parameters.get("V").parameters.entrySet().size() == 1
 
-        T getIt ()
-
-        Integer getInt ()
-
-        int getIntPrimitive ()
-
-        void getVoid ()
+        parsedType.parameters.get("V").parameters.get("T").typeName == "java.lang.Integer"
+        ! parsedType.parameters.get("V").parameters.get("T").isParametrized()
+        parsedType.parameters.get("V").parameters.get("T").isResolved()
+        parsedType.parameters.get("V").parameters.get("T").actualType.get() == Integer
+        parsedType.parameters.get("V").parameters.get("T").parameters.entrySet().size() == 0
     }
 
-    private static interface ExtendedGenerics <T extends List> {
-        T getListOfGenerics ()
-    }
 }

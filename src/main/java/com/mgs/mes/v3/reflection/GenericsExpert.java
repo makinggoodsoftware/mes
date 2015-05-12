@@ -46,7 +46,7 @@ public class GenericsExpert {
 
 	private Optional<Class> loadClass(String thisClassName) {
 		try {
-			return Optional.of(this.getClass().getClassLoader().loadClass(thisClassName));
+			return Optional.of(Class.forName(thisClassName));
 		} catch (ClassNotFoundException e) {
 			return Optional.empty();
 		}
