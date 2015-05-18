@@ -23,7 +23,7 @@ class DboTransformerSpecification extends Specification {
         testObj = new DboTransformer(
                 new EntityDataEntityFactory(),
                 beanNamingExpert,
-                new FieldAccessorParser(beanNamingExpert, reflections),
+                new FieldAccessorParser(beanNamingExpert, genericsExpert),
                 new Reflections())
     }
 

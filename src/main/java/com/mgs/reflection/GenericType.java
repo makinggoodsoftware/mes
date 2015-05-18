@@ -3,14 +3,14 @@ package com.mgs.reflection;
 import java.util.Map;
 import java.util.Optional;
 
-public class ParsedType {
+public class GenericType {
 	private final Optional<Class> actualType;
 	private final String typeName;
 	private final boolean isResolved;
 	private final boolean isGenerics;
-	private final Map<String, ParsedType> parametirizedTypes;
+	private final Map<String, GenericType> parametirizedTypes;
 
-	public ParsedType(Optional<Class> actualType, String typeName, boolean isResolved, boolean isGenerics, Map<String, ParsedType> parametirizedTypes) {
+	public GenericType(Optional<Class> actualType, String typeName, boolean isResolved, boolean isGenerics, Map<String, GenericType> parametirizedTypes) {
 		this.actualType = actualType;
 		this.typeName = typeName;
 		this.isResolved = isResolved;
@@ -18,7 +18,7 @@ public class ParsedType {
 		this.parametirizedTypes = parametirizedTypes;
 	}
 
-	public Map<String, ParsedType> getParameters() {
+	public Map<String, GenericType> getParameters() {
 		return parametirizedTypes;
 	}
 

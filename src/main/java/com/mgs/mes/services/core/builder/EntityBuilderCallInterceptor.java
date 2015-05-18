@@ -5,8 +5,6 @@ import com.mgs.mes.entity.data.EntityDataBuilder;
 import com.mgs.mes.entity.factory.entity.EntityFactory;
 import com.mgs.mes.model.Entity;
 import com.mgs.mes.model.EntityBuilder;
-import com.mgs.mes.model.OneToMany;
-import com.mgs.mes.model.OneToOne;
 import com.mgs.mes.services.core.reference.EntityReferenceProvider;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessor;
@@ -17,7 +15,6 @@ import org.bson.types.ObjectId;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER;
 import static java.util.Optional.empty;
@@ -93,15 +90,15 @@ class EntityBuilderCallInterceptor<T extends Entity> implements InvocationHandle
 	private void updateField(String fieldName, Object value) {
 		String getterName = beanNamingExpert.getGetterName(fieldName);
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(modelType, getterName).orElseThrow(IllegalArgumentException::new);
-		if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToOne.class)){
-			Entity casted = (Entity) value;
-			entityDataBuilder.with(fieldAccessor, entityReferenceProvider.newReference(casted));
-		} else if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)){
-			@SuppressWarnings("unchecked") List<? extends Entity> casted = (List<? extends Entity>) value;
-			entityDataBuilder.with(fieldAccessor, entityReferenceProvider.newReferences(casted));
-		}else {
-			entityDataBuilder.with(fieldAccessor, value);
-		}
+//		if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToOne.class)){
+//			Entity casted = (Entity) value;
+//			entityDataBuilder.with(fieldAccessor, entityReferenceProvider.newReference(casted));
+//		} else if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)){
+//			@SuppressWarnings("unchecked") List<? extends Entity> casted = (List<? extends Entity>) value;
+//			entityDataBuilder.with(fieldAccessor, entityReferenceProvider.newReferences(casted));
+//		}else {
+//			entityDataBuilder.with(fieldAccessor, value);
+//		}
 	}
 
 }

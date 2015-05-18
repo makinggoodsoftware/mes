@@ -1,9 +1,11 @@
 package com.mgs.mes.v3.reflections
+
+import com.mgs.mes.v3.reflection.GenericMethods
 import com.mgs.mes.v3.reflection.GenericsExpert
 import com.mgs.mes.v3.reflection.ParsedTypeFactory
 import com.mgs.mes.v3.reflections.domain.ExtendedGenerics
 import com.mgs.mes.v3.reflections.domain.Generics
-import com.mgs.reflection.ParsedType
+import com.mgs.reflection.GenericType
 import spock.lang.Specification
 
 class GenericsExpertFeatures extends Specification{
@@ -15,7 +17,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should read simple generics" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getListOfStrings"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getListOfStrings"))
 
         then:
         parsedType.typeName == "java.util.List<java.lang.String>"
@@ -35,7 +37,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should read nested generics" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getNestedStrings"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getNestedStrings"))
 
         then:
         parsedType.typeName == "java.util.List<java.util.List<java.lang.String>>"
@@ -59,7 +61,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should read unespecified generics" () {
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getUnespecified"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getUnespecified"))
 
         then:
         parsedType.typeName == "java.util.List<T>"
@@ -77,7 +79,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should read nested unespecified generics" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getNestedUnespecified"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getNestedUnespecified"))
 
         then:
         parsedType.typeName == "java.util.List<java.util.List<T>>"
@@ -101,7 +103,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should parse raw generics" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getIt"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getIt"))
 
         then:
         parsedType.typeName == "T"
@@ -113,7 +115,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should parse simple datatypes" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getInt"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getInt"))
 
         then:
         parsedType.typeName == "java.lang.Integer"
@@ -125,7 +127,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should parse primitive datatypes" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getIntPrimitive"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getIntPrimitive"))
 
         then:
         parsedType.typeName == "int"
@@ -137,7 +139,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should parse void" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getVoid"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getVoid"))
 
         then:
         parsedType.typeName == "void"
@@ -149,7 +151,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should parse extended generics" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(ExtendedGenerics.getMethod("getListOfGenerics"))
+        GenericType parsedType = generics.parseMethodReturnType(ExtendedGenerics.getMethod("getSimpleGenerics"))
 
         then:
         parsedType.typeName == "T"
@@ -161,7 +163,7 @@ class GenericsExpertFeatures extends Specification{
 
     def "should parse map generics" (){
         when:
-        ParsedType parsedType = generics.parseMethodReturnType(Generics.getMethod("getMap"))
+        GenericType parsedType = generics.parseMethodReturnType(Generics.getMethod("getMap"))
 
         then:
         parsedType.typeName == "java.util.Map<java.lang.String, com.mgs.mes.v3.reflections.domain.ExtendedGenerics<java.lang.Integer>>"
@@ -187,6 +189,14 @@ class GenericsExpertFeatures extends Specification{
         parsedType.parameters.get("V").parameters.get("T").isResolved()
         parsedType.parameters.get("V").parameters.get("T").actualType.get() == Integer
         parsedType.parameters.get("V").parameters.get("T").parameters.entrySet().size() == 0
+    }
+
+    def "should parse methods" (){
+        when:
+        GenericMethods parsedMethods = generics.parseMethods(generics.parseMethodReturnType(Generics.getMethod("getSimpleExtendedGenerics")))
+
+        then:
+        parsedMethods.parsedMethodsAsMap["getSimpleGenerics"].returnType.actualType.get() == Integer
     }
 
 }

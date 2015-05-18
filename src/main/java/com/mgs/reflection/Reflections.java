@@ -34,8 +34,8 @@ public class Reflections {
 		return assignableTo.isAssignableFrom(type);
 	}
 
-	public List<ParsedType> extractGenericClasses(Type genericReturnType) {
-		List<ParsedType> empty = new ArrayList<>();
+	public List<GenericType> extractGenericClasses(Type genericReturnType) {
+		List<GenericType> empty = new ArrayList<>();
 		if (genericReturnType == null) return empty;
 		if (! (genericReturnType instanceof ParameterizedType)) return empty;
 
@@ -58,7 +58,7 @@ public class Reflections {
 		return empty();
 	}
 
-	private ParsedType extractClass(Type actualTypeArgument) {
+	private GenericType extractClass(Type actualTypeArgument) {
 		String typeName = actualTypeArgument.getTypeName();
 		try {
 			Class<?> specificName = this.getClass().getClassLoader().loadClass(typeName);

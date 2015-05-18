@@ -2,9 +2,7 @@ package com.mgs.mes.entity.data.transformer;
 
 import com.mgs.mes.entity.data.EntityData;
 import com.mgs.mes.model.Entity;
-import com.mgs.mes.model.OneToMany;
 import com.mgs.reflection.FieldAccessor;
-import com.mgs.reflection.ParsedType;
 import com.mgs.reflection.Reflections;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -45,14 +43,14 @@ public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<Fi
 			String fieldName = fieldAccessor.getFieldName();
 			Object value = fieldValueByAccessorEntry.getValue();
 			if (isWrappedListOfValues(fieldAccessor)){
-				List<? extends Entity> child;
-				if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)){
-					//noinspection unchecked
-					child = ((OneToMany) value).getList();
-				} else {
-					//noinspection unchecked
-					child = (List<? extends Entity>) value;
-				}
+				List<? extends Entity> child = new ArrayList<Entity>();
+//				if (reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)){
+//					//noinspection unchecked
+//					child = ((OneToMany) value).getList();
+//				} else {
+//					//noinspection unchecked
+//					child = (List<? extends Entity>) value;
+//				}
 				dboMap.put(fieldName, child.stream().map(Entity::asDbo).collect(toList()));
 			}else if(isWrappedValue(value)){
 				Entity casted = (Entity) value;
@@ -68,13 +66,13 @@ public class FieldAccessorMapTransformer implements EntityDataTransformer<Map<Fi
 	}
 
 	private boolean isWrappedListOfValues(FieldAccessor fieldAccessor) {
-		if (
-				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
-				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)
-		) return false;
+//		if (
+//				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), Collection.class) &&
+//				!reflections.isAssignableTo(fieldAccessor.getDeclaredType(), OneToMany.class)
+//		) return false;
 		//noinspection SimplifiableIfStatement
-		if (fieldAccessor.getParsedTypes().size() == 0) return false;
-		ParsedType parsedType = fieldAccessor.getParsedTypes().get(0);
+//		if (fieldAccessor.getParsedTypes().size() == 0) return false;
+//		ParsedType parsedType = fieldAccessor.getParsedTypes().get(0);
 //		return !parsedType.getSpecificClass().isPresent() ||
 //				reflections.isAssignableTo(parsedType.getSpecificClass().get(), Entity.class);
 		return false;

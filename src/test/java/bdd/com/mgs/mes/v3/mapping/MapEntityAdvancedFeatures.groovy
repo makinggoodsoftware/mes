@@ -1,7 +1,10 @@
 package com.mgs.mes.v3.mapping
 
 import com.mgs.config.reflection.ReflectionConfig
-import com.mgs.mes.v3.mapper.*
+import com.mgs.mes.v3.mapper.MapEntity
+import com.mgs.mes.v3.mapper.MapEntityConfig
+import com.mgs.mes.v3.mapper.MapEntityContext
+import com.mgs.mes.v3.mapper.Mapping
 import spock.lang.Specification
 
 class MapEntityAdvancedFeatures extends Specification {
@@ -87,36 +90,23 @@ class MapEntityAdvancedFeatures extends Specification {
     }
 
     private static interface CollectionParametrizedEntityTemplate<T> extends MapEntity{
-        @Parametrizable
         List<T> getThem ()
     }
 
     private static interface CollectionComplexParametrizedEntityTemplate<T> extends MapEntity{
-        @Parametrizable
-        List<T> getThem ()
     }
 
     private static interface StringCollectionParametrizedEntityTemplate extends CollectionParametrizedEntityTemplate<String>{
-        @Override
-        @Parametrized
-        List<String> getThem();
     }
 
     private static interface EntityCollectionParametrizedEntityTemplate extends CollectionParametrizedEntityTemplate<SimpleEntity>{
-        @Override
-        @Parametrized
-        List<SimpleEntity> getThem();
     }
 
     private static interface ParametrizedEntityTemplate<T> extends MapEntity{
-        @Parametrizable
         T getIt ()
     }
 
     private static interface StringParametrizedEntityTemplate extends ParametrizedEntityTemplate<String>{
-        @Override
-        @Parametrized
-        String getIt();
     }
 
     private static interface EmbeddedParametrizedEntityTemplate extends MapEntity{

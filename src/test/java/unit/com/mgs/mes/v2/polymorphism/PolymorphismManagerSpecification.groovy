@@ -38,7 +38,7 @@ class PolymorphismManagerSpecification extends Specification {
         beanNamingExpertMock.getGetterName("strings") >> "getStrings"
         fieldAccessorParserMock.parse(SampleEntity, "getStrings") >> of(fieldAccessorMock)
         fieldAccessorMock.declaredType >> List
-        fieldAccessorMock.parsedTypes >> [new ParsedType("String", of(String), getChildrenParametrizedTypes)]
+        fieldAccessorMock.parsedTypes >> [new GenericType("String", of(String), getChildrenParametrizedTypes)]
         reflectionsMock.isAssignableTo(List, Collection) >> true
 
         when:

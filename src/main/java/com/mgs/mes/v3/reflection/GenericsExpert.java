@@ -1,11 +1,13 @@
 package com.mgs.mes.v3.reflection;
 
-import com.mgs.reflection.ParsedType;
+import com.mgs.reflection.GenericType;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -18,18 +20,24 @@ public class GenericsExpert {
 		this.parsedTypeFactory = parsedTypeFactory;
 	}
 
-	public ParsedType parseMethodReturnType(Method toParse) {
+	public GenericType parseMethodReturnType(Method toParse) {
 		return parseType(toParse.getGenericReturnType());
 
 	}
 
-	private ParsedType parseType(Type type) {
-		ParameterizedType thisParameterizedType = toParametrizedType(type);
+	public GenericType parseType(Type toParse) {
+		return parseType(toParse, new HashMap<>());
+	}
+
+	public GenericType parseType(Type toParse, Map<String, GenericType> parameters) {
+		ParameterizedType thisParameterizedType = toParametrizedType(toParse);
 		if (thisParameterizedType == null) {
-			if (Class.class.isAssignableFrom(type.getClass())){
-				return parsedTypeFactory.specificLeaf((Class) type, type);
+			if (Class.class.isAssignableFrom(toParse.getClass())){
+				return parsedTypeFactory.specificLeaf((Class) toParse, toParse);
 			}
-			return parsedTypeFactory.unresolvedLeaf(type);
+			GenericType parametrizedType = parameters.get(toParse.getTypeName());
+			if (parametrizedType != null) return parametrizedType;
+			return parsedTypeFactory.unresolvedLeaf(toParse);
 		}
 
 		String thisClassName = getThisClassName(thisParameterizedType.getTypeName());
@@ -37,11 +45,11 @@ public class GenericsExpert {
 		Type[] actualTypeArguments = thisParameterizedType.getActualTypeArguments();
 		if (actualTypeArguments.length == 0) throw new IllegalStateException();
 
-		List<ParsedType> genericTypes = Stream.of(actualTypeArguments).
-				map(this::parseType).
+		List<GenericType> genericTypes = Stream.of(actualTypeArguments).
+				map((toParse1) -> parseType(toParse1)).
 				collect(toList());
 
-		return parsedTypeFactory.parametrizedContainer(thisClass.get(), type, genericTypes);
+		return parsedTypeFactory.parametrizedContainer(thisClass.get(), toParse, genericTypes);
 	}
 
 	private Optional<Class> loadClass(String thisClassName) {
@@ -63,5 +71,21 @@ public class GenericsExpert {
 		if (type == null) return null;
 		if (!(type instanceof ParameterizedType)) return null;
 		return (ParameterizedType) type;
+	}
+
+	public GenericMethods parseMethods(GenericType type) {
+		if (! type.isResolved()) throw new IllegalArgumentException("Can't resolve type");
+
+		Map<String, GenericMethod> parsedMethodsAsMap = new HashMap<>();
+		Method[] methods = type.getActualType().get().getMethods();
+		for (Method method : methods) {
+			parsedMethodsAsMap.put(method.getName(), new GenericMethod(parseType(method.getGenericReturnType(), type.getParameters()), method));
+		}
+		GenericMethods result = new GenericMethods(parsedMethodsAsMap);
+		return result;
+	}
+
+	public GenericMethod parseMethod(Method method) {
+		return new GenericMethod(parseMethodReturnType(method), method);
 	}
 }

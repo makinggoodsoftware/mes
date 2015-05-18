@@ -103,8 +103,9 @@ public class DboTransformer implements EntityDataTransformer<DBObject> {
 		String getterName = beanNamingExpert.getGetterName(fieldName);
 		FieldAccessor accessor = fieldAccessorParser.parse(type, getterName).get();
 		//noinspection unchecked
-		Class<Entity> nestedType = (Class<Entity>) accessor.getDeclaredType();
-		return entityFactory.from(nestedType, doTransform(nestedType, nestedValue, false));
+//		Class<Entity> nestedType = (Class<Entity>) accessor.getDeclaredType();
+//		return entityFactory.from(nestedType, doTransform(nestedType, nestedValue, false));
+		return null;
 	}
 
 	private String buildKey(String fieldName) {

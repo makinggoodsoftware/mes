@@ -5,8 +5,7 @@ import com.mgs.mes.simpleModel.entityA.EntityA
 import com.mgs.mes.simpleModel.entityA.EntityABuilder
 import com.mgs.reflection.FieldAccessor
 import com.mgs.reflection.FieldAccessorParser
-import com.mgs.reflection.ParsedType
-import org.bson.types.ObjectId
+import com.mgs.reflection.GenericType
 import spock.lang.Specification
 
 import static com.mgs.reflection.FieldAccessorType.BUILDER
@@ -45,8 +44,8 @@ class FieldAccessorParserSpecification extends Specification {
         result.prefix == "get"
         result.declaredType == Map
         result.parsedTypes == [
-                new ParsedType(String.name, of(String), getChildrenParametrizedTypes),
-                new ParsedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
+                new GenericType(String.name, of(String), getChildrenParametrizedTypes),
+                new GenericType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
         ]
     }
 
@@ -72,8 +71,8 @@ class FieldAccessorParserSpecification extends Specification {
         result.prefix == "with"
         result.declaredType == Map
         result.parsedTypes == [
-                new ParsedType(String.name, of(String), getChildrenParametrizedTypes),
-                new ParsedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
+                new GenericType(String.name, of(String), getChildrenParametrizedTypes),
+                new GenericType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
         ]
     }
 
@@ -87,8 +86,8 @@ class FieldAccessorParserSpecification extends Specification {
         result.prefix == "get"
         result.declaredType == Map
         result.parsedTypes == [
-                new ParsedType(String.name, of(String), getChildrenParametrizedTypes),
-                new ParsedType('T', empty(), getChildrenParametrizedTypes)
+                new GenericType(String.name, of(String), getChildrenParametrizedTypes),
+                new GenericType('T', empty(), getChildrenParametrizedTypes)
         ]
     }
 
@@ -129,42 +128,32 @@ class FieldAccessorParserSpecification extends Specification {
         then:
         result.entrySet().size() == 6
         result.get(SimpleEntity.getMethod("getField1")).get() == new FieldAccessor(
-                String,
                 "getField1",
                 "field1",
                 "get",
-                GET,
-                [], annotations, bridge
+                GET, returnType
+                , annotations
         )
         result.get(SimpleEntity.getMethod("getWithGenerics")).get() == new FieldAccessor(
-                Map,
                 "getWithGenerics",
                 "withGenerics",
                 "get",
-                GET,
-                [
-                        new ParsedType(String.name, of(String), getChildrenParametrizedTypes),
-                        new ParsedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
-                ], annotations, bridge
+                GET, returnType
+                , annotations
         )
         result.get(SimpleEntity.getMethod("withGenerics", Map)).get() == new FieldAccessor(
-                Map,
                 "withGenerics",
                 "generics",
                 "with",
-                BUILDER,
-                [
-                        new ParsedType(String.name, of(String), getChildrenParametrizedTypes),
-                        new ParsedType(SimpleEntity.name, of(SimpleEntity), getChildrenParametrizedTypes)
-                ], annotations, bridge
+                BUILDER, returnType
+                , annotations
         )
         result.get(SimpleEntity.getMethod("getId")).get() == new FieldAccessor(
-                Optional,
                 "getId",
                 "id",
                 "get",
-                GET,
-                [new ParsedType(ObjectId.name, of(ObjectId), getChildrenParametrizedTypes)], annotations, bridge
+                GET, returnType
+                , annotations
         )
         ! result.get(SimpleEntity.getMethod("asDbo")).isPresent()
         ! result.get(SimpleEntity.getMethod("dataEquals", Entity)).isPresent()

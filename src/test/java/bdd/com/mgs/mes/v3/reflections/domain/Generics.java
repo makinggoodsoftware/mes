@@ -21,4 +21,6 @@ public interface Generics<T> {
 	void getVoid ();
 
 	Map<String, ExtendedGenerics<Integer>> getMap();
+
+	ExtendedGenerics<Integer> getSimpleExtendedGenerics();
 }

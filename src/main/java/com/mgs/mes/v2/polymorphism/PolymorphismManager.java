@@ -27,7 +27,7 @@ public class PolymorphismManager {
 	public PolymorphismDescriptor analise(Class<? extends Entity> parentType, String key) {
 		String accesorName = beanNamingExpert.getGetterName(key);
 		FieldAccessor fieldAccessor = fieldAccessorParser.parse(parentType, accesorName).get();
-		Class<?> declaredType = fieldAccessor.getDeclaredType();
+		Class<?> declaredType = fieldAccessor.getReturnType().getActualType().get();
 		if (isParametrized(declaredType)) {
 //			declaredType = fieldAccessor.getParsedTypes().get(0).getSpecificClass().get();
 			declaredType = null;

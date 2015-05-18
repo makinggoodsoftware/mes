@@ -1,5 +1,7 @@
 package com.mgs.config.reflection;
 
+import com.mgs.mes.v3.reflection.GenericsExpert;
+import com.mgs.mes.v3.reflection.ParsedTypeFactory;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.Reflections;
@@ -10,7 +12,11 @@ public class ReflectionConfig {
 	}
 
 	public FieldAccessorParser fieldAccessorParser() {
-		return new FieldAccessorParser(beanNamingExpert(), reflections());
+		return new FieldAccessorParser(beanNamingExpert(), genericsExpert());
+	}
+
+	public GenericsExpert genericsExpert() {
+		return new GenericsExpert(new ParsedTypeFactory());
 	}
 
 	public Reflections reflections() {

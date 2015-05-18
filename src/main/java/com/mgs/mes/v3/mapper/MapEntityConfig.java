@@ -13,7 +13,12 @@ public class MapEntityConfig {
 	}
 
 	public MapEntityContextFactory contextFactory (){
-		return new MapEntityContextFactory(reflectionConfig.reflections(), reflectionConfig.fieldAccessorParser(), reflectionConfig.beanNamingExpert(), defaultManagers());
+		return new MapEntityContextFactory(
+				reflectionConfig.reflections(),
+				reflectionConfig.fieldAccessorParser(),
+				reflectionConfig.beanNamingExpert(),
+				defaultManagers(),
+				reflectionConfig.genericsExpert());
 	}
 
 	private List<MapEntityManager> defaultManagers() {
