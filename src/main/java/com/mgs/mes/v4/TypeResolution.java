@@ -32,4 +32,15 @@ public class TypeResolution {
 	public Optional<ParameterizedType> getParameterizedType() {
 		return parameterizedType;
 	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("TypeResolution{");
+		sb.append("isParameterized=").append(isParameterized);
+		sb.append(", typeName='").append(typeName).append('\'');
+		sb.append(", parameterizedType=").append(parameterizedType);
+		sb.append(", specificClass=").append(specificClass);
+		sb.append('}');
+		return sb.toString();
+	}
 }

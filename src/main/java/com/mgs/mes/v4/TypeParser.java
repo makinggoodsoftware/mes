@@ -9,8 +9,27 @@ import java.util.Optional;
 
 public class TypeParser {
 	public ParsedType parse(Type type) {
-		Declaration ownDeclaration = buildDeclaration(typeResolution(type));
-		return new ParsedType(ownDeclaration, new HashMap<>());
+		TypeResolution typeResolution = typeResolution(type);
+		Declaration ownDeclaration = buildDeclaration(typeResolution);
+
+		Optional<Class> specificClass = typeResolution.getSpecificClass();
+		if (!specificClass.isPresent()) return new ParsedType(ownDeclaration, new HashMap<>());
+
+		HashMap<Class, ParsedType> superDeclarations = new HashMap<>();
+		accumulateSuperParameterizedTypes(specificClass.get(), superDeclarations);
+		return new ParsedType(ownDeclaration, superDeclarations);
+	}
+
+	private void accumulateSuperParameterizedTypes(Class specificClass, HashMap<Class, ParsedType> superDeclarations) {
+		Type[] genericInterfaces = specificClass.getGenericInterfaces();
+		for (Type genericInterface : genericInterfaces) {
+			ParsedType superInterface = parse(genericInterface);
+			TypeResolution superTypeResolution = superInterface.getOwnDeclaration().getTypeResolution();
+			accumulateSuperParameterizedTypes(superTypeResolution.getSpecificClass().get(), superDeclarations);
+			if (superTypeResolution.isParameterized()){
+				superDeclarations.put(superTypeResolution.getSpecificClass().get(), superInterface);
+			}
+		}
 	}
 
 	private Declaration buildDeclaration(TypeResolution typeResolution) {

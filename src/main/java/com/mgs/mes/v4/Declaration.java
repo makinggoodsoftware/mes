@@ -18,4 +18,13 @@ public class Declaration {
 	public TypeResolution getTypeResolution() {
 		return typeResolution;
 	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("Declaration{");
+		sb.append("parameters=").append(parameters);
+		sb.append(", typeResolution=").append(typeResolution);
+		sb.append('}');
+		return sb.toString();
+	}
 }
