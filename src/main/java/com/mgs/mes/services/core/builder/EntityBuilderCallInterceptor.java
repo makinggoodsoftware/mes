@@ -56,7 +56,7 @@ class EntityBuilderCallInterceptor<T extends Entity> implements InvocationHandle
 	}
 
 	private void captureBuilderMethodCall(Method method, Object value) {
-		FieldAccessor fieldAccessor = fieldAccessorParser.parse(method).orElseThrow(IllegalArgumentException::new);
+		FieldAccessor fieldAccessor = fieldAccessorParser.parse(null, null).orElseThrow(IllegalArgumentException::new);
 		if (fieldAccessor.getType() != BUILDER) throw new IllegalArgumentException();
 
 		updateField(fieldAccessor.getFieldName(), value);

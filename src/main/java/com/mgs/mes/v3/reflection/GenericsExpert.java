@@ -5,23 +5,32 @@ import com.mgs.reflection.GenericType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.of;
 
 public class GenericsExpert {
-	private final ParsedTypeFactory parsedTypeFactory;
+	private final ParsedTypeFactory genericTypeFactory;
 
-	public GenericsExpert(ParsedTypeFactory parsedTypeFactory) {
-		this.parsedTypeFactory = parsedTypeFactory;
+	public GenericsExpert(ParsedTypeFactory genericTypeFactory) {
+		this.genericTypeFactory = genericTypeFactory;
 	}
 
-	public GenericType parseMethodReturnType(Method toParse) {
-		return parseType(toParse.getGenericReturnType());
+	public GenericType parseMethodReturnType(Class from, String methodName, Class... params) {
+		try {
+			GenericType parentGenericType = parseType(from);
+			Method method = from.getMethod(methodName, params);
+			return parseType(method.getGenericReturnType(), parentGenericType.getParameters());
+		} catch (NoSuchMethodException e) {
+			throw new InvalidParameterException();
+		}
 
 	}
 
@@ -29,27 +38,66 @@ public class GenericsExpert {
 		return parseType(toParse, new HashMap<>());
 	}
 
-	public GenericType parseType(Type toParse, Map<String, GenericType> parameters) {
-		ParameterizedType thisParameterizedType = toParametrizedType(toParse);
-		if (thisParameterizedType == null) {
-			if (Class.class.isAssignableFrom(toParse.getClass())){
-				return parsedTypeFactory.specificLeaf((Class) toParse, toParse);
-			}
-			GenericType parametrizedType = parameters.get(toParse.getTypeName());
-			if (parametrizedType != null) return parametrizedType;
-			return parsedTypeFactory.unresolvedLeaf(toParse);
+	public GenericType parseType(Type toParse, Map<Class, Map<String, GenericType>> parameters) {
+		Map<Class, Map<String, GenericType>> superParameters = escalateUp(toParse);
+
+
+		if (! isParameterizedType(toParse)) {
+			return processNonParameterizedType(toParse, parameters);
 		}
 
-		String thisClassName = getThisClassName(thisParameterizedType.getTypeName());
-		Optional<Class> thisClass = loadClass (thisClassName);
-		Type[] actualTypeArguments = thisParameterizedType.getActualTypeArguments();
+		ParameterizedType parameterizedType = ((ParameterizedType) toParse);
+		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 		if (actualTypeArguments.length == 0) throw new IllegalStateException();
 
-		List<GenericType> genericTypes = Stream.of(actualTypeArguments).
-				map((toParse1) -> parseType(toParse1)).
+		List<GenericType> genericTypes = of(actualTypeArguments).
+				map(this::parseType).
 				collect(toList());
 
-		return parsedTypeFactory.parametrizedContainer(thisClass.get(), toParse, genericTypes);
+		return genericTypeFactory.parametrizedContainer((Class) parameterizedType.getRawType(), toParse, genericTypes);
+	}
+
+	private Map<Class, Map<String, GenericType>> escalateUp(Type toParse) {
+		Map<Class, Map<String, GenericType>> allSuperTypeParameters = new HashMap<>();
+		if (isSimpleType(toParse)){
+			Class simpleType = (Class) toParse;
+			Stream.concat(
+					stream(simpleType.getGenericInterfaces()),
+					of(simpleType.getGenericSuperclass())
+			).
+			forEach((superType) -> {
+				if (superType != null){
+					GenericType superGenericType = parseType(superType, new HashMap<>());
+					if (superGenericType.isResolved() && superGenericType.isParametrized()){
+						Map<Class, Map<String, GenericType>> superParameters = superGenericType.getParameters();
+						allSuperTypeParameters.putAll(superParameters);
+					}
+				}
+			});
+		}
+		return allSuperTypeParameters;
+	}
+
+	private GenericType processNonParameterizedType(Type toParse, Map<Class, Map<String, GenericType>> parameters) {
+		if (isSimpleType(toParse)){
+			return genericTypeFactory.simpleType(toParse);
+		}
+
+		Map<String, GenericType> genericsForThisType = parameters.get(toParse);
+		if (genericsForThisType != null){
+			GenericType parametrizedType = genericsForThisType.get(toParse.getTypeName());
+			if (parametrizedType != null) return parametrizedType;
+		}
+
+		return genericTypeFactory.unresolvedLeaf(toParse);
+	}
+
+	private boolean isParameterizedType(Type toParse) {
+		return ParameterizedType.class.isAssignableFrom(toParse.getClass());
+	}
+
+	private boolean isSimpleType(Type toParse) {
+		return Class.class.isAssignableFrom(toParse.getClass());
 	}
 
 	private Optional<Class> loadClass(String thisClassName) {
@@ -85,7 +133,12 @@ public class GenericsExpert {
 		return result;
 	}
 
-	public GenericMethod parseMethod(Method method) {
-		return new GenericMethod(parseMethodReturnType(method), method);
+	public GenericMethod parseMethod(Class from, String methodName, Class... params) {
+		try {
+			Method method = from.getMethod(methodName, params);
+			return new GenericMethod(parseMethodReturnType(from, methodName, params), method);
+		} catch (NoSuchMethodException e) {
+			throw new InvalidParameterException();
+		}
 	}
 }

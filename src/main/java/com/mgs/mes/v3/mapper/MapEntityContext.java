@@ -30,19 +30,17 @@ public class MapEntityContext {
 
 	public <T extends MapEntity> T transform(Map<String, Object> data, GenericType type) {
 		Map<String, Object> domainMap = new HashMap<>();
-		Map<String, List<FieldAccessor>> bridgeMethodsByMethodName = fieldAccessorParser.parse(type).
+		Map<String, List<FieldAccessor>> accesorsByMethodName = fieldAccessorParser.parse(type).
 				filter(this::isAGetter).
 				collect(Collectors.groupingBy(FieldAccessor::getMethodName));
 
-		bridgeMethodsByMethodName.entrySet().stream().forEach((bridgeMethodsEntry) -> {
-			Collection<FieldAccessor> methods = bridgeMethodsEntry.getValue();
+		accesorsByMethodName.entrySet().stream().forEach((accessorByMethodNameEntry) -> {
+			Collection<FieldAccessor> accessors = accessorByMethodNameEntry.getValue();
+			if (accessors.size() != 1) throw new IllegalStateException();
 
-
-			if (methods.size() != 1) throw new IllegalStateException();
-
-			FieldAccessor accessor = methods.iterator().next();
+			FieldAccessor accessor = accessors.iterator().next();
 			String fieldName = extractFieldName(accessor);
-			Object value = domainValue(accessor, data.get(fieldName));
+			Object value = domainValue(accessor.getReturnType(), data.get(fieldName));
 			domainMap.put(accessor.getMethodName(), value);
 		});
 
@@ -65,59 +63,58 @@ public class MapEntityContext {
 		return beanNamingExpert.getFieldName(accessor.getMethodName(), "get");
 	}
 
-	private Object domainValue(FieldAccessor accessor, Object rawValue) {
-		assertNoOptionalFieldIsSet(accessor, rawValue);
+	private Object domainValue(GenericType returnType, Object rawValue) {
+		assertNoOptionalFieldIsSet(returnType, rawValue);
 
-		Class<?> declaredType = accessor.getReturnType().getActualType().get();
+		Class<?> declaredType = returnType.getActualType().get();
 		if (reflections.isSimple(declaredType)) return rawValue;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked
 			Map<String, Object> castedValue = (Map<String, Object>) rawValue;
-			//noinspection unchecked
-			Class<? extends MapEntity> castedType = (Class<? extends MapEntity>) declaredType;
 			return transform(
 					castedValue,
-					accessor.getReturnType()
+					returnType
 			);
 		}
 		if (reflections.isCollection(declaredType)) {
 			List castedValue = (List) rawValue;
-			GenericType typeOfCollection = accessor.getReturnType().getParameters().values().iterator().next();
+			GenericType typeOfCollection = returnType.getParameters().get(declaredType).values().iterator().next();
 			//noinspection unchecked
 			return castedValue.stream().map((old) -> mapValue(typeOfCollection, old)).collect(toList());
 		}
 		if (reflections.isAssignableTo(declaredType, Optional.class)) {
 			if (rawValue == null) return Optional.empty();
-			GenericType typeOfOptional = accessor.getReturnType().getParameters().values().iterator().next();
+			GenericType typeOfOptional = returnType.getParameters().get(declaredType).values().iterator().next();
 			return Optional.of(mapValue(typeOfOptional, rawValue));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + rawValue);
 	}
 
 	private Object mapValue(GenericType genericType, Object value) {
-		Class declaredType = genericType.getActualType().get();
-		if (reflections.isSimple(declaredType)) return value;
-		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
-			//noinspection unchecked
-			Map<String, Object> castedValue = (Map<String, Object>) value;
-			//noinspection unchecked
-			return transform(castedValue, genericType);
-		}
-		if (reflections.isCollection(declaredType)) {
-			List castedValue = (List) value;
-			//noinspection unchecked
-			return castedValue.stream().map((old) -> mapValue(null, old)).collect(toList());
-		}
-		if (reflections.isAssignableTo(declaredType, Optional.class)) {
-			Class typeOfOptional = null;
-			return Optional.of(mapValue(null, value));
-		}
-		throw new IllegalStateException("Invalid data in the map: " + value);
+//		Class declaredType = genericType.getActualType().get();
+//		if (reflections.isSimple(declaredType)) return value;
+//		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
+//			//noinspection unchecked
+//			Map<String, Object> castedValue = (Map<String, Object>) value;
+//			//noinspection unchecked
+//			return transform(castedValue, genericType);
+//		}
+//		if (reflections.isCollection(declaredType)) {
+//			List castedValue = (List) value;
+//			//noinspection unchecked
+//			return castedValue.stream().map((old) -> mapValue(null, old)).collect(toList());
+//		}
+//		if (reflections.isAssignableTo(declaredType, Optional.class)) {
+//			Class typeOfOptional = null;
+//			return Optional.of(mapValue(null, value));
+//		}
+//		throw new IllegalStateException("Invalid data in the map: " + value);
+		return domainValue(genericType, value);
 	}
 
-	private void assertNoOptionalFieldIsSet(FieldAccessor accessor, Object rawValue) {
-		if (!isOptional(accessor)) {
-			if (rawValue == null) throw new IllegalStateException("Can't map the getter: " + accessor);
+	private void assertNoOptionalFieldIsSet(GenericType returnType, Object rawValue) {
+		if (!isOptional(returnType)) {
+			if (rawValue == null) throw new IllegalStateException("Can't map the getter: " + returnType);
 		}
 	}
 
@@ -125,8 +122,8 @@ public class MapEntityContext {
 		return accessor.getType() == FieldAccessorType.GET;
 	}
 
-	private boolean isOptional(FieldAccessor accessor) {
-		return accessor.getReturnType().getActualType().get().equals(Optional.class);
+	private boolean isOptional(GenericType returnType) {
+		return returnType.getActualType().get().equals(Optional.class);
 	}
 
 }

@@ -8,9 +8,9 @@ public class GenericType {
 	private final String typeName;
 	private final boolean isResolved;
 	private final boolean isGenerics;
-	private final Map<String, GenericType> parametirizedTypes;
+	private final Map<Class, Map<String, GenericType>> parametirizedTypes;
 
-	public GenericType(Optional<Class> actualType, String typeName, boolean isResolved, boolean isGenerics, Map<String, GenericType> parametirizedTypes) {
+	public GenericType(Optional<Class> actualType, String typeName, boolean isResolved, boolean isGenerics, Map<Class, Map<String, GenericType>> parametirizedTypes) {
 		this.actualType = actualType;
 		this.typeName = typeName;
 		this.isResolved = isResolved;
@@ -18,7 +18,7 @@ public class GenericType {
 		this.parametirizedTypes = parametirizedTypes;
 	}
 
-	public Map<String, GenericType> getParameters() {
+	public Map<Class, Map<String, GenericType>> getParameters() {
 		return parametirizedTypes;
 	}
 

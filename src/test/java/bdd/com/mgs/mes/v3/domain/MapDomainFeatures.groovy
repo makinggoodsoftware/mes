@@ -55,7 +55,7 @@ class MapDomainFeatures extends Specification {
                     ],
                     products: [relationships:[
                         [
-                            refName: Product,
+                            refName: "Product",
                             refId: productId
                         ],
                     ]]
@@ -64,12 +64,22 @@ class MapDomainFeatures extends Specification {
         )
 
         then:
-        shoppingCart.id == userId
+        shoppingCart.id == shoppingCartId
         shoppingCart.user.refId == userId
         shoppingCart.user.refName == "User"
         shoppingCart.products.relationships.size() == 1
         shoppingCart.products.relationships.get(0).refId == productId
         shoppingCart.products.relationships.get(0).refName == "Product"
         ! shoppingCart.version.isPresent()
+
+        when: "Retrieving user"
+        def userFromShoppingCart = shoppingCart.user.retrieve().asMap()
+
+        then:
+        userFromShoppingCart == [
+                id: userId,
+                firstName: "Alberto",
+                lastName: "Gutierrez",
+        ]
     }
 }

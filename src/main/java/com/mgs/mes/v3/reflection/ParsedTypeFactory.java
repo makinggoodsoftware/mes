@@ -16,17 +16,19 @@ public class ParsedTypeFactory {
 		return new GenericType(empty(), type.getTypeName(), false, false, new HashMap<>());
 	}
 
-	public GenericType specificLeaf(Class clazz, Type type) {
-		return new GenericType(Optional.of(clazz), type.getTypeName(), true, false, new HashMap<>());
+	public GenericType simpleType(Type type) {
+		return new GenericType(Optional.of((Class)type), type.getTypeName(), true, false, new HashMap<>());
 	}
 
 	public GenericType parametrizedContainer(Class clazz, Type type, List<GenericType> genericTypes) {
 		TypeVariable[] typeParameters = clazz.getTypeParameters();
 		if (typeParameters.length != genericTypes.size()) throw new IllegalStateException();
-		Map<String, GenericType> genericTypesMap = new HashMap<>();
+		Map<Class, Map<String, GenericType>> genericTypesMap = new HashMap<>();
+		Map<String, GenericType> genericTypesMapAux = new HashMap<>();
 		for (int i=0;i<typeParameters.length;i++) {
-			genericTypesMap.put(typeParameters[i].getName(), genericTypes.get(i));
+			genericTypesMapAux.put(typeParameters[i].getName(), genericTypes.get(i));
 		}
+		genericTypesMap.put(clazz, genericTypesMapAux);
 		return new GenericType(Optional.of(clazz), type.getTypeName(), true, true, genericTypesMap);
 	}
 }
