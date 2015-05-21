@@ -36,7 +36,21 @@ class TypeParserSpecification extends Specification {
         result.ownDeclaration.parameters.get("E").typeResolution.specificClass.get() == String
         result.ownDeclaration.parameters.get("E").parameters.size() == 0
 
-        result.superDeclarations.size() == 0
+        result.superDeclarations.size() == 2
+
+        result.superDeclarations.get(Collection).ownDeclaration.typeResolution.typeName == "java.util.Collection<E>"
+        result.superDeclarations.get(Collection).ownDeclaration.typeResolution.specificClass.get() == Collection
+        result.superDeclarations.get(Collection).ownDeclaration.parameters.size() == 1
+        result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").typeResolution.typeName == "java.lang.String"
+        result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").typeResolution.specificClass.get() == String
+        result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").parameters.size() == 0
+
+        result.superDeclarations.get(Iterable).ownDeclaration.typeResolution.typeName == "java.lang.Iterable<E>"
+        result.superDeclarations.get(Iterable).ownDeclaration.typeResolution.specificClass.get() == Iterable
+        result.superDeclarations.get(Iterable).ownDeclaration.parameters.size() == 1
+        result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").typeResolution.typeName == "java.lang.String"
+        result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").typeResolution.specificClass.get() == String
+        result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").parameters.size() == 0
     }
 
     def "should parse unresolved type" (){

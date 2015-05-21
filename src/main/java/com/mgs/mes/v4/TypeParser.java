@@ -1,5 +1,7 @@
 package com.mgs.mes.v4;
 
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -7,46 +9,79 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Optional.of;
+
 public class TypeParser {
 	public ParsedType parse(Type type) {
+		return parse(type, new HashMap<>());
+	}
+
+	private ParsedType parse(Type type, Map<String, Declaration> effectiveParameters) {
 		TypeResolution typeResolution = typeResolution(type);
-		Declaration ownDeclaration = buildDeclaration(typeResolution);
+		Declaration ownDeclaration = buildDeclaration(typeResolution, effectiveParameters);
 
 		Optional<Class> specificClass = typeResolution.getSpecificClass();
 		if (!specificClass.isPresent()) return new ParsedType(ownDeclaration, new HashMap<>());
 
-		HashMap<Class, ParsedType> superDeclarations = new HashMap<>();
-		accumulateSuperParameterizedTypes(specificClass.get(), superDeclarations);
+		Map<Class, ParsedType> superDeclarations = new HashMap<>();
+		accumulateSuperParameterizedTypes(specificClass.get(), ownDeclaration.getParameters(), superDeclarations);
 		return new ParsedType(ownDeclaration, superDeclarations);
 	}
 
-	private void accumulateSuperParameterizedTypes(Class specificClass, HashMap<Class, ParsedType> superDeclarations) {
+	private void accumulateSuperParameterizedTypes(Class specificClass, Map<String, Declaration> effectiveParameters, Map<Class, ParsedType> accumulator) {
 		Type[] genericInterfaces = specificClass.getGenericInterfaces();
 		for (Type genericInterface : genericInterfaces) {
-			ParsedType superInterface = parse(genericInterface);
+			ParsedType superInterface = parse(genericInterface, substituteParameters((ParameterizedTypeImpl) genericInterface, effectiveParameters));
 			TypeResolution superTypeResolution = superInterface.getOwnDeclaration().getTypeResolution();
-			accumulateSuperParameterizedTypes(superTypeResolution.getSpecificClass().get(), superDeclarations);
+			accumulateSuperParameterizedTypes(superTypeResolution.getSpecificClass().get(), effectiveParameters, accumulator);
 			if (superTypeResolution.isParameterized()){
-				superDeclarations.put(superTypeResolution.getSpecificClass().get(), superInterface);
+				accumulator.put(superTypeResolution.getSpecificClass().get(), superInterface);
 			}
 		}
 	}
 
-	private Declaration buildDeclaration(TypeResolution typeResolution) {
+	private Map<String, Declaration> substituteParameters(ParameterizedTypeImpl parameterizedType, Map<String, Declaration> effectiveParameters) {
+		Map<String, Declaration> substitutedParameters = new HashMap<>();
+		Type[] sourceActualTypes = parameterizedType.getActualTypeArguments();
+		Type[] targetActualTypes = parameterizedType.getRawType().getTypeParameters();
+		for (int i=0; i<sourceActualTypes.length; i++){
+			Type sourceActualType = sourceActualTypes[i];
+			Type targetActualType = targetActualTypes[i];
+			substitutedParameters.put(targetActualType.getTypeName(), effectiveParameters.get(sourceActualType.getTypeName()));
+		}
+		return substitutedParameters;
+	}
+
+	private Declaration buildDeclaration(TypeResolution typeResolution, Map<String, Declaration> effectiveParameters) {
+		if (!typeResolution.isParameterized()) {
+			return new Declaration(typeResolution, new HashMap<>());
+		}
+
 		Map<String, Declaration> ownParameters = new HashMap<>();
-		if (typeResolution.isParameterized()) {
-			ParameterizedType parameterizedType = typeResolution.getParameterizedType().get();
-			TypeVariable[] typeParameters = ((Class) parameterizedType.getRawType()).getTypeParameters();
-			Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-			int i = 0;
-			for (Type actualTypeArgument : actualTypeArguments) {
-				ownParameters.put(
-						typeParameters[i++].getName(),
-						buildDeclaration(typeResolution(actualTypeArgument))
-				);
-			}
+		ParameterizedType parameterizedType = typeResolution.getParameterizedType().get();
+		TypeVariable[] typeParameters = ((Class) parameterizedType.getRawType()).getTypeParameters();
+		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+		int i = 0;
+		for (Type actualTypeArgument : actualTypeArguments) {
+			String parameterName = typeParameters[i++].getName();
+			Declaration declaration = resolveDeclaration(parameterName, effectiveParameters, actualTypeArgument);
+			ownParameters.put(
+					parameterName,
+					declaration
+			);
 		}
 		return new Declaration(typeResolution, ownParameters);
+	}
+
+	private Declaration resolveDeclaration(String parameterName, Map<String, Declaration> effectiveParameters, Type actualTypeArgument) {
+		TypeResolution resolvedParameterTypeResolution;
+		Declaration passedParameter = effectiveParameters.get(parameterName);
+		if (passedParameter != null) {
+			resolvedParameterTypeResolution = passedParameter.getTypeResolution();
+		}else{
+			resolvedParameterTypeResolution = typeResolution(actualTypeArgument);
+		}
+		return buildDeclaration(resolvedParameterTypeResolution, effectiveParameters);
 	}
 
 	private TypeResolution typeResolution(Type type) {
@@ -63,9 +98,9 @@ public class TypeParser {
 
 		return new TypeResolution(
 				type.getTypeName(),
-				(specificClass == null) ? Optional.<Class>empty() : Optional.of(specificClass),
+				(specificClass == null) ? Optional.<Class>empty() : of(specificClass),
 				parameterized,
-				(parameterizedType == null) ? Optional.<ParameterizedType>empty() : Optional.of(parameterizedType)
+				(parameterizedType == null) ? Optional.<ParameterizedType>empty() : of(parameterizedType)
 		);
 	}
 
