@@ -111,8 +111,8 @@ public class Validator {
 	private boolean isCorrectDataType(FieldAccessor fieldAccessor) {
 		return
 				fieldAccessor.getFieldName().equals("id") ||
-				reflections.isSimpleOrAssignableTo(fieldAccessor.getReturnType().getActualType().get(), Entity.class) ||
-				reflections.isAssignableTo(fieldAccessor.getReturnType().getActualType().get(), Collection.class);
+				reflections.isSimpleOrAssignableTo(fieldAccessor.getReturnType().getOwnDeclaration().getTypeResolution().getSpecificClass().get(), Entity.class) ||
+				reflections.isAssignableTo(fieldAccessor.getReturnType().getOwnDeclaration().getTypeResolution().getSpecificClass().get(), Collection.class);
 	}
 
 	@SuppressWarnings("CodeBlock2Expr")
@@ -132,8 +132,8 @@ public class Validator {
 						throw new IllegalArgumentException(errorMsg);
 					}
 
-					Class<?> getterType = getterFieldAccessor.getReturnType().getActualType().get();
-					Class<?> updaterType = updaterFieldAccessor.getReturnType().getActualType().get();
+					Class<?> getterType = getterFieldAccessor.getReturnType().getOwnDeclaration().getTypeResolution().getSpecificClass().get();
+					Class<?> updaterType = updaterFieldAccessor.getReturnType().getOwnDeclaration().getTypeResolution().getSpecificClass().get();
 					if (!isValidGetterAndSetter(getterType, updaterType)) {
 						String errorMsg = format("The declared type for the field %s is of different types in the getter| [%s], and the updater [%s]",
 								updaterFieldName,

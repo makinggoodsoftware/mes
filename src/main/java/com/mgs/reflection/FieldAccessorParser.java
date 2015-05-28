@@ -2,7 +2,8 @@ package com.mgs.reflection;
 
 import com.mgs.mes.v3.reflection.GenericMethod;
 import com.mgs.mes.v3.reflection.GenericMethods;
-import com.mgs.mes.v3.reflection.GenericsExpert;
+import com.mgs.mes.v4.typeParser.ParsedType;
+import com.mgs.mes.v4.typeParser.TypeParser;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -20,19 +21,19 @@ public class FieldAccessorParser {
 	private static final String GET_PREFIX = "get";
 	private static final String BUILDER_PREFIX = "with";
 	private final BeanNamingExpert beanNamingExpert;
-	private final GenericsExpert genericsExpert;
+	private final TypeParser typeParser;
 
-	public FieldAccessorParser(BeanNamingExpert beanNamingExpert, GenericsExpert genericsExpert) {
+	public FieldAccessorParser(BeanNamingExpert beanNamingExpert, TypeParser typeParser) {
 		this.beanNamingExpert = beanNamingExpert;
-		this.genericsExpert = genericsExpert;
+		this.typeParser = typeParser;
 	}
 
 	public Map<Method, Optional<FieldAccessor>> parseAll(Class clazz) {
-		return parseAll(genericsExpert.parseType(clazz));
+		return parseAll(typeParser.parse(clazz));
 	}
 
-	public Map<Method, Optional<FieldAccessor>> parseAll(GenericType type) {
-		GenericMethods genericMethods = genericsExpert.parseMethods(type);
+	public Map<Method, Optional<FieldAccessor>> parseAll(ParsedType type) {
+		GenericMethods genericMethods = typeParser.parseMethods(type);
 		Stream<Map.Entry<String, GenericMethod>> stream = genericMethods.getParsedMethodsAsMap().entrySet().stream();
 		return stream.
 				collect(toMap(
@@ -57,36 +58,41 @@ public class FieldAccessorParser {
 	}
 
 	public Stream<FieldAccessor> parse(Class type) {
-		return parseAll(genericsExpert.parseType(type)).entrySet().stream().
+		return parseAll(typeParser.parse(type)).entrySet().stream().
 				filter((methodToFieldAccessor) -> methodToFieldAccessor.getValue().isPresent()).
 				map((methodToFieldAccessor) -> methodToFieldAccessor.getValue().get());
 	}
 
-	public Stream<FieldAccessor> parse(GenericType type) {
+	public Stream<FieldAccessor> parse(ParsedType type) {
 		return parseAll(type).entrySet().stream().
 				filter((methodToFieldAccessor) -> methodToFieldAccessor.getValue().isPresent()).
 				map((methodToFieldAccessor) -> methodToFieldAccessor.getValue().get());
 	}
 
-	public Optional<FieldAccessor> parse(Class<?> type, String accessorName) {
-		return parse(type, accessorName);
-	}
+//	public Optional<FieldAccessor> parse(Class<?> type, String accessorName) {
+//		return parse(type, accessorName);
+//	}
 
 	public Optional<FieldAccessor> parse(Class from, String methodName, Class... parameters) {
-		GenericMethod genericMethod = genericsExpert.parseMethod(from, methodName, parameters);
-		if (isGetter(genericMethod)) {
-			return parse(genericMethod, GET_PREFIX, GET, genericMethod.getMethod().getAnnotations());
-		}
+		try {
+			ParsedType parsedType = typeParser.parse(from);
+			GenericMethod genericMethod = typeParser.parseMethod(parsedType, from.getMethod(methodName, parameters));
+			if (isGetter(genericMethod)) {
+				return parse(genericMethod, GET_PREFIX, GET, genericMethod.getMethod().getAnnotations());
+			}
 
-		if (isBuilder(genericMethod)) {
-			return parse(genericMethod, BUILDER_PREFIX, BUILDER, genericMethod.getMethod().getAnnotations());
-		}
+			if (isBuilder(genericMethod)) {
+				return parse(genericMethod, BUILDER_PREFIX, BUILDER, genericMethod.getMethod().getAnnotations());
+			}
 
-		return empty();
+			return empty();
+		} catch (NoSuchMethodException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private boolean isGetter(GenericMethod genericMethod) {
-		Optional<Class> actualType = genericMethod.getReturnType().getActualType();
+		Optional<Class> actualType = genericMethod.getReturnType().getOwnDeclaration().getTypeResolution().getSpecificClass();
 		if (!actualType.isPresent()) {
 			throw new IllegalStateException();
 		}
@@ -100,13 +106,13 @@ public class FieldAccessorParser {
 		return
 				genericMethod.getMethod().getName().indexOf(BUILDER_PREFIX) == 0 &&
 						genericMethod.getMethod().getParameterCount() == 1 &&
-						genericMethod.getMethod().getDeclaringClass().equals(genericMethod.getReturnType().getActualType().get());
+						genericMethod.getMethod().getDeclaringClass().equals(genericMethod.getReturnType().getOwnDeclaration().getTypeResolution().getSpecificClass().get());
 	}
 
 	private Optional<FieldAccessor> parse(GenericMethod genericMethod, String prefix, FieldAccessorType type, Annotation[] annotations) {
 		String methodName = genericMethod.getMethod().getName();
 		String fieldName = beanNamingExpert.getFieldName(methodName, prefix);
-		GenericType genericReturnType = genericMethod.getReturnType();
+		ParsedType genericReturnType = genericMethod.getReturnType();
 		return of(new FieldAccessor(methodName, fieldName, prefix, type, genericReturnType, annotations));
 	}
 }

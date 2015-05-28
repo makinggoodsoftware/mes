@@ -126,19 +126,19 @@ public class GenericsExpert {
 
 		Map<String, GenericMethod> parsedMethodsAsMap = new HashMap<>();
 		Method[] methods = type.getActualType().get().getMethods();
-		for (Method method : methods) {
-			parsedMethodsAsMap.put(method.getName(), new GenericMethod(parseType(method.getGenericReturnType(), type.getParameters()), method));
-		}
+//		for (Method method : methods) {
+//			parsedMethodsAsMap.put(method.getName(), new GenericMethod(parseType(method.getGenericReturnType(), type.getParameters()), method));
+//		}
 		GenericMethods result = new GenericMethods(parsedMethodsAsMap);
 		return result;
 	}
 
-	public GenericMethod parseMethod(Class from, String methodName, Class... params) {
-		try {
-			Method method = from.getMethod(methodName, params);
-			return new GenericMethod(parseMethodReturnType(from, methodName, params), method);
-		} catch (NoSuchMethodException e) {
-			throw new InvalidParameterException();
-		}
-	}
+//	public GenericMethod parseMethod(Class from, String methodName, Class... params) {
+//		try {
+//			Method method = from.getMethod(methodName, params);
+//			return new GenericMethod(parseMethodReturnType(from, methodName, params), method);
+//		} catch (NoSuchMethodException e) {
+//			throw new InvalidParameterException();
+//		}
+//	}
 }

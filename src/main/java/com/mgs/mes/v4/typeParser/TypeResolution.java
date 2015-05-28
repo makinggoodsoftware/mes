@@ -1,43 +1,36 @@
-package com.mgs.mes.v4;
+package com.mgs.mes.v4.typeParser;
 
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Optional;
 
 public class TypeResolution {
-	private final String typeName;
-	private final boolean isParameterized;
+	private final Optional<String> genericName;
 	private final Optional<ParameterizedType> parameterizedType;
 	private final Optional<Class> specificClass;
 
-	public TypeResolution(String typeName, Optional<Class> specificClass, boolean isParameterized, Optional<ParameterizedType> parameterizedType) {
-		this.typeName = typeName;
+	public TypeResolution(Optional<String> genericName, Optional<Class> specificClass, Optional<ParameterizedType> parameterizedType) {
+		this.genericName = genericName;
 		this.specificClass = specificClass;
-		this.isParameterized = isParameterized;
 		this.parameterizedType = parameterizedType;
-	}
-
-	public String getTypeName() {
-		return typeName;
 	}
 
 	public Optional<Class> getSpecificClass() {
 		return specificClass;
 	}
 
-	public boolean isParameterized() {
-		return isParameterized;
-	}
-
 	public Optional<ParameterizedType> getParameterizedType() {
 		return parameterizedType;
+	}
+
+	public Optional<String> getGenericName() {
+		return genericName;
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer("TypeResolution{");
-		sb.append("isParameterized=").append(isParameterized);
-		sb.append(", typeName='").append(typeName).append('\'');
+		sb.append(", genericName=").append(genericName);
 		sb.append(", parameterizedType=").append(parameterizedType);
 		sb.append(", specificClass=").append(specificClass);
 		sb.append('}');

@@ -1,6 +1,7 @@
 package com.mgs.mes.v3.mapper;
 
 import com.mgs.mes.v3.reflection.GenericsExpert;
+import com.mgs.mes.v4.typeParser.TypeParser;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
 import com.mgs.reflection.Reflections;
@@ -27,7 +28,7 @@ public class MapEntityContextFactory {
 
 	public MapEntityContext defaultContext(){
 		ManagerLocator managerLocator = new ManagerLocator(reflections, defaultManagers);
-		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, genericsExpert);
+		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, new TypeParser());
 	}
 
 	public MapEntityContext withManagers(MapEntityManager... managers){
@@ -35,6 +36,6 @@ public class MapEntityContextFactory {
 		allManagers.addAll(defaultManagers);
 		allManagers.addAll(asList(managers));
 		ManagerLocator managerLocator = new ManagerLocator(reflections, allManagers);
-		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, genericsExpert);
+		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, new TypeParser());
 	}
 }

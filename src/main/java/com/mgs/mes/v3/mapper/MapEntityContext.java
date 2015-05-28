@@ -1,6 +1,8 @@
 package com.mgs.mes.v3.mapper;
 
-import com.mgs.mes.v3.reflection.GenericsExpert;
+import com.mgs.mes.v4.typeParser.Declaration;
+import com.mgs.mes.v4.typeParser.ParsedType;
+import com.mgs.mes.v4.typeParser.TypeParser;
 import com.mgs.reflection.*;
 
 import java.util.*;
@@ -14,23 +16,24 @@ public class MapEntityContext {
 	private final FieldAccessorParser fieldAccessorParser;
 	private final BeanNamingExpert beanNamingExpert;
 	private final Reflections reflections;
-	private final GenericsExpert genericsExpert;
+	private final TypeParser typeParser;
 
-	public MapEntityContext(ManagerLocator managerLocator, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Reflections reflections, GenericsExpert genericsExpert) {
+	public MapEntityContext(ManagerLocator managerLocator, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Reflections reflections, TypeParser typeParser) {
 		this.managerLocator = managerLocator;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.reflections = reflections;
-		this.genericsExpert = genericsExpert;
+		this.typeParser = typeParser;
 	}
 
 	public <T extends MapEntity> T transform(Map<String, Object> data, Class type) {
-		return transform(data, genericsExpert.parseType(type));
+		return transform(data, typeParser.parse(type));
 	}
 
-	public <T extends MapEntity> T transform(Map<String, Object> data, GenericType type) {
+	public <T extends MapEntity> T transform(Map<String, Object> data, ParsedType type) {
 		Map<String, Object> domainMap = new HashMap<>();
-		Map<String, List<FieldAccessor>> accesorsByMethodName = fieldAccessorParser.parse(type).
+		Map<String, List<FieldAccessor>> accesorsByMethodName =
+				fieldAccessorParser.parse(type).
 				filter(this::isAGetter).
 				collect(Collectors.groupingBy(FieldAccessor::getMethodName));
 
@@ -44,7 +47,7 @@ public class MapEntityContext {
 			domainMap.put(accessor.getMethodName(), value);
 		});
 
-		Class actualType = type.getActualType().get();
+		Class actualType = type.getOwnDeclaration().getTypeResolution().getSpecificClass().get();
 		//noinspection unchecked
 		return (T) newProxyInstance(
 				MapEntityContext.class.getClassLoader(),
@@ -63,7 +66,7 @@ public class MapEntityContext {
 		return beanNamingExpert.getFieldName(accessor.getMethodName(), "get");
 	}
 
-	private Object domainValue(GenericType returnType, Object rawValue) {
+	private Object domainValue(ParsedType returnType, Object rawValue) {
 		assertNoOptionalFieldIsSet(returnType, rawValue);
 
 		Class<?> declaredType = returnType.getActualType().get();
@@ -78,41 +81,19 @@ public class MapEntityContext {
 		}
 		if (reflections.isCollection(declaredType)) {
 			List castedValue = (List) rawValue;
-			GenericType typeOfCollection = returnType.getParameters().get(declaredType).values().iterator().next();
+			Declaration typeOfCollection = returnType.getOwnDeclaration().getParameters().values().iterator().next();
 			//noinspection unchecked
-			return castedValue.stream().map((old) -> mapValue(typeOfCollection, old)).collect(toList());
+			return castedValue.stream().map((old) -> domainValue(typeParser.parse(typeOfCollection), old)).collect(toList());
 		}
 		if (reflections.isAssignableTo(declaredType, Optional.class)) {
 			if (rawValue == null) return Optional.empty();
-			GenericType typeOfOptional = returnType.getParameters().get(declaredType).values().iterator().next();
-			return Optional.of(mapValue(typeOfOptional, rawValue));
+			Declaration typeOfOptional = returnType.getOwnDeclaration().getParameters().values().iterator().next();
+			return Optional.of(domainValue(typeParser.parse(typeOfOptional), rawValue));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + rawValue);
 	}
 
-	private Object mapValue(GenericType genericType, Object value) {
-//		Class declaredType = genericType.getActualType().get();
-//		if (reflections.isSimple(declaredType)) return value;
-//		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
-//			//noinspection unchecked
-//			Map<String, Object> castedValue = (Map<String, Object>) value;
-//			//noinspection unchecked
-//			return transform(castedValue, genericType);
-//		}
-//		if (reflections.isCollection(declaredType)) {
-//			List castedValue = (List) value;
-//			//noinspection unchecked
-//			return castedValue.stream().map((old) -> mapValue(null, old)).collect(toList());
-//		}
-//		if (reflections.isAssignableTo(declaredType, Optional.class)) {
-//			Class typeOfOptional = null;
-//			return Optional.of(mapValue(null, value));
-//		}
-//		throw new IllegalStateException("Invalid data in the map: " + value);
-		return domainValue(genericType, value);
-	}
-
-	private void assertNoOptionalFieldIsSet(GenericType returnType, Object rawValue) {
+	private void assertNoOptionalFieldIsSet(ParsedType returnType, Object rawValue) {
 		if (!isOptional(returnType)) {
 			if (rawValue == null) throw new IllegalStateException("Can't map the getter: " + returnType);
 		}
@@ -122,7 +103,7 @@ public class MapEntityContext {
 		return accessor.getType() == FieldAccessorType.GET;
 	}
 
-	private boolean isOptional(GenericType returnType) {
+	private boolean isOptional(ParsedType returnType) {
 		return returnType.getActualType().get().equals(Optional.class);
 	}
 

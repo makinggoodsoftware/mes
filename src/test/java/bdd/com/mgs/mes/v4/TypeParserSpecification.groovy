@@ -1,5 +1,7 @@
 package com.mgs.mes.v4
 
+import com.mgs.mes.v4.typeParser.ParsedType
+import com.mgs.mes.v4.typeParser.TypeParser
 import spock.lang.Specification
 
 class TypeParserSpecification extends Specification {
@@ -10,15 +12,14 @@ class TypeParserSpecification extends Specification {
         ParsedType result= typeParser.parse(Integer)
 
         then:
-        result.ownDeclaration.typeResolution.typeName == "java.lang.Integer"
         result.ownDeclaration.typeResolution.specificClass.get() == Integer
+        ! result.ownDeclaration.typeResolution.parameterizedType.isPresent()
         result.ownDeclaration.parameters.size() == 0
 
         result.superDeclarations.size() == 1
-        result.superDeclarations.get(Comparable).ownDeclaration.typeResolution.typeName == "java.lang.Comparable<java.lang.Integer>"
         result.superDeclarations.get(Comparable).ownDeclaration.typeResolution.specificClass.get() == Comparable
+        result.superDeclarations.get(Comparable).ownDeclaration.typeResolution.parameterizedType.isPresent()
         result.superDeclarations.get(Comparable).ownDeclaration.parameters.size() == 1
-        result.superDeclarations.get(Comparable).ownDeclaration.parameters.get("T").typeResolution.typeName == "java.lang.Integer"
         result.superDeclarations.get(Comparable).ownDeclaration.parameters.get("T").typeResolution.specificClass.get() == Integer
         result.superDeclarations.get(Comparable).ownDeclaration.parameters.get("T").parameters.size() == 0
     }
@@ -28,28 +29,28 @@ class TypeParserSpecification extends Specification {
         ParsedType result= typeParser.parse(DeclarationHolder.getMethod("simpleGenerics").genericReturnType)
 
         then:
-        result.ownDeclaration.typeResolution.typeName == 'java.util.List<java.lang.String>'
         result.ownDeclaration.typeResolution.specificClass.get() == List
+        result.ownDeclaration.typeResolution.parameterizedType.isPresent()
         result.ownDeclaration.parameters.size() == 1
 
-        result.ownDeclaration.parameters.get("E").typeResolution.typeName == "java.lang.String"
         result.ownDeclaration.parameters.get("E").typeResolution.specificClass.get() == String
+        ! result.ownDeclaration.parameters.get("E").typeResolution.parameterizedType.isPresent()
         result.ownDeclaration.parameters.get("E").parameters.size() == 0
 
         result.superDeclarations.size() == 2
 
-        result.superDeclarations.get(Collection).ownDeclaration.typeResolution.typeName == "java.util.Collection<E>"
         result.superDeclarations.get(Collection).ownDeclaration.typeResolution.specificClass.get() == Collection
+        result.superDeclarations.get(Collection).ownDeclaration.typeResolution.parameterizedType.isPresent()
         result.superDeclarations.get(Collection).ownDeclaration.parameters.size() == 1
-        result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").typeResolution.typeName == "java.lang.String"
         result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").typeResolution.specificClass.get() == String
+        ! result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").typeResolution.parameterizedType.isPresent()
         result.superDeclarations.get(Collection).ownDeclaration.parameters.get("E").parameters.size() == 0
 
-        result.superDeclarations.get(Iterable).ownDeclaration.typeResolution.typeName == "java.lang.Iterable<E>"
         result.superDeclarations.get(Iterable).ownDeclaration.typeResolution.specificClass.get() == Iterable
+        result.superDeclarations.get(Iterable).ownDeclaration.typeResolution.parameterizedType.isPresent()
         result.superDeclarations.get(Iterable).ownDeclaration.parameters.size() == 1
-        result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").typeResolution.typeName == "java.lang.String"
         result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").typeResolution.specificClass.get() == String
+        ! result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").typeResolution.parameterizedType.isPresent()
         result.superDeclarations.get(Iterable).ownDeclaration.parameters.get("T").parameters.size() == 0
     }
 
@@ -58,7 +59,6 @@ class TypeParserSpecification extends Specification {
         ParsedType result= typeParser.parse(GenericDeclarationHolder.getMethod("unresolved").genericReturnType)
 
         then:
-        result.ownDeclaration.typeResolution.typeName == 'T'
         ! result.ownDeclaration.typeResolution.specificClass.isPresent()
         result.ownDeclaration.parameters.size() == 0
     }
@@ -68,7 +68,6 @@ class TypeParserSpecification extends Specification {
         ParsedType result= typeParser.parse(DeclarationHolder.getMethod("indirectDeclarationHolder").genericReturnType)
 
         then:
-        result.ownDeclaration.typeResolution.typeName == 'com.mgs.mes.v4.TypeParserSpecification$IndirectDeclarationHolder'
         result.ownDeclaration.typeResolution.specificClass.get() == IndirectDeclarationHolder
         result.ownDeclaration.parameters.size() == 0
 

@@ -1,19 +1,19 @@
 package com.mgs.mes.v3.reflection;
 
-import com.mgs.reflection.GenericType;
+import com.mgs.mes.v4.typeParser.ParsedType;
 
 import java.lang.reflect.Method;
 
 public class GenericMethod {
-	private final GenericType returnType;
+	private final ParsedType returnType;
 	private final Method method;
 
-	public GenericMethod(GenericType returnType, Method method) {
+	public GenericMethod(ParsedType returnType, Method method) {
 		this.returnType = returnType;
 		this.method = method;
 	}
 
-	public GenericType getReturnType() {
+	public ParsedType getReturnType() {
 		return returnType;
 	}
 

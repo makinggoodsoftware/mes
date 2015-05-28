@@ -1,5 +1,7 @@
 package com.mgs.reflection;
 
+import com.mgs.mes.v4.typeParser.ParsedType;
+
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
@@ -8,10 +10,10 @@ public class FieldAccessor {
 	private final String methodName;
 	private final String prefix;
 	private final String fieldName;
-	private final GenericType returnType;
+	private final ParsedType returnType;
 	private final Annotation[] annotations;
 
-	public FieldAccessor(String methodName, String fieldName, String prefix, FieldAccessorType type, GenericType returnType, Annotation[] annotations) {
+	public FieldAccessor(String methodName, String fieldName, String prefix, FieldAccessorType type, ParsedType returnType, Annotation[] annotations) {
 		this.methodName = methodName;
 		this.type = type;
 		this.prefix = prefix;
@@ -40,7 +42,7 @@ public class FieldAccessor {
 		return annotations;
 	}
 
-	public GenericType getReturnType() {
+	public ParsedType getReturnType() {
 		return returnType;
 	}
 

@@ -1,6 +1,7 @@
-package com.mgs.mes.v4;
+package com.mgs.mes.v4.typeParser;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class Declaration {
 	private final TypeResolution typeResolution;
@@ -17,6 +18,10 @@ public class Declaration {
 
 	public TypeResolution getTypeResolution() {
 		return typeResolution;
+	}
+
+	public Optional<Class> getActualType() {
+		return getTypeResolution().getSpecificClass();
 	}
 
 	@Override

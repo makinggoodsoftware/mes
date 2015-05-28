@@ -1,6 +1,7 @@
-package com.mgs.mes.v4;
+package com.mgs.mes.v4.typeParser;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class ParsedType {
 	private final Declaration ownDeclaration;
@@ -17,6 +18,10 @@ public class ParsedType {
 
 	public Map<Class, ParsedType> getSuperDeclarations() {
 		return superDeclarations;
+	}
+
+	public Optional<Class> getActualType() {
+		return getOwnDeclaration().getTypeResolution().getSpecificClass();
 	}
 
 	@Override

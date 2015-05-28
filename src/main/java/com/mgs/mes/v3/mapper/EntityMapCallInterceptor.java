@@ -1,6 +1,6 @@
 package com.mgs.mes.v3.mapper;
 
-import com.mgs.reflection.GenericType;
+import com.mgs.mes.v4.typeParser.ParsedType;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -8,13 +8,12 @@ import java.util.Map;
 import java.util.Optional;
 
 public class EntityMapCallInterceptor<T extends MapEntity> implements InvocationHandler {
-	private final GenericType type;
+	private final ParsedType type;
 	private final Map<String, Object> domainMap;
 	private final MapEntityManager<T> entityManager;
 
-	public EntityMapCallInterceptor(GenericType type, Map<String, Object> domainMap, MapEntityManager<T> entityManager) {
+	public EntityMapCallInterceptor(ParsedType type, Map<String, Object> domainMap, MapEntityManager<T> entityManager) {
 		this.type = type;
-
 		this.domainMap = domainMap;
 		this.entityManager = entityManager;
 	}
