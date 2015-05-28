@@ -66,31 +66,40 @@ public class MapEntityContext {
 		return beanNamingExpert.getFieldName(accessor.getMethodName(), "get");
 	}
 
-	private Object domainValue(ParsedType returnType, Object rawValue) {
-		assertNoOptionalFieldIsSet(returnType, rawValue);
+	private Object domainValue(ParsedType parsedType, Object rawValue) {
+		assertParsedTypeIsResolved(parsedType);
+		assertNoOptionalFieldIsSet(parsedType, rawValue);
 
-		Class<?> declaredType = returnType.getActualType().get();
+		Class<?> declaredType = parsedType.getActualType().get();
 		if (reflections.isSimple(declaredType)) return rawValue;
 		if (reflections.isAssignableTo(declaredType, MapEntity.class)) {
 			//noinspection unchecked
 			Map<String, Object> castedValue = (Map<String, Object>) rawValue;
 			return transform(
 					castedValue,
-					returnType
+					parsedType
 			);
 		}
 		if (reflections.isCollection(declaredType)) {
 			List castedValue = (List) rawValue;
-			Declaration typeOfCollection = returnType.getOwnDeclaration().getParameters().values().iterator().next();
+			Declaration typeOfCollection = parsedType.getOwnDeclaration().getParameters().values().iterator().next();
 			//noinspection unchecked
-			return castedValue.stream().map((old) -> domainValue(typeParser.parse(typeOfCollection), old)).collect(toList());
+			return castedValue.stream().map((old) ->
+					domainValue(typeParser.parse(typeOfCollection), old)).collect(toList()
+			);
 		}
 		if (reflections.isAssignableTo(declaredType, Optional.class)) {
 			if (rawValue == null) return Optional.empty();
-			Declaration typeOfOptional = returnType.getOwnDeclaration().getParameters().values().iterator().next();
+			Declaration typeOfOptional = parsedType.getOwnDeclaration().getParameters().values().iterator().next();
 			return Optional.of(domainValue(typeParser.parse(typeOfOptional), rawValue));
 		}
 		throw new IllegalStateException("Invalid data in the map: " + rawValue);
+	}
+
+	private void assertParsedTypeIsResolved(ParsedType returnType) {
+		if (! returnType.getActualType().isPresent()) {
+			throw new IllegalStateException("Can't map into a type which is not resolved");
+		}
 	}
 
 	private void assertNoOptionalFieldIsSet(ParsedType returnType, Object rawValue) {
@@ -103,8 +112,9 @@ public class MapEntityContext {
 		return accessor.getType() == FieldAccessorType.GET;
 	}
 
-	private boolean isOptional(ParsedType returnType) {
-		return returnType.getActualType().get().equals(Optional.class);
+	private boolean isOptional(ParsedType parsedType) {
+		Optional<Class> actualType = parsedType.getActualType();
+		return actualType.isPresent() && actualType.get().equals(Optional.class);
 	}
 
 }
