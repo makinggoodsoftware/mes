@@ -16,6 +16,11 @@ public class OneToOneManager implements MapEntityManager<OneToOne<? extends MapE
 	}
 
 	@Override
+	public Integer getInheritanceLevel() {
+		return 1;
+	}
+
+	@Override
 	public Class<OneToOne> getSupportedType() {
 		return OneToOne.class;
 	}

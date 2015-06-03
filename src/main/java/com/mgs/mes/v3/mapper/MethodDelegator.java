@@ -17,6 +17,11 @@ class MethodDelegator implements MapEntityManager<MapEntity>{
 	}
 
 	@Override
+	public Integer getInheritanceLevel() {
+		return 0;
+	}
+
+	@Override
 	public Class<MapEntity> getSupportedType() {
 		return MapEntity.class;
 	}

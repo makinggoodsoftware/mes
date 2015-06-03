@@ -12,7 +12,7 @@ dependencies {
             'com.google.guava:guava:18.0'
     testCompile 'cglib:cglib:2.2.2',
             'org.objenesis:objenesis:2.1'
-    testCompile ('org.spockframework:spock-maven:0.7-groovy-2.0') {
+    testCompile ('org.spockframework:spock-maven:1.0-groovy-2.3') {
         exclude group: 'org.ow2.asm'
     }
 }

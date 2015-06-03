@@ -1,6 +1,5 @@
 package com.mgs.mes.v3.mapper;
 
-import com.mgs.mes.v3.reflection.GenericsExpert;
 import com.mgs.mes.v4.typeParser.TypeParser;
 import com.mgs.reflection.BeanNamingExpert;
 import com.mgs.reflection.FieldAccessorParser;
@@ -16,19 +15,19 @@ public class MapEntityContextFactory {
 	private final FieldAccessorParser fieldAccessorParser;
 	private final BeanNamingExpert beanNamingExpert;
 	private final List<MapEntityManager> defaultManagers;
-	private final GenericsExpert genericsExpert;
+	private final TypeParser typeParser;
 
-	public MapEntityContextFactory(Reflections reflections, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, List<MapEntityManager> defaultManagers, GenericsExpert genericsExpert) {
+	public MapEntityContextFactory(Reflections reflections, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, List<MapEntityManager> defaultManagers, TypeParser typeParser) {
 		this.reflections = reflections;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.defaultManagers = defaultManagers;
-		this.genericsExpert = genericsExpert;
+		this.typeParser = typeParser;
 	}
 
 	public MapEntityContext defaultContext(){
 		ManagerLocator managerLocator = new ManagerLocator(reflections, defaultManagers);
-		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, new TypeParser());
+		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, new TypeParser(), mapBuilder());
 	}
 
 	public MapEntityContext withManagers(MapEntityManager... managers){
@@ -36,6 +35,10 @@ public class MapEntityContextFactory {
 		allManagers.addAll(defaultManagers);
 		allManagers.addAll(asList(managers));
 		ManagerLocator managerLocator = new ManagerLocator(reflections, allManagers);
-		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, new TypeParser());
+		return new MapEntityContext(managerLocator, fieldAccessorParser, beanNamingExpert, reflections, new TypeParser(), mapBuilder());
+	}
+
+	private MapEntityFactory mapBuilder() {
+		return new MapEntityFactory(typeParser, fieldAccessorParser);
 	}
 }

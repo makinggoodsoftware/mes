@@ -18,7 +18,7 @@ public class MapEntityConfig {
 				reflectionConfig.fieldAccessorParser(),
 				reflectionConfig.beanNamingExpert(),
 				defaultManagers(),
-				reflectionConfig.genericsExpert());
+				reflectionConfig.typeParser());
 	}
 
 	private List<MapEntityManager> defaultManagers() {

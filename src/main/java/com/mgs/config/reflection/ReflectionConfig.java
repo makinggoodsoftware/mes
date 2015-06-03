@@ -23,4 +23,8 @@ public class ReflectionConfig {
 	public Reflections reflections() {
 		return new Reflections();
 	}
+
+	public TypeParser typeParser() {
+		return new TypeParser();
+	}
 }

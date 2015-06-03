@@ -1,15 +1,52 @@
 package com.mgs.mes.v3.domain
+
 import com.mgs.config.reflection.ReflectionConfig
-import com.mgs.mes.v3.mapper.MapEntityConfig
-import com.mgs.mes.v3.mapper.MapEntityContext
+import com.mgs.mes.v3.OneToOne
+import com.mgs.mes.v3.mapper.*
 import spock.lang.Specification
+
+import java.lang.reflect.Method
+
+import static java.util.Optional.empty
+import static java.util.Optional.of
 
 class MapDomainFeatures extends Specification {
     MapEntityConfig mapEntityConfig = new MapEntityConfig(new ReflectionConfig())
     MapEntityContext context
+    User user
 
     def "setup" () {
-        context = mapEntityConfig.contextFactory().defaultContext()
+        context = mapEntityConfig.contextFactory().withManagers(new MapEntityManager() {
+            @Override
+            Integer getInheritanceLevel() {
+                return 1
+            }
+
+            @Override
+            Class getSupportedType() {
+                return OneToOne
+            }
+
+            @Override
+            Optional<EntityMethod> applies(Method method) {
+                EntityMethod<MapEntity> mapEntityEntityMethod = rawApplies(method)
+                return mapEntityEntityMethod == null ? empty() : of(mapEntityEntityMethod)
+            }
+
+            private EntityMethod<MapEntity> rawApplies(Method method) {
+                switch (method.getName()) {
+                    case "retrieve":
+                        return new EntityMethod<MapEntity>() {
+                            @Override
+                            Object execute(Class<? extends MapEntity> type, MapEntity value, Map<String, Object> asMap, Object[] params) {
+                                return user
+                            }
+                        }
+                }
+
+                return null;
+            }
+        })
     }
 
     def "should create simple shopping cart" (){
@@ -32,7 +69,7 @@ class MapDomainFeatures extends Specification {
         ! product.version.isPresent()
 
         when: "Creating user"
-        User user = context.transform([
+        user = context.transform([
                 id: userId,
                 firstName: "Alberto",
                 lastName: "Gutierrez",

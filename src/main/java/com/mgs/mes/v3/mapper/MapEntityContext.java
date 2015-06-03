@@ -8,7 +8,6 @@ import com.mgs.reflection.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.stream.Collectors.toList;
 
 public class MapEntityContext {
@@ -17,13 +16,24 @@ public class MapEntityContext {
 	private final BeanNamingExpert beanNamingExpert;
 	private final Reflections reflections;
 	private final TypeParser typeParser;
+	private final MapEntityFactory mapEntityFactory;
 
-	public MapEntityContext(ManagerLocator managerLocator, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Reflections reflections, TypeParser typeParser) {
+	public MapEntityContext(ManagerLocator managerLocator, FieldAccessorParser fieldAccessorParser, BeanNamingExpert beanNamingExpert, Reflections reflections, TypeParser typeParser, MapEntityFactory mapEntityFactory) {
 		this.managerLocator = managerLocator;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.beanNamingExpert = beanNamingExpert;
 		this.reflections = reflections;
 		this.typeParser = typeParser;
+		this.mapEntityFactory = mapEntityFactory;
+	}
+
+	public <T extends MapEntity> T newEntity(Class<T> type, EntityMapBuilder<T> entityMapBuilder) {
+		List<MapEntityManager<T>> mapEntityManagers = managerLocator.byType(type);
+		return mapEntityFactory.newEntity(
+				type,
+				mapEntityManagers,
+				entityMapBuilder
+		);
 	}
 
 	public <T extends MapEntity> T transform(Map<String, Object> data, Class type) {
@@ -44,20 +54,13 @@ public class MapEntityContext {
 			FieldAccessor accessor = accessors.iterator().next();
 			String fieldName = extractFieldName(accessor);
 			Object value = domainValue(accessor.getReturnType(), data.get(fieldName));
-			domainMap.put(accessor.getMethodName(), value);
+			domainMap.put(accessor.getFieldName(), value);
 		});
 
 		Class actualType = type.getOwnDeclaration().getTypeResolution().getSpecificClass().get();
 		//noinspection unchecked
-		return (T) newProxyInstance(
-				MapEntityContext.class.getClassLoader(),
-				new Class[]{actualType},
-				new EntityMapCallInterceptor<>(
-						type,
-						domainMap,
-						managerLocator.byType(actualType)
-				)
-		);
+		List<MapEntityManager<T>> entityManagers = managerLocator.byType(actualType);
+		return mapEntityFactory.fromMap(type, entityManagers, domainMap);
 	}
 
 	private String extractFieldName(FieldAccessor accessor) {
@@ -116,5 +119,4 @@ public class MapEntityContext {
 		Optional<Class> actualType = parsedType.getActualType();
 		return actualType.isPresent() && actualType.get().equals(Optional.class);
 	}
-
 }
