@@ -16,14 +16,14 @@ class MapEntityBasicFeatures extends Specification {
     def "should parse value and entity property" (){
         given:
         ValueEntity expectedResult = Mock(ValueEntity)
-        expectedResult.asMap() >> [getString:"value"]
+        expectedResult.asDomainMap() >> [string:"value"]
 
         when: "Testing value property"
         ValueEntity valueEntity = context.transform([string:"value"], ValueEntity)
 
         then:
         valueEntity.getString() == "value"
-        valueEntity.hashCode() == [getString:"value"].hashCode()
+        valueEntity.hashCode() == [string:"value"].hashCode()
         valueEntity == expectedResult
 
         when: "Testing entity property reusing the value property"
@@ -31,7 +31,7 @@ class MapEntityBasicFeatures extends Specification {
 
         then:
         complexEntity.getChild() == valueEntity
-        complexEntity.hashCode() == [getChild:valueEntity].hashCode()
+        complexEntity.hashCode() == [child:valueEntity].hashCode()
 
         when: "Testing list of entities property reusing the value property"
         ValueEntity valueEntity2 = context.transform([string:"value2"], ValueEntity)
@@ -39,20 +39,20 @@ class MapEntityBasicFeatures extends Specification {
 
         then:
         complexEntityList.getChildren() == [valueEntity, valueEntity2]
-        complexEntityList.hashCode() == [getChildren:[valueEntity, valueEntity2]].hashCode()
+        complexEntityList.hashCode() == [children:[valueEntity, valueEntity2]].hashCode()
     }
 
     def "should parse list of values property" (){
         given:
         ListOfValuesEntity expectedResult = Mock(ListOfValuesEntity)
-        expectedResult.asMap() >> [getStrings:["value1", "value2"]]
+        expectedResult.asDomainMap() >> [strings:["value1", "value2"]]
 
         when:
         ListOfValuesEntity result = context.transform([strings:["value1", "value2"]], ListOfValuesEntity)
 
         then:
         result.getStrings() == ["value1","value2"]
-        result.hashCode() == [getStrings:["value1", "value2"]].hashCode()
+        result.hashCode() == [strings:["value1", "value2"]].hashCode()
         result == expectedResult
     }
 

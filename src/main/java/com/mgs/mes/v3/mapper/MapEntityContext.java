@@ -40,7 +40,7 @@ public class MapEntityContext {
 		return transform(data, typeParser.parse(type));
 	}
 
-	public <T extends MapEntity> T transform(Map<String, Object> data, ParsedType type) {
+	public <T extends MapEntity> T transform(Map<String, Object> valueMap, ParsedType type) {
 		Map<String, Object> domainMap = new HashMap<>();
 		Map<String, List<FieldAccessor>> accesorsByMethodName =
 				fieldAccessorParser.parse(type).
@@ -53,14 +53,14 @@ public class MapEntityContext {
 
 			FieldAccessor accessor = accessors.iterator().next();
 			String fieldName = extractFieldName(accessor);
-			Object value = domainValue(accessor.getReturnType(), data.get(fieldName));
+			Object value = domainValue(accessor.getReturnType(), valueMap.get(fieldName));
 			domainMap.put(accessor.getFieldName(), value);
 		});
 
 		Class actualType = type.getOwnDeclaration().getTypeResolution().getSpecificClass().get();
 		//noinspection unchecked
 		List<MapEntityManager<T>> entityManagers = managerLocator.byType(actualType);
-		return mapEntityFactory.fromMap(type, entityManagers, domainMap);
+		return mapEntityFactory.fromMap(type, entityManagers, domainMap, valueMap);
 	}
 
 	private String extractFieldName(FieldAccessor accessor) {

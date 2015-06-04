@@ -32,14 +32,14 @@ public class OneToOneManager implements MapEntityManager<OneToOne<? extends MapE
 
 	public EntityMethod<OneToOne> onRetrieve(){
 		//noinspection unchecked
-		return (type, on, map, params) -> retrieve(type, on);
+		return (value, interceptor, args) -> retrieve(interceptor.getType().getActualType().get(), value);
 	}
 
 	private <T extends MapEntity> T retrieve(Class<? extends OneToOne> type, OneToOne<T> from) {
 //		Optional<Retriever> retriever = mapRetrieverLocator.byName(from.getRefName());
 //		if (! retriever.isPresent()) throw new IllegalStateException();
 //
-//		Map<String, Object> map = retriever.get().asMap(from.getRefId());
+//		Map<String, Object> map = retriever.get().asDomainMap(from.getRefId());
 //		return mapEntityContext.transform(map, (Class<MapEntity>) type);
 		throw new NotImplementedException();
 	}

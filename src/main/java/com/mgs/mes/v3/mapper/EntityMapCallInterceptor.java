@@ -14,14 +14,16 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 	private final MapEntityFactory mapEntityFactory;
 	private final ParsedType type;
 	private final Map<String, Object> domainMap;
+	private final Map<String, Object> valueMap;
 	private final List<MapEntityManager<T>> entityManagers;
 	private final Map<String, FieldAccessor> fieldAccessors;
 	private final boolean modifiable;
 
-	public EntityMapCallInterceptor(MapEntityFactory mapEntityFactory, ParsedType type, Map<String, Object> domainMap, List<MapEntityManager<T>> entityManager, Map<String, FieldAccessor> fieldAccessors, boolean modifiable) {
+	public EntityMapCallInterceptor(MapEntityFactory mapEntityFactory, ParsedType type, Map<String, Object> domainMap, Map<String, Object> valueMap, List<MapEntityManager<T>> entityManager, Map<String, FieldAccessor> fieldAccessors, boolean modifiable) {
 		this.mapEntityFactory = mapEntityFactory;
 		this.type = type;
 		this.domainMap = domainMap;
+		this.valueMap = valueMap;
 		this.entityManagers = entityManager;
 		this.fieldAccessors = fieldAccessors;
 		this.modifiable = modifiable;
@@ -33,7 +35,7 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 			Optional<EntityMethod<T>> entityMethod = entityManager.applies(method);
 			if (entityMethod.isPresent()){
 				//noinspection unchecked
-				return entityMethod.get().execute(type.getActualType().get(), (T) proxy, domainMap, args);
+				return entityMethod.get().execute((T) proxy, this, args);
 			}
 		}
 		FieldAccessor accessor = fieldAccessors.get(method.getName());
@@ -53,14 +55,13 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 					return proxy;
 				}else{
 					MapEntity copyFrom = (MapEntity) proxy;
-					Map<String, Object> fromMap = copyFrom.asMap();
-					Map<String, Object> intoMap = new HashMap<>(fromMap);
-					intoMap.put(fieldName, args[0]);
+					Map<String, Object> domainMapCopy = new HashMap<>(copyFrom.asDomainMap());
+					domainMapCopy.put(fieldName, args[0]);
 					return mapEntityFactory.fromMap(
 							type,
 							fieldAccessors,
 							entityManagers,
-							intoMap
+							domainMapCopy
 					);
 				}
 
@@ -69,4 +70,31 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 		}
 	}
 
+	public Map<String, Object> getDomainMap() {
+		return domainMap;
+	}
+
+	public List<MapEntityManager<T>> getEntityManagers() {
+		return entityManagers;
+	}
+
+	public Map<String, FieldAccessor> getFieldAccessors() {
+		return fieldAccessors;
+	}
+
+	public MapEntityFactory getMapEntityFactory() {
+		return mapEntityFactory;
+	}
+
+	public boolean isModifiable() {
+		return modifiable;
+	}
+
+	public ParsedType getType() {
+		return type;
+	}
+
+	public Map<String, Object> getValueMap() {
+		return valueMap;
+	}
 }

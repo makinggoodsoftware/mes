@@ -36,12 +36,9 @@ class MapDomainFeatures extends Specification {
             private EntityMethod<MapEntity> rawApplies(Method method) {
                 switch (method.getName()) {
                     case "retrieve":
-                        return new EntityMethod<MapEntity>() {
-                            @Override
-                            Object execute(Class<? extends MapEntity> type, MapEntity value, Map<String, Object> asMap, Object[] params) {
-                                return user
-                            }
-                        }
+                        return { MapEntity value, EntityMapCallInterceptor<MapEntity> interceptor, Object[] params ->
+                            return user
+                        } as EntityMethod
                 }
 
                 return null;
@@ -110,7 +107,7 @@ class MapDomainFeatures extends Specification {
         ! shoppingCart.version.isPresent()
 
         when: "Retrieving user"
-        def userFromShoppingCart = shoppingCart.user.retrieve().asMap()
+        def userFromShoppingCart = shoppingCart.user.retrieve().asDomainMap()
 
         then:
         userFromShoppingCart == [

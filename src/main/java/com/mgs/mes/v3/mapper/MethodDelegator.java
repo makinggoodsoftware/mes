@@ -35,24 +35,30 @@ class MethodDelegator implements MapEntityManager<MapEntity>{
 	private EntityMethod<MapEntity> rawApplies(Method method) {
 		switch (method.getName()) {
 			case "toString":
-				return (type, value, map, params) -> toString(value);
+				return (value, interceptor, params) -> toString(value);
 			case "equals":
-				return (type, value, map, params) -> equals(type, value, params[0]);
-			case "asMap":
-				return (type, value, map, params) -> map;
+				//noinspection unchecked
+				return (value, interceptor, params) -> equals(interceptor.getType().getActualType().get(), value, params[0]);
+			case "asDomainMap":
+				return (value, interceptor, params) -> interceptor.getDomainMap();
+			case "asValueMap":
+				return (value, interceptor, params) -> {
+					if (interceptor.isModifiable()) throw new IllegalStateException("Can't access the value map of a Map Entity while building it.");
+					return interceptor.getValueMap();
+				};
 			case "hashCode":
-				return (type, value, map, params) -> hashCode(value);
+				return (value, interceptor, params) -> hashCode(value);
 		}
 
 		return null;
 	}
 
 	public String toString(MapEntity value) {
-		return value.asMap().toString();
+		return value.asDomainMap().toString();
 	}
 
 	public int hashCode(MapEntity mapEntity) {
-		return mapEntity.asMap().hashCode();
+		return mapEntity.asDomainMap().hashCode();
 	}
 
 	public boolean equals(Class<? extends MapEntity> type, MapEntity thisMapEntity, Object thatMapEntity) {
@@ -62,7 +68,7 @@ class MethodDelegator implements MapEntityManager<MapEntity>{
 		if (!reflections.isAssignableTo(thatMapEntity.getClass(), type)) return false;
 
 		MapEntity casted = (MapEntity) thatMapEntity;
-		return thisMapEntity.asMap().equals(casted.asMap());
+		return thisMapEntity.asDomainMap().equals(casted.asDomainMap());
 	}
 
 }
