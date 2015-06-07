@@ -1,11 +1,12 @@
 package com.mgs.mes.v3.mapper;
 
 import com.google.common.collect.ImmutableMap;
+import com.mgs.mes.v4.MapValueProcessor;
+import com.mgs.mes.v4.MapWalker;
 import com.mgs.mes.v4.typeParser.ParsedType;
 import com.mgs.mes.v4.typeParser.TypeParser;
 import com.mgs.reflection.FieldAccessor;
 import com.mgs.reflection.FieldAccessorParser;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +18,14 @@ import static java.util.stream.Collectors.toMap;
 public class MapEntityFactory {
 	private final TypeParser typeParser;
 	private final FieldAccessorParser fieldAccessorParser;
+	private final MapWalker mapWalker;
+	private final MapValueProcessor mapValueProcessor;
 
-	public MapEntityFactory(TypeParser typeParser, FieldAccessorParser fieldAccessorParser) {
+	public MapEntityFactory(TypeParser typeParser, FieldAccessorParser fieldAccessorParser, MapWalker mapWalker, MapValueProcessor mapValueProcessor) {
 		this.typeParser = typeParser;
 		this.fieldAccessorParser = fieldAccessorParser;
+		this.mapWalker = mapWalker;
+		this.mapValueProcessor = mapValueProcessor;
 	}
 
 	public <T extends MapEntity> T newEntity(
@@ -65,7 +70,7 @@ public class MapEntityFactory {
 				entityManagers,
 				fieldAccessors,
 				ImmutableMap.copyOf(domainMap),
-				valueMap(domainMap),
+				valueMap(domainMap, parsedType),
 				false
 		);
 	}
@@ -100,12 +105,26 @@ public class MapEntityFactory {
 			List<MapEntityManager<T>> entityManagers,
 			Map<String, Object> domainMap
 	) {
-		return fromMap(type, fieldAccessors, entityManagers, domainMap, valueMap(domainMap));
+		return fromMap(type, fieldAccessors, entityManagers, domainMap, valueMap(domainMap, type));
 	}
 
-	private Map<String, Object> valueMap(Map<String, Object> domainMap) {
-		//TODO need to convert the domain map into a value map
-		throw new NotImplementedException();
+	private Map<String, Object> valueMap(Map<String, Object> domainMap, ParsedType type) {
+		Map<String, Object> valueMap = new HashMap<>();
+		mapWalker.walk(domainMap, type, (fieldAccessor, mapValue) -> {
+			valueMap.put(
+					fieldAccessor.getFieldName(),
+					mapValueProcessor.transform(
+							fieldAccessor.getReturnType(),
+							mapValue,
+							(mapEntityParsedType, value) -> {
+								//noinspection unchecked
+								MapEntity castedValue = (MapEntity) value;
+								return valueMap(castedValue.asDomainMap(), mapEntityParsedType);
+							}
+					)
+			);
+		});
+		return valueMap;
 	}
 
 	public <T extends MapEntity> T fromMap(

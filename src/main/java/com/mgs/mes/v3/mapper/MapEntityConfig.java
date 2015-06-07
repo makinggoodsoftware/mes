@@ -1,6 +1,8 @@
 package com.mgs.mes.v3.mapper;
 
 import com.mgs.config.reflection.ReflectionConfig;
+import com.mgs.mes.v4.MapValueProcessor;
+import com.mgs.mes.v4.MapWalker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +18,26 @@ public class MapEntityConfig {
 		return new MapEntityContextFactory(
 				reflectionConfig.reflections(),
 				reflectionConfig.fieldAccessorParser(),
-				reflectionConfig.beanNamingExpert(),
 				defaultManagers(),
-				reflectionConfig.typeParser());
+				reflectionConfig.typeParser(),
+				mapWalker(),
+				mapValueProcessor());
+	}
+
+	private MapValueProcessor mapValueProcessor() {
+		return new MapValueProcessor(
+				reflectionConfig.reflections(),
+				reflectionConfig.typeParser()
+		);
+	}
+
+	private MapWalker mapWalker() {
+		return new MapWalker(
+				reflectionConfig.fieldAccessorParser(),
+				reflectionConfig.beanNamingExpert(),
+				reflectionConfig.reflections(),
+				reflectionConfig.typeParser()
+		);
 	}
 
 	private List<MapEntityManager> defaultManagers() {
