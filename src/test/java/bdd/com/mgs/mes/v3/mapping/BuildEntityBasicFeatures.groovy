@@ -16,15 +16,16 @@ public class BuildEntityBasicFeatures extends Specification{
 
 	def "should build basic entity" (){
 		when:
-		EntityWithBuilderMethods result = context.newEntity (EntityWithBuilderMethods, {into ->
+		SimpleEntityWithBuilderMethods result = context.newEntity (SimpleEntityWithBuilderMethods, {into ->
 			into.withString("value")
-		} as EntityMapBuilder<EntityWithBuilderMethods>)
+		} as EntityMapBuilder<SimpleEntityWithBuilderMethods>)
 
 		then:
 		result.string == "value"
+		result.asDomainMap() == [string:"value"]
 
 		when:
-        EntityWithBuilderMethods result2 = result.withString("value2")
+        SimpleEntityWithBuilderMethods result2 = result.withString("value2")
 
         then:
         ! result2.is(result)
@@ -32,9 +33,39 @@ public class BuildEntityBasicFeatures extends Specification{
         result.string == "value"
 	}
 
-	private static interface EntityWithBuilderMethods extends MapEntity {
+	def "should build complex entity" (){
+		when:
+		ComplexEntityWithBuilderMethods result = context.newEntity (ComplexEntityWithBuilderMethods, {parent ->
+			parent.withChild(context.newEntity (SimpleEntityWithBuilderMethods, {child ->
+				child.withString("value")
+			} as EntityMapBuilder<SimpleEntityWithBuilderMethods>))
+		} as EntityMapBuilder<ComplexEntityWithBuilderMethods>)
+
+		then:
+		result.child.string == "value"
+
+
+        when:
+        ComplexEntityWithBuilderMethods result2 = result.withChild(context.newEntity(SimpleEntityWithBuilderMethods, { child ->
+            child.withString("value2")
+        } as EntityMapBuilder<SimpleEntityWithBuilderMethods>))
+
+		then:
+		! result2.is(result)
+		result2.child.string == "value2"
+		result.child.string == "value"
+	}
+
+
+	static interface SimpleEntityWithBuilderMethods extends MapEntity {
 		String getString ()
 
-		EntityWithBuilderMethods withString (String string)
+		SimpleEntityWithBuilderMethods withString (String string)
+	}
+
+	static interface ComplexEntityWithBuilderMethods extends MapEntity {
+		SimpleEntityWithBuilderMethods getChild()
+
+        ComplexEntityWithBuilderMethods withChild (SimpleEntityWithBuilderMethods child)
 	}
 }
