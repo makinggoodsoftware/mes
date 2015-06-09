@@ -3,6 +3,7 @@ package com.mgs.mes.v3.mapper;
 import com.google.common.collect.ImmutableMap;
 import com.mgs.mes.v4.MapValueProcessor;
 import com.mgs.mes.v4.MapWalker;
+import com.mgs.mes.v4.typeParser.Declaration;
 import com.mgs.mes.v4.typeParser.ParsedType;
 import com.mgs.mes.v4.typeParser.TypeParser;
 import com.mgs.reflection.FieldAccessor;
@@ -34,6 +35,11 @@ public class MapEntityFactory {
 			EntityMapBuilder<T> entityMapBuilder
 	) {
 		ParsedType parsedType = typeParser.parse(type);
+		return newEntity(parsedType, entityManagers, entityMapBuilder);
+	}
+
+	private <T extends MapEntity> T newEntity(Declaration entityType, List<MapEntityManager<T>> entityManagers, EntityMapBuilder<T> entityMapBuilder) {
+		ParsedType parsedType = typeParser.parse(entityType);
 		return newEntity(parsedType, entityManagers, entityMapBuilder);
 	}
 
@@ -95,7 +101,9 @@ public class MapEntityFactory {
 						valueMap,
 						entityManagers,
 						fieldAccessors,
-						modifiable)
+						modifiable,
+						(newEntityType, builder) -> newEntity(newEntityType, entityManagers, builder)
+				)
 		);
 	}
 

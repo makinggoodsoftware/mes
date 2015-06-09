@@ -131,28 +131,28 @@ class FieldAccessorParserSpecification extends Specification {
                 "getField1",
                 "field1",
                 "get",
-                GET, returnType
+                GET, returnType, parameters
                 , annotations
         )
         result.get(SimpleEntity.getMethod("getWithGenerics")).get() == new FieldAccessor(
                 "getWithGenerics",
                 "withGenerics",
                 "get",
-                GET, returnType
+                GET, returnType, parameters
                 , annotations
         )
         result.get(SimpleEntity.getMethod("withGenerics", Map)).get() == new FieldAccessor(
                 "withGenerics",
                 "generics",
                 "with",
-                BUILDER, returnType
+                BUILDER, returnType, parameters
                 , annotations
         )
         result.get(SimpleEntity.getMethod("getId")).get() == new FieldAccessor(
                 "getId",
                 "id",
                 "get",
-                GET, returnType
+                GET, returnType, parameters
                 , annotations
         )
         ! result.get(SimpleEntity.getMethod("asDbo")).isPresent()

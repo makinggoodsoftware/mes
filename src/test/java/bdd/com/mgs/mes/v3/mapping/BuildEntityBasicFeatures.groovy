@@ -54,6 +54,16 @@ public class BuildEntityBasicFeatures extends Specification{
 		! result2.is(result)
 		result2.child.string == "value2"
 		result.child.string == "value"
+
+        when:
+        ComplexEntityWithBuilderMethods result3 = result.withChild({child ->
+            child.withString("value3")
+        } as EntityMapBuilder<SimpleEntityWithBuilderMethods>)
+
+        then:
+        ! result3.is(result)
+        result3.child.string == "value3"
+        result.child.string == "value"
 	}
 
 
@@ -67,5 +77,7 @@ public class BuildEntityBasicFeatures extends Specification{
 		SimpleEntityWithBuilderMethods getChild()
 
         ComplexEntityWithBuilderMethods withChild (SimpleEntityWithBuilderMethods child)
+
+        ComplexEntityWithBuilderMethods withChild (EntityMapBuilder<SimpleEntityWithBuilderMethods> newChildBuider)
 	}
 }

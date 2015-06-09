@@ -114,6 +114,7 @@ class MapDomainFeatures extends Specification {
                 id: userId,
                 firstName: "Alberto",
                 lastName: "Gutierrez",
+                version: Optional.empty()
         ]
     }
 }

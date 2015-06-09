@@ -1,5 +1,6 @@
 package com.mgs.mes.v3.mapper;
 
+import com.mgs.mes.v4.typeParser.Declaration;
 import com.mgs.mes.v4.typeParser.ParsedType;
 import com.mgs.reflection.FieldAccessor;
 
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public class EntityMapCallInterceptor<T extends MapEntity> implements InvocationHandler {
 	private final MapEntityFactory mapEntityFactory;
@@ -18,8 +20,9 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 	private final List<MapEntityManager<T>> entityManagers;
 	private final Map<String, FieldAccessor> fieldAccessors;
 	private final boolean modifiable;
+	private final BiFunction<Declaration, EntityMapBuilder, Object> creator;
 
-	public EntityMapCallInterceptor(MapEntityFactory mapEntityFactory, ParsedType type, Map<String, Object> domainMap, Map<String, Object> valueMap, List<MapEntityManager<T>> entityManager, Map<String, FieldAccessor> fieldAccessors, boolean modifiable) {
+	public EntityMapCallInterceptor(MapEntityFactory mapEntityFactory, ParsedType type, Map<String, Object> domainMap, Map<String, Object> valueMap, List<MapEntityManager<T>> entityManager, Map<String, FieldAccessor> fieldAccessors, boolean modifiable, BiFunction<Declaration, EntityMapBuilder, Object> creator) {
 		this.mapEntityFactory = mapEntityFactory;
 		this.type = type;
 		this.domainMap = domainMap;
@@ -27,6 +30,7 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 		this.entityManagers = entityManager;
 		this.fieldAccessors = fieldAccessors;
 		this.modifiable = modifiable;
+		this.creator = creator;
 	}
 
 	@Override
@@ -49,24 +53,37 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 				return domainMap.get(accessor.getFieldName());
 
 			case BUILDER:
-				String fieldName = accessor.getFieldName();
-				if (modifiable){
-					domainMap.put(fieldName, args[0]);
-					return proxy;
-				}else{
-					MapEntity copyFrom = (MapEntity) proxy;
-					Map<String, Object> domainMapCopy = new HashMap<>(copyFrom.asDomainMap());
-					domainMapCopy.put(fieldName, args[0]);
-					return mapEntityFactory.fromMap(
-							type,
-							fieldAccessors,
-							entityManagers,
-							domainMapCopy
-					);
-				}
+				return builderCall(proxy, accessor, args);
 
 			default:
 				throw new IllegalStateException();
+		}
+	}
+
+	private Object builderCall(Object proxy, FieldAccessor accessor, Object[] args) {
+		if (EntityMapBuilder.class.isAssignableFrom(args[0].getClass())){
+			EntityMapBuilder entityMapBuilder = (EntityMapBuilder) args[0];
+			Declaration builderType = accessor.getParameters().get(0).getOwnDeclaration().getParameters().get("T");
+			return update(proxy, accessor.getFieldName(), creator.apply (builderType, entityMapBuilder));
+		} else {
+			return update(proxy, accessor.getFieldName(), args[0]);
+		}
+	}
+
+	private Object update(Object proxy, String fieldName, Object value) {
+		if (modifiable){
+			domainMap.put(fieldName, value);
+			return proxy;
+		}else{
+			MapEntity copyFrom = (MapEntity) proxy;
+			Map<String, Object> domainMapCopy = new HashMap<>(copyFrom.asDomainMap());
+			domainMapCopy.put(fieldName, value);
+			return mapEntityFactory.fromMap(
+					type,
+					fieldAccessors,
+					entityManagers,
+					domainMapCopy
+			);
 		}
 	}
 

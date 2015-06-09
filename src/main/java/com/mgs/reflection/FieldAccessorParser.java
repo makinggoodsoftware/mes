@@ -7,6 +7,9 @@ import com.mgs.mes.v4.typeParser.TypeParser;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -113,6 +116,11 @@ public class FieldAccessorParser {
 		String methodName = genericMethod.getMethod().getName();
 		String fieldName = beanNamingExpert.getFieldName(methodName, prefix);
 		ParsedType genericReturnType = genericMethod.getReturnType();
-		return of(new FieldAccessor(methodName, fieldName, prefix, type, genericReturnType, annotations));
+		List<ParsedType> parameters = new ArrayList<>();
+		Parameter[] parameterTypes = genericMethod.getMethod().getParameters();
+		for (Parameter parameterType : parameterTypes) {
+			parameters.add(typeParser.parse(parameterType.getParameterizedType()));
+		}
+		return of(new FieldAccessor(methodName, fieldName, prefix, type, genericReturnType, parameters, annotations));
 	}
 }

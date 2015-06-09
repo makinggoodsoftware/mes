@@ -4,6 +4,7 @@ import com.mgs.mes.v4.typeParser.ParsedType;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.List;
 
 public class FieldAccessor {
 	private final FieldAccessorType type;
@@ -11,14 +12,16 @@ public class FieldAccessor {
 	private final String prefix;
 	private final String fieldName;
 	private final ParsedType returnType;
+	private final List<ParsedType> parameters;
 	private final Annotation[] annotations;
 
-	public FieldAccessor(String methodName, String fieldName, String prefix, FieldAccessorType type, ParsedType returnType, Annotation[] annotations) {
+	public FieldAccessor(String methodName, String fieldName, String prefix, FieldAccessorType type, ParsedType returnType, List<ParsedType> parameters, Annotation[] annotations) {
 		this.methodName = methodName;
 		this.type = type;
 		this.prefix = prefix;
 		this.fieldName = fieldName;
 		this.returnType = returnType;
+		this.parameters = parameters;
 		this.annotations = annotations;
 	}
 
@@ -46,6 +49,10 @@ public class FieldAccessor {
 		return returnType;
 	}
 
+	public List<ParsedType> getParameters() {
+		return parameters;
+	}
+
 	@SuppressWarnings("RedundantIfStatement")
 	@Override
 	public boolean equals(Object o) {
@@ -59,6 +66,7 @@ public class FieldAccessor {
 		if (!prefix.equals(that.prefix)) return false;
 		if (type != that.type) return false;
 		if (!returnType.equals(that.returnType)) return false;
+		if (!parameters.equals(that.parameters)) return false;
 		if (!Arrays.equals(annotations, that.annotations)) return false;
 
 		return true;
@@ -71,6 +79,7 @@ public class FieldAccessor {
 		result = 31 * result + prefix.hashCode();
 		result = 31 * result + fieldName.hashCode();
 		result = 31 * result + returnType.hashCode();
+		result = 31 * result + parameters.hashCode();
 		result = 31 * result + Arrays.hashCode(annotations);
 		return result;
 	}
@@ -84,6 +93,7 @@ public class FieldAccessor {
 		sb.append(", prefix='").append(prefix).append('\'');
 		sb.append(", fieldName='").append(fieldName).append('\'');
 		sb.append(", returnType=").append(returnType);
+		sb.append(", parameters=").append(parameters);
 		sb.append(", parametrizedTypes=").append(Arrays.toString(annotations));
 		sb.append('}');
 		return sb.toString();
