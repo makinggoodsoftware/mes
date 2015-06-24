@@ -39,7 +39,7 @@ public class OneToOneManager implements MapEntityManager<OneToOne<? extends MapE
 //		Optional<Retriever> retriever = mapRetrieverLocator.byName(from.getRefName());
 //		if (! retriever.isPresent()) throw new IllegalStateException();
 //
-//		Map<String, Object> map = retriever.get().asDomainMap(from.getRefId());
+//		Map<String, Object> map = retriever.get().getDomainMap(from.getRefId());
 //		return mapEntityContext.transform(map, (Class<MapEntity>) type);
 		throw new NotImplementedException();
 	}

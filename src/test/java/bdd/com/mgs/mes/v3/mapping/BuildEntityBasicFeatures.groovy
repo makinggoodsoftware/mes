@@ -22,7 +22,7 @@ public class BuildEntityBasicFeatures extends Specification{
 
 		then:
 		result.string == "value"
-		result.asDomainMap() == [string:"value"]
+		result.getDomainMap() == [string:"value"]
 
 		when:
         SimpleEntityWithBuilderMethods result2 = result.withString("value2")

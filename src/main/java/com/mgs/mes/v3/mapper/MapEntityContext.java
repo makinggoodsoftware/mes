@@ -1,6 +1,6 @@
 package com.mgs.mes.v3.mapper;
 
-import com.mgs.mes.v4.MapValueProcessor;
+import com.mgs.mes.v4.MapEntityFieldTransformer;
 import com.mgs.mes.v4.MapWalker;
 import com.mgs.mes.v4.typeParser.ParsedType;
 import com.mgs.mes.v4.typeParser.TypeParser;
@@ -14,14 +14,14 @@ public class MapEntityContext {
 	private final TypeParser typeParser;
 	private final MapEntityFactory mapEntityFactory;
 	private final MapWalker mapWalker;
-	private final MapValueProcessor mapValueProcessor;
+	private final MapEntityFieldTransformer mapEntityFieldTransformer;
 
-	public MapEntityContext(ManagerLocator managerLocator, TypeParser typeParser, MapEntityFactory mapEntityFactory, MapWalker mapWalker, MapValueProcessor mapValueProcessor) {
+	public MapEntityContext(ManagerLocator managerLocator, TypeParser typeParser, MapEntityFactory mapEntityFactory, MapWalker mapWalker, MapEntityFieldTransformer mapEntityFieldTransformer) {
 		this.managerLocator = managerLocator;
 		this.typeParser = typeParser;
 		this.mapEntityFactory = mapEntityFactory;
 		this.mapWalker = mapWalker;
-		this.mapValueProcessor = mapValueProcessor;
+		this.mapEntityFieldTransformer = mapEntityFieldTransformer;
 	}
 
 	public <T extends MapEntity> T newEntity(Class<T> type, EntityMapBuilder<T> entityMapBuilder) {
@@ -42,14 +42,14 @@ public class MapEntityContext {
 		mapWalker.walk(valueMap, type, (fieldAccessor, mapValue) -> {
 			domainMap.put(
 				fieldAccessor.getFieldName(),
-				mapValueProcessor.transform(
+				mapEntityFieldTransformer.transform(
 					fieldAccessor.getReturnType(),
 					mapValue,
-						(mapEntityParsedType, value) -> {
-							//noinspection unchecked
-							Map<String, Object> castedValue = (Map<String, Object>) value;
-							return transform(castedValue, mapEntityParsedType);
-						}
+					(mapEntityParsedType, value) -> {
+						//noinspection unchecked
+						Map<String, Object> castedValue = (Map<String, Object>) value;
+						return transform(castedValue, mapEntityParsedType);
+					}
 				)
 			);
 		});

@@ -1,7 +1,7 @@
 package com.mgs.mes.v3.mapper;
 
 import com.google.common.collect.ImmutableMap;
-import com.mgs.mes.v4.MapValueProcessor;
+import com.mgs.mes.v4.MapEntityFieldTransformer;
 import com.mgs.mes.v4.MapWalker;
 import com.mgs.mes.v4.typeParser.Declaration;
 import com.mgs.mes.v4.typeParser.ParsedType;
@@ -12,6 +12,7 @@ import com.mgs.reflection.FieldAccessorParser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.stream.Collectors.toMap;
@@ -20,13 +21,13 @@ public class MapEntityFactory {
 	private final TypeParser typeParser;
 	private final FieldAccessorParser fieldAccessorParser;
 	private final MapWalker mapWalker;
-	private final MapValueProcessor mapValueProcessor;
+	private final MapEntityFieldTransformer mapEntityFieldTransformer;
 
-	public MapEntityFactory(TypeParser typeParser, FieldAccessorParser fieldAccessorParser, MapWalker mapWalker, MapValueProcessor mapValueProcessor) {
+	public MapEntityFactory(TypeParser typeParser, FieldAccessorParser fieldAccessorParser, MapWalker mapWalker, MapEntityFieldTransformer mapEntityFieldTransformer) {
 		this.typeParser = typeParser;
 		this.fieldAccessorParser = fieldAccessorParser;
 		this.mapWalker = mapWalker;
-		this.mapValueProcessor = mapValueProcessor;
+		this.mapEntityFieldTransformer = mapEntityFieldTransformer;
 	}
 
 	public <T extends MapEntity> T newEntity(
@@ -69,7 +70,7 @@ public class MapEntityFactory {
 				true
 		);
 		T modifiableEntity = entityMapBuilder.apply(emptyEntity);
-		Map<String, Object> domainMap = modifiableEntity.asDomainMap();
+		Map<String, Object> domainMap = modifiableEntity.getDomainMap();
 		return create(
 				parsedType,
 				actualType,
@@ -102,9 +103,13 @@ public class MapEntityFactory {
 						entityManagers,
 						fieldAccessors,
 						modifiable,
-						(newEntityType, builder) -> newEntity(newEntityType, entityManagers, builder)
+						creator(entityManagers)
 				)
 		);
+	}
+
+	public <T extends MapEntity> BiFunction<Declaration, EntityMapBuilder, Object> creator(List<MapEntityManager<T>> entityManagers) {
+		return (newEntityType, builder) -> newEntity(newEntityType, entityManagers, builder);
 	}
 
 	public <T extends MapEntity> Object fromMap(
@@ -121,13 +126,13 @@ public class MapEntityFactory {
 		mapWalker.walk(domainMap, type, (fieldAccessor, mapValue) -> {
 			valueMap.put(
 					fieldAccessor.getFieldName(),
-					mapValueProcessor.transform(
+					mapEntityFieldTransformer.transform(
 							fieldAccessor.getReturnType(),
 							mapValue,
 							(mapEntityParsedType, value) -> {
 								//noinspection unchecked
 								MapEntity castedValue = (MapEntity) value;
-								return valueMap(castedValue.asDomainMap(), mapEntityParsedType);
+								return valueMap(castedValue.getDomainMap(), mapEntityParsedType);
 							}
 					)
 			);

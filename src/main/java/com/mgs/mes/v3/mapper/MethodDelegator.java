@@ -39,9 +39,9 @@ class MethodDelegator implements MapEntityManager<MapEntity>{
 			case "equals":
 				//noinspection unchecked
 				return (value, interceptor, params) -> equals(interceptor.getType().getActualType().get(), value, params[0]);
-			case "asDomainMap":
+			case "getDomainMap":
 				return (value, interceptor, params) -> interceptor.getDomainMap();
-			case "asValueMap":
+			case "getValueMap":
 				return (value, interceptor, params) -> {
 					if (interceptor.isModifiable()) throw new IllegalStateException("Can't access the value map of a Map Entity while building it.");
 					return interceptor.getValueMap();
@@ -54,11 +54,11 @@ class MethodDelegator implements MapEntityManager<MapEntity>{
 	}
 
 	public String toString(MapEntity value) {
-		return value.asDomainMap().toString();
+		return value.getDomainMap().toString();
 	}
 
 	public int hashCode(MapEntity mapEntity) {
-		return mapEntity.asDomainMap().hashCode();
+		return mapEntity.getDomainMap().hashCode();
 	}
 
 	public boolean equals(Class<? extends MapEntity> type, MapEntity thisMapEntity, Object thatMapEntity) {
@@ -68,7 +68,7 @@ class MethodDelegator implements MapEntityManager<MapEntity>{
 		if (!reflections.isAssignableTo(thatMapEntity.getClass(), type)) return false;
 
 		MapEntity casted = (MapEntity) thatMapEntity;
-		return thisMapEntity.asDomainMap().equals(casted.asDomainMap());
+		return thisMapEntity.getDomainMap().equals(casted.getDomainMap());
 	}
 
 }

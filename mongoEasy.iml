@@ -6,13 +6,9 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/bdd" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/component" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/integration" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/model" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java/unit" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
@@ -21,44 +17,11 @@
     <orderEntry type="library" exported="" name="Gradle: org.mongodb:mongo-java-driver:2.12.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: cglib:cglib:2.2.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.objenesis:objenesis:2.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.spockframework:spock-maven:0.7-groovy-2.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: asm:asm:3.3.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.codehaus.plexus:plexus-utils:1.5.7" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-project:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.spockframework:spock-core:0.7-groovy-2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.surefire:surefire-junit47:2.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-core:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-plugin-api:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-profile:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-model:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-artifact-manager:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-artifact:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.codehaus.plexus:plexus-container-default:1.0-alpha-8" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit-dep:4.10" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.codehaus.groovy:groovy-all:2.0.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.surefire:common-junit48:2.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.surefire:surefire-api:2.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-settings:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-plugin-parameter-documenter:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.reporting:maven-reporting-api:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.wagon:wagon-provider-api:1.0-alpha-5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-repository-metadata:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-error-diagnostics:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-plugin-registry:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: commons-cli:commons-cli:1.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-plugin-descriptor:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.codehaus.plexus:plexus-interactivity-api:1.0-alpha-4" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven:maven-monitor:2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.wagon:wagon-file:1.0-alpha-5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.wagon:wagon-http-lightweight:1.0-alpha-5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.wagon:wagon-ssh:1.0-alpha-5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:3.8.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: classworlds:classworlds:1.1-alpha-2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.surefire:common-junit4:2.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: doxia:doxia-sink-api:1.0-alpha-4" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.jcraft:jsch:0.1.23" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.maven.surefire:common-junit3:2.11" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.google.guava:guava:18.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.spockframework:spock-core:1.0-groovy-2.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.codehaus.groovy:groovy-all:2.4.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
   </component>
 </module>

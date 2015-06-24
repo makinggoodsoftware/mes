@@ -5,4 +5,7 @@ import com.mgs.mes.v3.RootEntity;
 public interface User extends RootEntity {
 	String getFirstName ();
 	String getLastName ();
+
+	User withFirstName (String firstName);
+	User withLastName (String lastName);
 }

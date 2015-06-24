@@ -72,10 +72,6 @@ public class FieldAccessorParser {
 				map((methodToFieldAccessor) -> methodToFieldAccessor.getValue().get());
 	}
 
-//	public Optional<FieldAccessor> parse(Class<?> type, String accessorName) {
-//		return parse(type, accessorName);
-//	}
-
 	public Optional<FieldAccessor> parse(Class from, String methodName, Class... parameters) {
 		try {
 			ParsedType parsedType = typeParser.parse(from);

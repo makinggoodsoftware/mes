@@ -1,7 +1,7 @@
 package com.mgs.mes.v3.mapper;
 
 import com.mgs.config.reflection.ReflectionConfig;
-import com.mgs.mes.v4.MapValueProcessor;
+import com.mgs.mes.v4.MapEntityFieldTransformer;
 import com.mgs.mes.v4.MapWalker;
 
 import java.util.ArrayList;
@@ -24,8 +24,8 @@ public class MapEntityConfig {
 				mapValueProcessor());
 	}
 
-	private MapValueProcessor mapValueProcessor() {
-		return new MapValueProcessor(
+	private MapEntityFieldTransformer mapValueProcessor() {
+		return new MapEntityFieldTransformer(
 				reflectionConfig.reflections(),
 				reflectionConfig.typeParser()
 		);

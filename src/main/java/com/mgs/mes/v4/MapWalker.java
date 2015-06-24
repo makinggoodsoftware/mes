@@ -4,6 +4,7 @@ import com.mgs.mes.v3.mapper.MapEntity;
 import com.mgs.mes.v3.mapper.Mapping;
 import com.mgs.mes.v4.typeParser.ParsedType;
 import com.mgs.mes.v4.typeParser.TypeParser;
+import com.mgs.mes.v5.VirtualField;
 import com.mgs.reflection.*;
 
 import java.util.Collection;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Stream.of;
 
 public class MapWalker {
 	private final FieldAccessorParser fieldAccessorParser;
@@ -35,14 +38,24 @@ public class MapWalker {
 						filter(this::isAGetter).
 						collect(Collectors.groupingBy(FieldAccessor::getMethodName));
 
-		accesorsByMethodName.entrySet().stream().forEach((accessorByMethodNameEntry) -> {
-			Collection<FieldAccessor> accessors = accessorByMethodNameEntry.getValue();
-			if (accessors.size() != 1) throw new IllegalStateException();
+		accesorsByMethodName.entrySet().stream().
+        filter(accessorByMethodNameEntry -> {
+            Collection<FieldAccessor> accessors = accessorByMethodNameEntry.getValue();
+            if (accessors.size() != 1) throw new IllegalStateException("There seems to be more than one accessor for: " + accessorByMethodNameEntry.getKey());
 
-			FieldAccessor accessor = accessors.iterator().next();
-			String fieldName = extractFieldName(accessor);
-			callback.apply(accessor, map.get(fieldName));
-		});
+            FieldAccessor accessor = accessors.iterator().next();
+			return of(accessor.getAnnotations()).
+					filter(annotation ->
+							annotation.annotationType().equals(VirtualField.class)
+					).count() == 0;
+        }).
+		forEach((accessorByMethodNameEntry) -> {
+            Collection<FieldAccessor> accessors = accessorByMethodNameEntry.getValue();
+
+            FieldAccessor accessor = accessors.iterator().next();
+            String fieldName = extractFieldName(accessor);
+            callback.apply(accessor, map.get(fieldName));
+        });
 	}
 
 	private String extractFieldName(FieldAccessor accessor) {

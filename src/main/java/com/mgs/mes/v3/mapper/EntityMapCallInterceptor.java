@@ -76,7 +76,7 @@ public class EntityMapCallInterceptor<T extends MapEntity> implements Invocation
 			return proxy;
 		}else{
 			MapEntity copyFrom = (MapEntity) proxy;
-			Map<String, Object> domainMapCopy = new HashMap<>(copyFrom.asDomainMap());
+			Map<String, Object> domainMapCopy = new HashMap<>(copyFrom.getDomainMap());
 			domainMapCopy.put(fieldName, value);
 			return mapEntityFactory.fromMap(
 					type,

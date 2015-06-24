@@ -1,11 +1,22 @@
 package com.mgs.mes.v3.mapper;
 
+import com.mgs.mes.v4.typeParser.ParsedType;
+import com.mgs.mes.v5.VirtualField;
+
 import java.util.Map;
 
 public interface MapEntity {
-	Map<String, Object> asDomainMap();
+	@VirtualField
+	ParsedType getType();
 
-	Map<String, Object> asValueMap();
+	@VirtualField
+	Map<String, Object> getDomainMap();
 
-	boolean dataEquals(MapEntity entity);
+	@VirtualField
+	Map<String, Object> getValueMap();
+
+    @VirtualField
+    boolean isMutable();
+
+    boolean fieldsEquals(MapEntity entity);
 }

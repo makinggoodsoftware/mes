@@ -16,7 +16,7 @@ class MapEntityBasicFeatures extends Specification {
     def "should parse value and entity property" (){
         given:
         ValueEntity expectedResult = Mock(ValueEntity)
-        expectedResult.asDomainMap() >> [string:"value"]
+        expectedResult.getDomainMap() >> [string:"value"]
 
         when: "Testing value property"
         ValueEntity valueEntity = context.transform([string:"value"], ValueEntity)
@@ -45,7 +45,7 @@ class MapEntityBasicFeatures extends Specification {
     def "should parse list of values property" (){
         given:
         ListOfValuesEntity expectedResult = Mock(ListOfValuesEntity)
-        expectedResult.asDomainMap() >> [strings:["value1", "value2"]]
+        expectedResult.getDomainMap() >> [strings:["value1", "value2"]]
 
         when:
         ListOfValuesEntity result = context.transform([strings:["value1", "value2"]], ListOfValuesEntity)

@@ -1,8 +1,9 @@
 package com.mgs.mes.v3.domain
-
 import com.mgs.config.reflection.ReflectionConfig
 import com.mgs.mes.v3.OneToOne
 import com.mgs.mes.v3.mapper.*
+import com.mgs.mes.v4.EntityMapListBuilder
+import com.mgs.mes.v4.EntityMapListBuilderCaller
 import spock.lang.Specification
 
 import java.lang.reflect.Method
@@ -46,7 +47,7 @@ class MapDomainFeatures extends Specification {
         })
     }
 
-    def "should create simple shopping cart" (){
+    def "should create simple shopping cart from map" (){
         given:
         String productId = UUID.randomUUID().toString()
         String userId = UUID.randomUUID().toString()
@@ -107,7 +108,7 @@ class MapDomainFeatures extends Specification {
         ! shoppingCart.version.isPresent()
 
         when: "Retrieving user"
-        def userFromShoppingCart = shoppingCart.user.retrieve().asDomainMap()
+        def userFromShoppingCart = shoppingCart.user.retrieve().getDomainMap()
 
         then:
         userFromShoppingCart == [
@@ -116,5 +117,27 @@ class MapDomainFeatures extends Specification {
                 lastName: "Gutierrez",
                 version: Optional.empty()
         ]
+    }
+
+    def "should create simple shopping cart with builders" (){
+        when:
+        ShoppingCart shoppingCart = context.newEntity(ShoppingCart, { shoppingCart ->
+            shoppingCart.
+                withUser({ User user -> user.
+                    withFirstName("Alberto").
+                    withLastName("Gutierrez")
+                } as EntityMapBuilder).
+                withProducts({ EntityMapListBuilder<Product> builder -> builder.
+                    with({ Product product1 -> product1.
+                        withName("Mac book pro 15''")
+                    } as EntityMapBuilder).
+                    with({ Product product2 -> product2.
+                        withName("Nexus 6")
+                    } as EntityMapBuilder)
+                } as EntityMapListBuilderCaller)
+        } as EntityMapBuilder)
+
+        then:
+        shoppingCart.user.retrieve().firstName == "Alberto"
     }
 }
